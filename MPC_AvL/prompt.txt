@@ -1,0 +1,12 @@
+Please study the following text in the link I will provide after this?
+
+1. Can you summarize the text for me?
+2. Then I want you to verify with me if the summary is OK. I may point out unclarities.
+3. If I tell the summary is OK, I want you to generate six multiple choice questions based on the text I have provided and you have studied.
+The questions should have different levels of difficulty (easy, intermediate, advanced).
+I would like you to provide both the correct answer and argumentation why it is the correct answer.
+Similarly I would like you to provide why the other answer categories are incorrect.
+
+The first text I want you to study is in:
+
+https://github.com/pkuppens/my_chat_gpt/blob/main/MPC_AvL/09%20Clustering%20Variables.txt

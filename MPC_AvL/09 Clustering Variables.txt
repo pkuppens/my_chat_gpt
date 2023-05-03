@@ -1,0 +1,178 @@
+Exploratory Factor Analysis (EFA)
+Aims & Goals
+• Differentiate exploratory factor analysis techniques from other multivariate techniques.
+• Understand the six stages of applying exploratory factor analysis.
+• Identify the differences between principal component analysis and common factor analysis models.
+• Describe how to determine the number of factors to extract.
+• Explain the concept of rotation of factors.
+• Describe how to name a factor.
+• Explain the additional uses of exploratory factor analysis.
+• State the major limitations of exploratory factor analytic techniques.
+
+Overview
+• What Is Exploratory Factor Analysis?
+• A Hypothetical Example of Exploratory Factor Analysis
+• Factor Analysis Decision Process
+• Stage 1: Objectives of Exploratory Factor Analysis
+• Stage 2: Designing an Exploratory Factor Analysis
+• Stage 3: Assumptions in Exploratory Factor Analysis
+• Stage 4: Deriving Factors and Assessing Overall Fit
+• Stage 5: Interpreting the Factors
+• Stage 6: Turning Factors into variables (computing factor scores)
+• An Illustrative Example
+
+What is
+Exploratory Factor Analysis?
+• An interdependence technique whose primary purpose is to define the underlying structure among the variables in the analysis.
+• Examines the interrelationships among a large number of variables and then attempts to explain them in terms of their common underlying dimensions.
+• These common underlying dimensions are referred to as factors or components.
+• EFA is a summarization and data reduction technique that does not have independent and dependent variables but is an interdependence technique in which all variables are considered simultaneously.
+
+Exploratory Factor Analysis Decision making Process
+• Stage 1:  Objectives of Exploratory Factor Analysis (EFA)
+• Stage 2:  Designing an Exploratory Factor Analysis
+• Stage 3:  Assumptions in Exploratory Factor Analysis
+• Stage 4:  Deriving Factors and Assessing Overall Fit
+• Stage 5:  Interpreting the Factors
+• Stage 6:  Turning Factors into variables (computing factor scores)
+
+1 Objectives of EFA
+Three elements in Variable selection in EFA
+• Variable specification – researcher must specifically designate variables to be analyzed.
+• Factors are always produced – EFA always generates factors, researcher has the responsibility to evaluate the usefulness and validity of the factors.
+• Factors require multiple variables – EFA must have at least two correlated variables to form a factor.  Thus, variables which are not included in a specified factor are not “defective” in some manner, it is just that no other correlated variables were included in the analysis.
+
+Using Factor Analysis with Other Multivariate Techniques
+• Factors may identify concepts more useful than individual variables.
+• Factors help mitigate the impact of multicollinearity on the interpretation of correlated variables.
+
+Measurement level of the variables used in EFA
+• Metric variables preferred
+• Specialized methods (which we will not discuss) exist for the use of dummy variables
+• According to Hair (2019) A small number of “dummy variables” can be included in a set of metric variables that are factor analyzed.
+
+Number of variables per factor (rule of thumb)
+• If a study is being designed to reveal a factor structure, strive to have at least five variables for each proposed factor.
+
+Sample size in EFA
+• The sample must have more observations than variables.
+• The minimum absolute sample size should be 50 observations, with 100 observations the preferred minimum.
+• Increase the sample as the complexity of the factor analysis increases (i.e., number of variables and/or factors retained).
+• Strive to maximize the number of observations per variable, with a desired ratio of at least 5 observations per variable.
+• Higher communalities among the variables provides support for smaller samples sizes, all other things equal.
+
+3 Assumptions in EFA
+Statistical issues addressing multicollinearity
+• A statistically significant Bartlett’s test of sphericity (sig. < .05) indicates that sufficient correlations exist among the variables to proceed with an exploratory factor analysis.
+• More diagnostic test is the MSA  (measure of sampling adequacy).
+- Measured by the Kaiser-Meyer-Olkin (KMO) statistic that indicates if a set of variables is likely identify a good factor solution based on correlations/partial correlations.  
+- KMO statistic exists for each individual variable and an overall value that can vary from 0 to 1.0.  
+- KMO value must exceed .50 for the overall test 
+
+4 Deriving Factors and Assessing Overall Fit
+Partitioning the variance
+• Variables ideally hold variance.
+• This variance can be partitioned in 
+• Common variance
+• Unique variance
+• Specific variance
+• Error variance
+
+Common variance
+• Variance of a variable that is shared with all other variables in the analysis. 
+• Results from a variable’s correlations with all other variables in the analysis.
+• Variable communality is the estimate of its shared, or common, variance among the variables as represented by the derived factors.
+
+Unique variance
+• Specific variance
+cannot be explained by the correlations to the other variables but reflects the unique characteristics of that variable apart from the other variables in the analysis.
+• Error variance
+due to unreliability in the data-gathering process, measurement error, or a random component in the measured phenomenon.
+
+Data reduction is the primary concern in PCA
+• focusing on the minimum number of factors needed to account for the maximum portion of the total variance represented in the original set of variables.
+• prior knowledge suggests that specific and error variance represent a relatively small proportion of the total variance, or
+• the principal component results are used as a preliminary step in the scale development process.
+
+How many factors to extract?
+• In a data driven context this is not specified in advance.
+• There are criteria which can be used:
+• Kaiser Criterion
+Eigenvalue of 1.0 or greater
+• Percentage of cumulative variance
+Extract enough components to achieve a specified cumulative percentage of total variance extracted. Usually, 50%.
+
+5 Interpreting the factors
+Three processes of Factor Interpretation
+• Estimate the Factor matrix
+• Factor Rotation
+• Factor Interpretation and Respecification
+
+Three processes of Factor Interpretation
+• Estimate the Factor matrix
+• Compute unrotated factor loadings – correlation of variable and factor.
+• If used strictly for data reduction, process can stop here (usually we want to interpret results however).
+• Factor Rotation
+• Factor Interpretation and Respecification
+• evaluate the (rotated) factor loadings for each variable in order to determine that variable’s role and contribution in determining the factor structure.
+• Respecification involves eliminating variables or extract different number of factors.
+
+
+Exploratory Factor Analysis decision making process
+5 Interpreting the factors
+Rotations of factors
+• Procedure
+- The reference axes of the factors are turned about the origin until some other position has been reached. Loadings of each variable remain fixed relative to other loadings.  
+• Impact
+- The ultimate effect of rotating the factor matrix is to redistribute the variance from earlier factors to later ones to achieve a simpler, theoretically more meaningful factor pattern.
+• Alternative Methods
+- Orthogonal rotation – simplest approach which maintains orthogonality (uncorrelatedness) of factors.
+• Most common method – VARIMAX.
+- Oblique rotation – allows for correlation among rotated factors.
+• Most common method – OBLIMIN.
+
+Rotations of factors
+• Orthogonal rotation methods  . . .       
+- are the most widely used rotational methods.       
+- are the preferred method when the research goal is data reduction to either a smaller number of variables or a set of uncorrelated measures for subsequent use in other multivariate techniques.
+• Oblique rotation methods  . . .    
+- best suited to the goal of obtaining several theoretically meaningful factors or constructs because, realistically, very few constructs in the “real world” are uncorrelated.
+
+Judging the Significance of Factor Loadings
+• Factor loadings are correlations (= r) between a variable and a factor. 
+
+• Statistical Significance
+- Ensuring adequate statistical power, significant loadings can be identified by sample size.
+
+Giving the factor a name/interpretation
+• It might be useful to give the resulting factors a name so they can be easily identified.
+• You do so based on the variables that load on the factor.
+• It is a subjective interpretative process.
+
+6 Turning Factors into variables
+Various methods exist, only one is correct
+• Use highest loading variable 
+- Does not represent all ‘facets’ of a factor.
+- Prone to measurement error.
+• Calculated mean from highly loading factors  
+- Again, only a selection.
+- Not a weighted contribution.
+- Issues analyzing reliability and validity.
+
+Various methods exist, only one is correct
+• Software calculates factors scores
+- represents all variables loading on the factor.
+- Weighted scores
+- best method for complete data reduction. 
+- Disadvantages:
+- interpretation more difficult since all variables contribute through loadings. 
+- difficult to replicate across studies.
+
+Learning checkpoint
+• What are the major uses of exploratory factor analysis?
+• What is the difference between component analysis and common factor analysis?
+• Is rotation of factors necessary?
+• How do you decide how many factors to extract?
+• What is a significant factor loading?
+• How and why do you name a factor?
+• Should you use factor scores or average summated ratings in follow-up analyses?

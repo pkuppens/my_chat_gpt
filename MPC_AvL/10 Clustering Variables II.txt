@@ -1,0 +1,149 @@
+Theory Driven EFA
+Constructs, Unidimensionality, and Validity
+Aims & Goals
+• Explain what constructs are.
+• Explain what is understood by unidimensionality.
+• Identify the differences between principal component analysis and common factor analysis models.
+• Explain how factor analysis can be used to assess the unidimensionality of constructs.
+• Explain how to assess the validity of constructs
+
+Latent versus Observable variables
+Observable Variables
+• Directly and (when done properly) unambiguously measurable
+Latent (unobserved) Variables aka. constructs
+• Some things cannot be measured directly or unambiguously.
+• In those situations, we need to measure something indirectly with things that can be observed.
+• We want to do this well and careful
+• In the social sciences we often use multiple questions that touch upon the concept/construct we want to grasp.
+
+Latent (unobserved) Variables aka. constructs
+• For instance, bonding experience at a museum
+
+
+Latent (unobserved) Variables aka. constructs
+• Using more than one variable to measure a construct has quite a few advantages, amongst which, reducing the measurement error.
+• Researchers assume errors are random, so taking multiple measures, will reduce the overall measurement error.
+• However, do these additional measures, measure the same thing?
+• If not, validity is decreased!
+
+It is thus strange to use unsupervised learning
+• Supervised approaches exist in the form of Confirmatory Factor Analysis (CFA)
+• Too advanced for a bachelor degree in the social sciences
+• EFA is often used in combination with CFA
+- Dataset is split in exploratory set and confirmatory set
+
+
+EFA plays an important role in scale development
+• Theoretical constructs may … 
+- … be culturally biased
+- … not have been tested extensively enough.
+• This is part of the scale construction process and EFA plays an important role in the development and usage of these constructs.
+
+Role of EFA in scale development
+• We will use EFA to test whether we can reproduce the theoretical constructs in our own study.
+• Will our theoretical constructs be reproduced using exploratory means?
+• It is generally a good sign if they are!
+
+Why use EFA for latent constructs?
+To critical assess the measurement model
+• A measurement model expresses the totality of latent variables that are used in a model.
+
+Why use EFA for latent constructs?
+To critical assess the measurement model
+• Often more than one construct is used in a model
+• Measurement Model may include Dependent Variable if these are measured latently as well
+
+Why use EFA for latent constructs?
+To critical assess the measurement model
+• You want to critically assess this model as it may hide problems with your results.
+• You test this model before you test relations!
+
+Assessing the measurement model
+Unidimensionality, Construct Validity & Reliability
+• Essentially, we test constructs for three aspects:
+• Unidimensionality
+• Validity
+• Reliability
+
+• Unidimensionality
+- Variables, or items, only correlate with the hypothesized factor (i.e., have a high factor loading with only this factor)
+
+• Construct Validity
+Broad approach to ensure the validity of a set of items as representative for a conceptual definition:
+
+• Convergent validity
+The degree to which measures that theoretically should be related, are in fact related.
+
+• Discriminant Validity 
+Tests whether concepts or measurements that are not supposed to be related are actually unrelated.
+
+• Nomological Validity (ability to make accurate predictions)
+
+• Construct Validity
+Broad approach to ensure the validity of a set of items as representative for a conceptual definition:
+
+• Convergent validity
+When you control for cross loadings (and remove these), you are increasing the convergent validity.
+
+• Discriminant Validity 
+Determining that the Average Variance Extracted (AVE) for each construct is > . 5, ideally > 7, is an accepted way to demonstrate discriminant validity.
+
+• Construct Reliability
+We will use McDonald’s Omega to test scale reliability and internal consistency of constructs. N.B., McDonald’s Omega assumes our constructs are unidimensional!
+
+• Construct Reliability
+Besides mentioning McDonald’s Omega, it is also good practice to report on the Average Variance Extracted (AVE).
+
+Principal Axis Factoring (PAF)
+Produces Factors rather than Components
+• Though particularly with larger samples the results of PAF and PCA tend to be similar, under the hood they work quite differently.
+
+• PCA is a linear combination of variables
+Communalities are assumed to be 1 (No error variance!) 
+
+• PAF is a measurement model of a latent variable
+Communalities are determined by common variance
+
+Partitioning the variance
+• Variables ideally hold variance.
+• This variance can be partitioned in 
+• Common variance
+• Unique variance
+• Specific variance
+• Error variance
+
+
+Principal Axis Factoring (PAF)
+PAF is a measurement model of a latent variable
+
+Why prefer PAF over PCA in this context?
+• Because we are using a theory driven approach
+• Our goal is to create latent variables
+• Most of the time Likert items are used:
+• Ordinal, which are often skewed
+• Prone to measurement error
+• A technique is preferred that deals better with the above problems.
+
+Using PAF to test for unidimensionality
+• In order to supervise the PAF process we need a set of rules to monitor and base decisions on.
+• Ideally, the result reproduces the theoretical scales perfectly immediately.
+• In practice, this is not always the case:
+• Cultural bias, biased sample, the scale itself is not fully developed, new combination of scales, etc.
+
+Rules
+• Our results must meet the following criteria:
+• Total variance explained ? 50% (ideally ? 60%).
+• We fix the number of factors to the number of theoretical scales we measure.
+• We remove variables/items/indicators with factor loadings <.4 (ideally < .5).
+• We remove variables/items/indicators with factor cross-loadings.
+• We remove variables/items/indicators that load on a different theoretical indicator (if such a factor is found at all).
+• We prefer the minimum number of items per scale to be 3 (ideally > 3).
+• Based on the above, sometimes we are forced to remove a particular scale altogether. It is simply not empirically reproduced in our data.
+
+Learning checkpoint
+• How can FA be used to test theoretical constructs?
+• What is the difference between component analysis and common factor analysis?
+• What is unidimensionality?
+• What type of validity can be distinguished in the context of scales?
+• How is reliability different from validity?
+• What are possible causes for poor scale reliability, validity and unidimensionality?

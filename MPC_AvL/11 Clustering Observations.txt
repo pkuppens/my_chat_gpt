@@ -1,0 +1,217 @@
+Aims & Goals
+• Define cluster analysis, its roles and its limitations.
+• Identify the types of research questions addressed by cluster analysis.
+• Understand how interobject similarity is measured.
+• Understand why different distance measures are sometimes used.
+• Understand the differences between hierarchical and nonhierarchical clustering techniques.
+• Know how to interpret the results from cluster analysis.
+• Follow the guidelines for cluster validation.
+
+What is Cluster analysis?
+Definition
+• Groups objects (e.g., respondents, products, or other entities) so that object in the same cluster are similar and different from objects in other clusters.
+• A technique which allows researchers to objectively search for a “natural” structure among the observations based on a multivariate profile.
+
+
+• The cluster variate, the set of clustering variables, is defined (chosen) by you as a researcher.
+• Situations in research occur that are best resolved by defining groups of homogeneous objects.
+• Segmentation
+• Classification
+• Data reduction
+• Hypothesis generation
+
+Segmentation
+• Research into personas for instance, which is sometimes very useful in marketing cases.
+
+Classification
+• Similarly, 
+• in psychology, it is sometimes relevant to identify psychological personality clusters.
+• In biology, to derive taxonomies in order to help group living organisms.
+• In business studies, help identify groups of businesses based on their dynamic properties.
+
+Data Reduction
+• Big Data may generate so much of it that it sometimes becomes necessary to manage the observations into clusters.
+• Cluster analysis can reduce data in an objective manner by reducing information about an entire population to information about a specific group.
+
+Hypothesis Generation
+• A researcher may wish to hypothesize about the nature of the data (s)he is examining. For instance hypotheses about the demographic properties of different groups of leisure participants. Cluster analysis is capable of identifying such groups based on people’s preferences, and these groups can be used to test hypotheses about their properties.
+
+Cluster Analysis Requires strong Conceptual Support!
+It is easy to criticize the existence of clusters…
+• Cluster analysis is descriptive, a-theoretical, and non –inferential.
+• Cluster analysis will always create clusters, regardless of the actual existence of any structure.
+• The cluster solution is not generalizable because it is totally dependent upon the cluster variate.
+
+Cluster Analysis Requires strong Conceptual Support!
+Cluster analysis is descriptive, a-theoretical, and non –inferential.
+• There is no statistical basis and some will say it is just an exploratory technique.
+• Many elements can influence its result, and changing just one or more elements can lead to a different result in many different solutions.
+
+Cluster analysis will always create clusters, regardless of the actual existence of any structure in the data.
+• You as a researcher should remember that just because a cluster is found, it by no means validates their existence.
+• There’s no p-test, no criterion. There’s a cluster and if you want to somehow validate its existence, you must have some conceptual support.
+
+The cluster solution is not generalizable because it is totally dependent upon the variables used as the basis for the similarity measure.
+• Criticism could apply to any statistical technique
+• Cluster analysis is specifically dependent on the measures used to characterize the objects than other multivariate techniques.
+• The addition of spurious variables or the deletion of relevant variables can have a substantial impact on the resulting solution (like in any…).
+
+Prediction versus Explanation
+Two fundamentally different approaches to data analysis
+• No “best” approach, each has strengths and weaknesses.
+• Analysts today must assess each research situation and identify the best modeling approach for that specific situation (i.e., objective, data, etc.).
+
+
+Definition repeated…
+• a group of multivariate techniques whose primary purpose is to group objects based on the characteristics they possess.
+• Field defines it as: Cluster Analysis is a way of grouping cases of data based on the similarity of responses to several variables.
+
+How does cluster analysis work?
+Essentially everything comes down to similarity
+We seek to minimize variation within clusters
+Whilst maximizing variation between clusters
+
+Main question: How many clusters?
+There are no objective criteria!
+
+A decision making process can help
+Cluster Analysis Decision Process
+• Stage 1: Objectives of Cluster Analysis
+• Stage 2: Research Design in Cluster Analysis
+• Stage 3: Assumptions in Cluster Analysis
+• Stage 4: Deriving Clusters and Assessing Overall Fit
+• Stage 5: Interpretation of the Clusters
+• Stage 6: Validation and Profiling of the Clusters
+
+
+Cluster Analysis Decision Process
+1. Objectives of Cluster Analysis
+You cluster observations for a reason
+• You will have to think about which variables to use to characterize objects in the clustering process?
+
+Theoretical, conceptual and practical considerations in variable selection
+• Only variables that relate specifically to objectives of the cluster analysis should be included.
+• Variables are selected which characterize the individuals (objects) being clustered.
+• Remember: Cluster Analysis always reaches a solution.
+• The process does not exclude “irrelevant” variables once it has started.
+
+Types of variables included
+• Can employ either metric or non-metric, but generally not in mixed fashion: 
+• Stick to using one variable type 
+(continuous and binary can be mixed, if standardized first)
+• Multiple measures of similarity for each type exist:
+• We stick to the most used: Squared Euclidian Distance
+[reason: better for Ward’s method of clustering and takes up less processing power].
+Cluster Analysis Decision Process
+
+Number of Clustering Variables
+• Can suffer from “curse of dimensionality” when large number of variables analyzed.
+• Can have impact with as few as 20 variables.
+
+Curse of Dimensionality
+• Essentially the calculation of proximity/similarity becomes untenable as the dimensionality increases since the distance to even the most similar cases becomes less distinguishable from the majority of points.
+
+Relevancy of Clustering Variables
+• No internal method of ascertaining the relevancy of clustering variables.
+• Researcher should always include only those variables with strongest conceptual support.
+
+Is the sample size adequate?
+• The sample size required is not based on statistical considerations for inference testing, but rather:
+• Sufficient size is needed to ensure representativeness of the population and its underlying structure.
+• Of particular interest is the ability to detect small groups within the population.
+• Minimum group sizes are based on the relevance of each group to the research question and the confidence needed in characterizing that group.
+
+Is the sample size adequate?
+• Increasing sample size (e.g., 1000 observations), however, may pose problems for hierarchical clustering methods and require “hybrid” approaches such as two-step cluster analysis.
+
+Outliers
+• Outliers can severely distort the representativeness of the results if they appear as structure (clusters) that are inconsistent with the research objectives. Two options:
+• Remove when they are deviant observations not representative of the population, or when they are small and insignificant segments of the population.
+• Retained when they are important but under-sampled/poorly represented. Then you should try to find more observations when this is possible.
+
+Measuring interobject similarity
+• Interobject similarity
+• An empirical measure of correspondence, or resemblance, between objects to be clustered. 
+• Calculated across the entire set of clustering variables to allow for the grouping of observations and their comparison to each other.
+• Different methods most widely used in applications of cluster analysis: 
+• Distance measures – most often used (Euclidean = straight line).
+• Correlational measures – less often used as they measure patterns, not distance.
+• Association measures – applicable for non-metric clustering variables (e.g., Chi2).
+• Log-likelihood – when using a combination of metric and non-metric variables.
+• Researchers are advised to try various measures to see which works best.
+
+Data Standardization
+• Some of the interobject measures are very susceptible to variables that are measured on different scales.
+• Clustering variables should be standardized if necessary.
+• Most common is Z-score standardization.
+
+Three assumptions
+Structure Exists
+• Since cluster analysis will always generate a solution, researcher must assume that a “natural” structure of objects exists which is to be identified by the technique.
+Representativeness of the Sample
+• Must be confident that the obtained sample is truly representative of the population.
+Impact of multicollinearity
+• Multicollinearity among subsets of variables is an implicit “weighting” of the clustering variables. (Factor Analysis could be useful.)
+
+Two basic approaches to Partitioning Observations
+Hierarchical
+Most common approach is where all objects start as separate clusters and then are joined sequentially such that each step forms a new cluster joining by two clusters at a time until only a single cluster remains.
+
+Non-hierarchical (e.g., K-means)
+the number of clusters is specified by the analyst and then the set of objects are formed into that set of groupings.
+
+
+Hierarchical clustering
+Usually, an agglomerative approach is used
+The hierarchy is built-up: Buildup: all observations start as individual clusters and are joined together sequentially.
+
+A multi-step process
+• Start with all observations as their own cluster.
+• Using the selected similarity measure and agglomerative algorithm, combine the two most similar observations into a new cluster, now containing two observations.
+• Repeat the clustering procedure using the similarity measure/agglomerative algorithm to combine the two most similar observations or clusters (i.e., combinations of observations) into another new cluster.
+• Continue the process until all observations are in a single cluster. (Stops at 2 clusters, as a 1-cluster solution is basically an average of all variables)
+
+Agglomerative clustering algorithms
+All clustering algorithms start in the same manner with the first observation they come across. 
+This implies that the way data is ordered ALWAYS influences the results!
+Strong suggestion to randomly order data prior to clustering!
+
+Determining the number of clusters
+Principle
+clusters become more heterogeneous (more diverse) the fewer clusters there are.
+Substantive increases in heterogeneity indicate relatively distinct clusters.
+In the end a matter of comparing different solutions.
+Perhaps 4 is the sweet spot, but you will only know if you also compare 3 and 5 cluster-solutions.
+
+Non-Hierarchical clustering
+Requires knowledge of how many clusters you need.
+Therefor often preceded by hierarchical clustering analysis.
+It determines cluster centers and then proceeds to produce clusters (usually better than hierarchical).
+
+Which to use?
+We will focus on two approaches here:
+• A combination of Hierarchical & non-hierarchical approaches, where the former determines the number of clusters, and the latter creates the clusters.
+• TwoStep approach, which appears to have the most upsides and fewest downsides.
+
+5. Cluster Interpretation
+How to name the different clusters?
+• Like in data driven Factor analysis, it makes sense to interpret the results and give meaningful names.
+• It involves looking at the centroids on each variable within each cluster. Relatively high  or low loadings compared to other clusters. Where do the values gravitate towards to in combination?
+
+How to validate clusters?
+• Validation is essential in cluster analysis since the clusters are descriptive of structure and require additional support for their relevance.
+Two approaches
+• Cross-validation – empirically validates a cluster solution by creating two sub-samples (randomly splitting the sample) and then comparing the two cluster solutions for consistency with respect to number of clusters and the cluster profiles.
+• Criterion validity – achieved by examining differences on variables not included in the cluster analysis but for which there is a theoretical and relevant reason to expect variation across the clusters. 
+
+How to profile a cluster solution?
+• Describing the characteristics of each cluster on a set of additional variables (not the clustering variables) to further understand the differences between clusters
+• Examples include descriptive variables (e.g., demographics) as well as other outcome-related measures.
+• Provides insight to researchers as to nature and character of the clusters.
+• Clusters should differ on these relevant dimensions. This typically involves the use of discriminant analysis or ANOVA. 
+
+Learning checkpoint
+• Why might we use cluster analysis?
+• What are the three major steps in cluster analysis?
+• How do you decide how many clusters to extract?
+• Why do we validate clusters?
