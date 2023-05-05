@@ -32,7 +32,6 @@ It is thus strange to use unsupervised learning
 • EFA is often used in combination with CFA
 - Dataset is split in exploratory set and confirmatory set
 
-
 EFA plays an important role in scale development
 • Theoretical constructs may … 
 - … be culturally biased

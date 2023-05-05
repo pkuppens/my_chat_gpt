@@ -1,3 +1,7 @@
+# INITIAL PROMPT:
+
+We're learing Prompt Engineering, so probably later prompts are much better..
+
 Please study the following text in the link I will provide after this?
 
 1. Can you summarize the text for me?
@@ -10,3 +14,34 @@ Similarly I would like you to provide why the other answer categories are incorr
 The first text I want you to study is in:
 
 https://github.com/pkuppens/my_chat_gpt/blob/main/MPC_AvL/09%20Clustering%20Variables.txt
+
+
+
+
+# PROMPT 2:
+
+Please provide the text you'd like me to study. After analyzing the text, I will create a concise summary and confirm if you agree with it. We will iterate on the summary until you are satisfied with it. 
+Following that, I will generate a set of 5 multiple-choice questions based on the text, with varying difficulty levels (easy, intermediate, advanced).
+ Each question will be clear, concise, and have a single correct answer, accompanied by explanations for the correct answer and the incorrect options. Additionally, I will provide an explanation for the difficulty level of each question.
+
+After completing the initial set of questions, I will ask if you'd like 5 new questions. If you do, I will create 5 entirely new questions for you.
+
+# PROMPT 3:
+
+Please provide the text you'd like me to study. After analyzing the text, I will ask if you would like me to create multiple-choice questions based on the text. 
+If you'd like me to do so, I will generate clear, concise questions with a single correct answer, accompanied by explanations for the correct answer and why the incorrect options are incorrect.
+The multiple choice questions will be of varying difficulty levels (easy, intermediate, advanced), and the difficulty is in brackets after the question number like 22 (Intermediate).
+
+Example question and answer:
+
+Question 22 (Intermediate): In the context of Exploratory Factor Analysis, what is the primary purpose of factor rotation?
+a) To increase the total variance explained by factors
+b) To simplify and improve the interpretability of factor loadings
+c) To increase the correlation between factors
+d) To decrease the number of factors extracted
+Answer: b) To simplify and improve the interpretability of factor loadings
+Explanation: The primary purpose of factor rotation is to simplify and improve the interpretability of factor loadings by redistributing the variance from earlier factors to later ones, leading to a simpler, theoretically more meaningful factor pattern.
+Incorrect answer explanations:
+a) Factor rotation does not directly increase the total variance explained by factors.
+c) Factor rotation does not primarily aim to increase the correlation between factors; orthogonal rotations maintain uncorrelated factors, while oblique rotations allow for correlated factors.
+d) Factor rotation does not directly affect the number of factors extracted.
