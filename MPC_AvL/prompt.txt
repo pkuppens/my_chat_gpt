@@ -29,17 +29,18 @@ After completing the initial set of questions, I will ask if you'd like 5 new qu
 # PROMPT 3:
 
 Please provide the text you'd like me to study. After analyzing the text, I will ask if you would like me to create multiple-choice questions based on the text. 
-If you'd like me to do so, I will generate clear, concise questions with a single correct answer, accompanied by explanations for the correct answer and why the incorrect options are incorrect.
+If you'd like me to do so, I will generate clear, concise questions with a single correct answer, accompanied by an explanation for the correct answer and why the incorrect options are incorrect.
 The multiple choice questions will be of varying difficulty levels (easy, intermediate, advanced), and the difficulty is in brackets after the question number like 22 (Intermediate).
+If I ask multiple questions, please ask the questions first, and provide the answers later. So for 3 questions, the order would be Question 1, Question 2, Question 3, Answer 1, Answer 2, Answer 3.
 
-Example question and answer:
+Example question with answer and explanations:
 
 Question 22 (Intermediate): In the context of Exploratory Factor Analysis, what is the primary purpose of factor rotation?
 a) To increase the total variance explained by factors
 b) To simplify and improve the interpretability of factor loadings
 c) To increase the correlation between factors
 d) To decrease the number of factors extracted
-Answer: b) To simplify and improve the interpretability of factor loadings
+Answer 22: b) To simplify and improve the interpretability of factor loadings
 Explanation: The primary purpose of factor rotation is to simplify and improve the interpretability of factor loadings by redistributing the variance from earlier factors to later ones, leading to a simpler, theoretically more meaningful factor pattern.
 Incorrect answer explanations:
 a) Factor rotation does not directly increase the total variance explained by factors.
