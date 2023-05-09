@@ -1,0 +1,169 @@
+Aims & Goals
+• Familiarize you with the field of Data Science and the position of multivariate statistics therein.
+• Contextualize the field of Data Science in a historical setting.
+• Clarify the difference between prediction and explanation
+• Introduce relevant concepts that are used in the field (e.g., Big Data, (un)supervised learning, overfitting, etc.)
+• Get a very basic idea of how machine learning works
+• Understand the fundamentals of multivariate data analysis
+
+Data Science (what is)
+• Essentially ‘data science’ is any activity related to:
+• Collecting, preparing and processing data
+• Analysing data
+• Presenting data
+
+Data Science (interdisciplinarity)
+• Often referred to as an interdisciplinary field, because of the many practices, specialisations and fields involved. 
+• Think of:
+- Business intelligence officer managing data streams within a company
+- Social scientist testing a theoretical model
+- Data storyteller developing visualizations
+
+Data Science (specializations)
+• Expertise people specialize in varies:
+- Math & Statistics
+Machine learning, statistical modelling, experiment design, supervised learning, …
+- Programming & Database management
+Computer science fundamentals, Scripting languages (e.g. Python), database SQL, …
+- Domain knowledge & Soft skills
+Data mindedness and passion for the field you work in
+- Communication & Visualization
+Storytelling skills, visual art design, proficiency in e.g. R, Tableau, PowerBI, …
+
+Data Science (history)
+Three converging trends
+• From the previous three converging trends can be identified (Hair et al., 2019):
+• Rise of Big Data
+• Statistical Versus Data Mining Models (a.k.a. Prediction versus Explanation)
+• Causal Inference
+
+The rise of Big Data
+Unique elements of Big Data focused in five areas:
+
+• Volume
+• Variety
+• Velocity
+• Veracity
+• Variability and Value
+
+The rise of Big Data Impacts on:
+• Organizational Decisions and Academic Research
+Improved decision-making capabilities as well as the explosion of data available to characterize situations on dimensions never before available
+• Analytics and the Analyst
+Expansion of the domains of study embracing analytics as well as methodological challenges due to seemingly “unlimited” data
+The rise of Big Data
+Problems in Big Data use:
+• Ethical concerns
+• Sociological & psychological
+privacy, security, political disruption, invasive commercial strategies, social stratification, etc.
+• Technological (When we let data ‘talk’ we…)
+Replacing causation with correlation, sampling bias, ignoring spurious relations, overrating accuracy by ignoring false positives
+
+Prediction versus Explanation
+New techniques have allowed for new approaches
+• Two important articles
+- Breiman, L. (2001). Statistical Modeling: The Two Cultures (with comments and a rejoinder by the author). Statistical Science, 16(3), 199–231. https://doi.org/10.1214/ss/1009213726
+- Shmueli, G. (2010). To Explain or to Predict? Statistical Science, 25(3), 289–310. https://doi.org/10.1214/10-sts330
+
+• Simplified message
+• Traditional conceptual models are unnecessarily limiting.
+• Prediction is sometimes more important than explanation.
+
+Two fundamentally different approaches to data analysis
+• Statistical/data models
+Analysis where a specific model is proposed (e.g., dependent and independent variables to be analyzed by the general linear model), the model is then estimated, and a statistical inference is made as to its generalizability to the population through statistical tests. 
+• Data mining/algorithmic models
+Models based on algorithms (e.g., neural networks, decision trees, support vector machine) that are widely used in many Big Data applications. Their emphasis is on predictive accuracy rather than statistical inference and explanation.
+
+Two fundamentally different approaches to data analysis
+• Statistical/data models
+Analysis where a specific model is proposed (e.g., dependent and independent variables to be analyzed by the general linear model), the model is then estimated, and a statistical inference is made as to its generalizability to the population through statistical tests. 
+• Data mining/algorithmic models
+Models based on algorithms (e.g., neural networks, decision trees, support vector machine) that are widely used in many Big Data applications. Their emphasis is on predictive accuracy rather than statistical inference and explanation.
+
+Two fundamentally different approaches to data analysis
+• No “best” approach, each has its strengths and weaknesses.
+• Analysts today must assess each research situation and identify the best modeling approach for that specific situation (i.e., objective, data, etc.).
+
+Problems of generalisability
+Dilemma of a scientist using black box algorithms
+My black box is a white supremacist!
+
+Causal Inference
+Attempts to move beyond statistical inference in non-experimental situations
+• Temporal sequencing
+• must come before Y
+• Non-spurious relationship
+The relationship between X and Y cannot occur by chance alone
+• Eliminate alternate causes
+There is no other intervening or unaccounted for variable that is responsible for the relationship between X and Y
+
+Causal Inference
+Attempts to move beyond statistical inference in non-experimental situations
+• While causal statements have been primarily conceived as the domain of randomized controlled experiments, recent developments have provided researchers with . . .
+- the theoretical frameworks for understanding the requirements for causal inferences in non-experimental settings.
+- some techniques applicable to data not gathered in an experimental setting that still allow some causal inferences to be drawn.
+
+Statistical learning
+An element of Data Science which synthesises the two model building cultures (James et al. 2021)
+• It refers to the vast set of tools for understanding data
+• Tools can be classified as
+- Supervised
+Statistical models for predicting, or estimating, an output based on one or more inputs.
+- Unsupervised
+Models where there are inputs, but no supervising output. However, we can still learn from such models. (e.g., clustering problems)
+
+Deeper insights into Machine Learning
+• ML is a subset of artificial intelligence that addresses the question of how to build computers that improve automatically through experience (Jordan & Mitchell, 2015)
+• Keep in mind that in the end even ML techniques and algorithms are based on math and probability principles (thus are in basis a part of statistical learning).
+• Seek to organize complex datasets in terms of some attribute there is particular interest in (= classification)
+• Looks for regularities in the database that will allow it to build a decision tree
+• Focus on Function Approximation Problems
+- Task is embodied in a function
+- Given an input, a label must be outputted
+- Learning problem is to improve the accuracy of the function
+
+Jordan & Mitchell (2015)
+Example of a function
+Supervised learning in an ML context
+• Consist of input layer > one or more hidden layers > output layer
+• They are not programmed with task-specific rules = they learn how to recognize things based on previous examples
+• They do not have previous knowledge on the objects they are shown, they identify characteristics based on examples
+
+Bermúdez (2014)
+• Each artificial neuron has a weight.
+• This weight adjusts with the learning process, leading to some characteristics being more important to the determination process than others.
+• The output is computed by a network-specific function using the sum of its results from each node.
+
+Unsupervised learning in an ML context
+• Used primarily to reduce large datasets (e.g., detect partitions in data / Reduce dimensionality of data)
+
+Complexity of neural networks in 2022
+META AI (META is the company behind Facebook) released a large language model (OPT-175B) for the purpose of natural language processing research
+Imagine the kind of computational power (& cost) involved…
+
+
+Multivariate Analysis
+• All statistical techniques that simultaneously analyze multiple measurements on individuals or objects under investigation. Thus, any simultaneous analysis of more than two variables can be loosely considered multivariate analysis.
+• Many multivariate techniques are extensions of univariate and bivariate procedures
+- Bivariate regression > Multiple regression
+- ANOVA > MANOVA
+Multivariate Analysis
+• Many other techniques we will discuss are uniquely multivariate
+- E.g., Factor analysis, cluster analysis
+
+Basic concepts of Multivariate Analysis
+• The (multi)Variate
+• Measurement Scales
+• Measurement Error and Multivariate Measurement
+
+Measurement error
+• Consider related future topics such as
+- Examining your data
+- Checking assumptions for the various tests.
+
+Summary
+• The field of data science is diverse and involves many specializations including data collection, data management, data analysis, reporting.
+• Big Data’s five V’s
+• Analysis involves supervised and unsupervised learning.
+• Multivariate Statistics is about analyses using more than two variables

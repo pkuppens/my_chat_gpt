@@ -1,0 +1,399 @@
+Aims & Goals
+Partly refresh, partly new:
+• Select the appropriate graphical method to examine the characteristics of the data or relationships of interest.
+• Assess the type and potential impact of missing data.
+• Understand the different types of missing data processes.
+• Explain the advantages and disadvantages of the approaches available for dealing with missing data.
+• Identify univariate, bivariate, and multivariate outliers.
+• Test your data for the assumptions underlying most multivariate techniques.
+• Determine the best method of data transformation given a specific problem.
+• Identify disengaged respondents.
+
+Overview
+• The Challenge of Big Data Research Efforts
+• Preliminary Examination of the Data
+• Missing Data
+• Outliers
+• Testing the Assumptions of Multivariate Analysis
+• Data Transformations
+• An Illustration of Testing the Assumptions Underlying Multivariate Analysis
+• Checking the engagement of your respondents.
+
+The Challenge of Big Data Research Efforts
+Data Management
+• Many consider most daunting challenge
+• Many times majority of research effort expended in this task
+• Complexity arises from . . .
+• Merging disparate sources of data
+• Use of unstructured data (e.g., scraped social media data)
+Data Quality
+• True “value” of analysis may rest in data quality
+• Conceptualized in eight dimensions:
+• Completeness, 
+• Availability and accessibility,
+• Currency (Is data still ‘fresh’/up to date? Sometimes also refers to ‘in time’), 
+• Accuracy, 
+• Validity (Was data gathered correctly, to the rules, correct procedures, etc.), 
+• Usability and interpretability, 
+• Reliability and credibility, and (consistency, similar results in similar conditions)
+• Consistency.
+• Many times, “hidden” in basic nature of the data (Invest time in your data!)
+
+Preliminary Examination
+• the use of multivariate techniques places an increased burden on the researcher to understand, evaluate, and interpret complex results.
+• This complexity requires a thorough understanding of the basic characteristics of the underlying data and relationships.
+
+Many tools are available
+• Fundamental tool in data examination is graphical examination
+
+Univariate profiling, examining the shape of the distribution:  
+• Histogram
+• Box & Whisker plot
+• Stem and Leaf plot
+• Frequency Table
+
+Bivariate profiling, relationships are best viewed using:  
+• Scatterplot matrix
+• Outliers
+
+Examining your data
+Graphical Examination
+Use of Timelines in Longitudinal Studies
+
+Missing Data
+Many tools are available
+• The Impact of Missing Data
+• Recent Developments in Missing Data Analysis
+• A Four-Step Process for Identifying Missing Data and Applying Remedies
+• An Illustration of Missing Data Diagnosis with the Four-Step Process
+
+What is Missing Data?
+• It means information is not available for a subject (or case) about whom other information is available.  Typically occurs when respondent fails to answer one or more questions in a survey.
+• Systematic?
+• Random?
+
+Missing Data
+Researcher’s Concern regarding Missing Data
+• To identify the patterns and relationships underlying the missing data in order to maintain as close as possible to the original distribution of values when any remedy is applied.
+
+Impact of Missing Data
+• Missing data can reduce the sample size.
+• Generally, you want to do all analyses for a specific study using the same sample.
+• When tests differ in sample size because of the variables used, can those tests be used together?
+• Can distort results (e.g., if higher income brackets do not provide info and others so)
+
+Recent Developments in Missing Data Analysis
+• Because of the problems related to Missing Data, new model-based techniques have been developed to deal with these problem.
+• For us, right now, it is important to first identify the types and extent of missing data.
+
+Four-Step Process for Identifying Missing Data
+• Step 1:  Determine the Type of Missing Data
+• Step 2:  Determine the Extent of Missing Data
+• Step 3:  Diagnose the Randomness of the Missing Data Processes
+• Step 4:  Select the Imputation Method
+
+Examining your data Missing Data
+Step 1:  Determine the Type of Missing Data
+• Ignorable Missing Data – expected and part of research design.
+• Sample – problematic in non-random samples!
+• Part of data collection – e.g., skip patterns or routing.
+• Censored data – some data not yet observed (e.g., survival data).
+• Not Ignorable Missing Data – data which must be addressed in the analysis.
+• Known process – identified due to procedural factors (e.g., data entry or data management).
+• Unknown process – primarily related to respondent, but important characteristic is level of randomness (e.g., sensitive controversial information).
+
+• Three levels of missingness (Newman, 2014):
+• Item-level – missing data for individual variable.
+• Construct-level – missing data for entire set of questions about a specific construct.
+• Person-level – missing data related to individual’s willingness or ability to provide responses. 
+
+Step 2: Determine the Extent of Missing Data
+• Basic question: Is the extent or amount of missing data low enough to not affect the results, even if it operates in a nonrandom manner?
+• Levels of analysis: percentage of data missing by . . . 
+• Variable – common form of assessment.
+• Case – amount of missing data across all variables by case.
+• Guidelines for deleting variables and/or cases:
+• 10 percent or less generally acceptable – cases or observations with 10% or less are open to any imputation strategy.
+• Sufficient sample size – be sure missing data remedy provides adequate sample size.
+• Cases with missing data for dependent variable(s) typically are deleted.
+• When deleting a variable, ensure that alternative variables, hopefully highly correlated, are available to represent the intent of the original variable.
+• Perform the analysis both with and without the deleted cases or variables.
+
+Step 3: Diagnose the Randomness of the Missing Data
+• Levels of Randomness of the Missing Data Process
+
+- Missing Data at Random (MAR)
+• missing values of Y depend on X, but not on Y. 
+• Example – When there are more missing values for household income for males than for females.
+
+- Missing Completely at Random (MCAR)
+• observed values of Y are truly a random sample of all Y values.
+• Example – When there are equal amounts of missing values for household income for both males and females.
+
+- Not Missing at Random (NMAR)
+• Distinct non-random pattern of missing data.
+• Non-random pattern not related to any other variables.
+• Example – all individuals with high household income had missing data. 
+
+• t test of Missingness
+• Test of differences between cases with missing data versus not missing data on other variables:
+• For specific variable (e.g., X1), create two groups of cases – cases with missing values on X1 and those with valid values on X1
+• Compare these two groups with a t test for differences on other variables in the analysis (e.g., X2, X3 ….)
+• Differences indicate MAR processes, no differences indicate MCAR processes.
+• Why is relevant to distinguish between MAR or MCAR?
+• Useful for selecting remedy, but less impactful when using model-based methods.
+
+Step 4:  Select the Imputation Method
+IF MCAR, several approaches available:
+• Using only valid data
+• Complete case approach
+
+Use only cases with no missing data (LISTWISE deletion in SPSS).
+• Using all-available data
+
+Calculate imputed values based on all valid PAIRWISE information.
+• Using known replacement data
+
+The principal advantage is that once the replacement values are substituted, all observations are available for use in the analysis.
+• Hot Deck Imputation - The value comes from another observation in the sample that is deemed similar
+• Cold Deck imputation - Derives the replacement value from an external source (e.g., prior studies, other samples).
+• Case substitution - entire observations with missing data are replaced by choosing another non-sampled observation. A common example is to replace a sampled household that cannot be contacted or that has extensive missing data with another household not in the sample, preferably similar to the original observation.
+• Calculating replacement values
+• Mean substitution - replaces the missing values with the mean value of that variable calculated from all valid responses.
+• Regression imputation - predict the missing values of a variable based on its relationship to other variables in the dataset.
+
+IF MAR, best remedy is some form of model-based approach. There are two forms:
+• Maximum likelihood and Estimation Methodology (EM):
+• Single step process of missing data estimation and model estimation.
+• No imputation for individual cases, rather direct estimation of means and covariance matrix.
+• Multiple imputation:
+• Estimation of imputed values for missing data of individual cases by specified model.
+• Calculates multiple sets of imputed values, each set varying by adding a random element to imputed values and then forming a separate dataset for estimation.
+• Model estimates made for each imputed dataset and then combined for final model estimates.
+• Choosing between maximum likelihood and multiple imputation:
+• Multiple imputation uses conventional techniques for model estimation while maximum likelihood limited in applicable methods.
+
+Missing Data Conclusion
+Doing something about Missing Data is a constantly  asking yourself: “What is worse…”
+• A lower N? or
+• Possibly incorrectly imputed data?
+• Remember to always analyze the source of the missing data first, before making decisions!
+
+Some rules of thumb…
+Extent of missing data:
+• Under 10%  – Any of the imputation methods can be applied, complete case method has been shown to be the least preferred.
+• 10% to 20% – all-available, hot deck case substitution, and regression methods most preferred for MCAR data, whereas model-based methods are necessary with MAR missing data processes.
+• Over 20% – if necessary, the preferred methods are:
+• The regression method for MCAR situations.
+• Model-based methods when MAR missing data occur.
+
+Type of missing data process:
+• MCAR – any imputation method can provide unbiased estimates if MCAR conditions met, but the model-based methods are preferred.
+• MAR – only model-based methods.
+
+Outliers
+Outliers, or anomalies in the jargon of data mining, are observations with a unique combination of characteristics identifiable as distinctly different from what is “normal.”
+However, what is “normal” is not very easy to determine in this age of big data and data mining!
+
+Is the observation/response representative of the population?
+• Pre-analysis Context: A Member of a Population.
+• Focus is on each case as compared to the other observations under study.
+• Outliers are generally those observations that have extremely different values on one or a combination of variables.
+• Requires extensive domain knowledge by the researcher to be able to determine whether an observation should be retained as a member of a representative sample or designated as an outlier.
+
+Is the observation/response representative of the population?
+• Post-analysis Context: Meeting Analysis Expectations.
+• defines “normal” as the expectations (e.g., predicted values, group membership predictions, etc.) generated by the analysis of interest.
+• Outlier designation occurs only after the analysis has been performed and we identify those observations for which the analysis did not perform well.
+• The analysis thus is the basis for defining an observation as an outlier!
+
+Practical Impacts
+• Can have substantial impact on the results of any analysis.
+
+Substantive Impacts
+• Non-representative outliers can distort results and lame them less generalizable to the population.
+
+Outliers– Good or Bad?
+Outliers cannot be categorically characterized as either beneficial or problematic, but instead must be viewed within the context of the analysis and should be evaluated by the types of information they may provide.
+• Good – Outliers may be indicative of characteristics of the population that would not be discovered in the normal course of analysis.
+• Bad – Outliers distort results and impact generalizability.
+Which one depends on context and objectives of the research.
+
+Practical Impacts
+• Can have substantial impact on the results of any analysis.
+
+Substantive Impacts
+• Non-representative outliers can distort results and make them less generalizable to the population.
+
+Outliers– Good or Bad?
+Outliers cannot be categorically characterized as either beneficial or problematic, but instead must be viewed within the context of the analysis and should be evaluated by the types of information they may provide.
+• Good – Outliers may be indicative of characteristics of the population that would not be discovered in the normal course of analysis.
+• Bad – Outliers distort results and impact generalizability.
+Which one depends on context and objectives of the research.
+
+Classifying Outliers (Aguinis et al., 2013)
+Types of impacts of outliers
+• Error outliers – differ from expected values generated by the analysis.
+• Interesting outliers – different enough to generate insight into the analysis.
+• Influential outliers – different enough to substantively impact the results.
+
+Reasons for Outlier Designation
+• Procedural Error.
+• Extraordinary Event.
+• Extraordinary Observations.
+• Observations unique in their combination of values.
+
+Detecting Univariate Outliers
+• Examine all metric variables to identify unique or extreme observations.
+• Standardize data and then identify outliers in terms of number of standard deviations.
+• For small samples (80 or fewer observations), outliers typically are defined as cases with standard scores of 2.5 or greater.
+• For larger sample sizes, increase the threshold value of standard  scores up to 4.
+• If standard scores are not used, identify cases falling outside the ranges of 2.5 versus 4 standard deviations, depending on the sample size.
+
+Detecting Multivariate Outliers
+• Mahalanobis Distance
+• It is a multi-dimensional generalization of the idea of measuring how many standard deviations away P is from the mean of distribution D.
+• In short, it measures distance.
+
+Mahalanobis Distance in SPSS
+SPSS offers no direct way to calculate the Mahalanobis Distance. We need to take two steps:
+• Calculate the distance (hidden in Linear regression).
+• Calculate whether the distance is significant.
+We will use the .001 criterion (fewer outliers).
+
+Outliers General process
+In general,
+• Check the source of the outlier.
+• Determine whether the outlier is typical for the population or helps define the population.
+• Determine whether the outlier significantly influences the result.
+• Only after the previous checks, decide what is best.
+
+Testing assumptions of multivariate analysis
+Need for Testing of Assumptions
+Testing assumptions provide the foundation for making statistical inferences and results.
+
+Need is increased in multivariate analysis because the complexity of the analysis:
+• Makes the potential distortions and biases more potent when the assumptions are violated.
+• May mask the indicators of assumption violations apparent in the simpler univariate analyses. As the analyses will always produce results, responsibility lies with you!
+
+Important Note:  In a Multivariate context you must test for assumptions twice!
+• Individual variables – to understand basic sources of problems.
+• Variate – to assess the combined effect across all variables.
+
+Four Important Statistical Assumptions
+
+Normality
+• Comparison of distribution to normal distribution.
+• Basis for statistical inference from sample to population.
+
+Homoscedasticity
+• Variance of the error terms appears constant over a range of predictor variables.
+• Heteroscedasticity is when error terms have increasing or modulating variance.
+• Analysis of residuals best illustrates this point.
+
+Linearity
+• Relationship represented by a straight line (i.e., constant unit change (slope) of the dependent variable for a constant unit change of the independent variable. 
+
+Non-correlated Errors
+• Prediction errors are uncorrelated with each other.
+
+
+Univariate versus Multivariate Normality
+• Univariate normality – each individual variable (quite easy to test).
+• Multivariate normality – combinations of two or more variables (difficult to test).
+
+Impacts of Assumption Violations
+• Shape of Distribution – skewness versus kurtosis.
+• Impact of sample size – increased sample size reduces detrimental effects.
+
+Testing for Normality Assumptions
+• Visual check of histogram or normal probability plot.
+• Statistical tests of skewness and kurtosis.
+
+Remedies
+• Most often some form of data transformation (discussed later).
+Testing Univariate Normality using a histogram
+Testing Univariate Normality using a Q-Q plot
+Testing Multivariate Normality using a P-P plot
+
+Homoscedasticity Assumption
+Dependent variable(s) exhibit equal levels of variance across the range of predictor variable(s). Homoscedasticity is desirable because the variance of the dependent variable being explained in the dependence relationship should not be concentrated in only a limited range of the independent values.
+Heteroscedasticity inflates/deflates standard errors.
+
+Homoscedasticity Assumption
+Sources of heteroscedasticity:
+• Variable type – common in proportions.
+• Skewed distribution – one or both variables.
+
+Tests for homoscedasticity:
+• Graphical test (Ideally, scatterplot looks like an elliptical distribution of points.)
+• Statistical tests: Levene test (univariate) & Box’s M (multivariate)
+
+Remedies for heteroscedasticity:
+• Transformation of variable(s) [See section on transformations (normalization)].
+• Use of heteroscedasticity-consistent standard errors (HCSE).
+• Use bootstrapping in e.g., regression 
+(produces more robust standard errors).
+
+Linearity Assumption
+Because correlations represent only the linear association between variables, nonlinear effects will not be represented in the correlation value. This omission results in an underestimation of the actual strength of the relationship.
+
+Nonlinear relationships can be very well defined, but seriously understated unless:
+• data is transformed [see transformations] to a linear pattern, or explicit model components are used to represent the nonlinear portion of the relationship.
+
+Identify non-linear relationships
+By looking at the scatterplot.
+Examining your data
+Testing assumptions of M.A.
+Absence of Correlated Errors Assumption
+Predictions in any of the dependence techniques are rarely perfect. Thus, we always have errors in our predictions.
+
+What we NEVER want is that there is a systematic component to these errors. We do not want these errors to be correlated through some confounding variable we did not include in our model. This biases our results! Problems is that researchers are not always aware.
+Absence of Correlated Errors Assumption
+
+Identifying correlated errors
+Is about finding possible causes and including these in the model or analyzing different groups separately.
+
+In linear regression, you can check Durbin-Watson (which is a residuals check)
+
+Four reasons for the Transformation of Data
+Data transformations provide the researcher a wide range of methods to achieve specific outcomes:
+• Enhancing statistical properties;
+• Ease of interpretation; 
+
+Ease of Interpretation
+Transformations can also assist in improving the interpretation of a variable. The two most used approaches in this category are standardization and centering.
+
+When explanation is important, beware of transformation!
+
+To judge the potential impact of a transformation, calculate the ratio of the variable’s mean to its standard deviation:
+• Noticeable effects should occur when the ratio is less than 4.
+• When the transformation can be performed on either of two variables, select the variable with the smallest ratio .
+
+Generally applied to the independent variables except in the case of heteroscedasticity.
+• Heteroscedasticity can be remedied only by the transformation of the dependent variable in a dependence relationship.  If a heteroscedastic relationship is also nonlinear, the dependent variable, and perhaps the independent variables, must be transformed.
+
+Transformations may change the interpretation of the variables. 
+• For example, transforming variables by taking their logarithm translates the relationship into a measure of proportional change (elasticity).  Always be sure to explore thoroughly the possible interpretations of the transformed variables.
+• Use variables in their original (untransformed) format when profiling or interpreting results.
+
+Engagement Check
+Did your Respondents Answer your Survey Seriously?
+Sometimes it is possible that your respondents were not fully engaged in your research. As a results they might have answered all questions with the same answer (even though you have included control questions!).
+An easy way to control for this is calculating the standard deviation across a range of variables. When the SD = 0, it means that a person has answered all questions without variation.
+It is up to you to decide whether to remove the observation.
+
+Engagement Check
+Where and how to report?
+Any transformation/mutation/decision that has influenced the sample size needs to be reported in the discussion of the sample in the methodological section: e.g., removal of cases because of lack of engagement, outliers, missing, etc.
+
+Was this everything there is to learn?
+• Fortunately, not, each section could have been expanded to a full lecture and even then, the discussion would not have been complete.
+• You have seen the basis. Almost every individual problem has an individual solution. 
+• You are expected to know where to look for and find this individual solution. There is a lot of knowledge available in articles, books, internet.
+
+Learning checkpoint
+• Why examine your data?
+• What should you expect to discover?
+• What are the principal aspects of data that need to be examined?
+• What approaches would you use in examining each aspect?
