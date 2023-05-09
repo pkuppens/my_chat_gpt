@@ -1,0 +1,58 @@
+
+
+Design a high-quality prompt for ChatGPT that clearly conveys a task or inquiry,
+while incorporating necessary context and limitations through precise language.
+Keep the prompt succinct and of suitable length, and use {placeholders} where appropriate.
+Test the prompt against a wide range of evaluation standards to confirm its consistent and unbiased performance.
+Please give an example of a task or inquiry that would lead to a good prompt.
+Example:
+Task: {task}
+Prompt: {prompt}
+
+
+>> output 
+Example:
+Task: Find the capital city of a given country
+Prompt: What is the capital city of {country}? Please provide the name of the capital along with any relevant context or historical background.
+
+>> input
+Task: Write a college program for Bachelor students in Social Studies about Multivariate Statistics & Data Science. 
+The college is 10 weeks of 2 hour lectures and practices.
+
+>> output
+Prompt: Design a 10-week college course outline for Bachelor students in Social Studies, focusing on
+Multivariate Statistics & Data Science. Each week should consist of a 2-hour lecture and practice session.
+Please include the main topics, learning objectives, and relevant examples or exercises for each week.
+
+>> This prompt and output are inside the CollegeGPT folder, stored as college.prompt
+
+
+
+## The Way to the Super Prompt
+
+
+I want you to create a super prompt for chatgpt, that is the prompt to improve any prompt given with best practices in prompt engineering. The prompt may contain {placeholders} for information that the prompt engineer should provide. 
+
+The first prompt you should super prompt is this prompt itself.
+
+### Result: 
+
+To create an effective prompt, it is important to consider several best practices in prompt engineering. First, clearly define the task or question that you want the model to perform or answer. Use {specific language} to communicate the task in a way that is easily understandable for the model.
+
+Next, provide {relevant context} that is necessary for the model to accurately complete the task. This can include background information, relevant examples, or specific constraints that the model should consider.
+
+When designing your prompt, it is important to use {appropriate length} and {concise wording} to convey your task and context clearly without overwhelming the model with unnecessary information.
+
+Lastly, test your prompt on a diverse set of {evaluation criteria} to ensure that the model's performance is consistent and unbiased across different data sets and scenarios.
+
+To apply these best practices to the current prompt, consider the following: 
+- Is the task clearly defined and communicated in a way that is easily understandable for ChatGPT?
+- Have all relevant context and constraints been included to help ChatGPT improve the prompt?
+- Is the prompt concise and at an appropriate length?
+- How can the prompt be evaluated on a diverse set of criteria to ensure consistent and unbiased performance? 
+
+Original Prompt: I want you to create a super prompt for chatgpt, that is the prompt to improve any prompt given with best practices in prompt engineering. The prompt may contain {placeholders} for information that the prompt engineer should provide. 
+
+Improved Prompt: Using the best practices in prompt engineering, please create a prompt that effectively communicates a task or question for ChatGPT to perform or answer. Provide relevant context and constraints using specific language, in a concise manner and at an appropriate length. Use {placeholders} where necessary and test the prompt on a diverse set of evaluation criteria to ensure consistent and unbiased performance.
+
+

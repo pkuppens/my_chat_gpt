@@ -1,0 +1,68 @@
+## See the SuperPrompt/superprompt.txt file how this prompt was created.
+
+Prompt: Design a 10-week college course outline for Bachelor students in Social Studies,
+focusing on Multivariate Statistics & Data Science. Each week should consist of a 2-hour
+lecture and practice session. Please include the main topics, learning objectives,
+and relevant examples or exercises for each week.
+
+Output:
+
+Week 1: Introduction to Multivariate Statistics & Data Science
+- Overview of multivariate statistics and data science
+- Importance of data analysis in social studies
+- Learning objectives: Understand basic concepts and applications in the field
+- Example exercise: Discuss real-world examples of data analysis in social studies
+
+Week 2: Data Collection and Preprocessing
+- Types of data and data sources
+- Data cleaning and preprocessing techniques
+- Learning objectives: Learn how to collect and prepare data for analysis
+- Example exercise: Collect and clean a dataset for a social studies project
+
+Week 3: Descriptive Statistics and Visualization
+- Measures of central tendency and dispersion
+- Data visualization techniques for multivariate data
+- Learning objectives: Summarize and visually represent data
+- Example exercise: Create descriptive statistics and visualizations for a given dataset
+
+Week 4: Correlation and Regression Analysis
+- Correlation coefficients and scatterplots
+- Simple and multiple linear regression
+- Learning objectives: Understand relationships between variables
+- Example exercise: Perform a correlation and regression analysis on a social studies dataset
+
+Week 5: Principal Component Analysis (PCA)
+- Dimensionality reduction techniques
+- PCA concepts and application
+- Learning objectives: Learn how to reduce the complexity of data
+- Example exercise: Apply PCA to a high-dimensional dataset and interpret the results
+
+Week 6: Cluster Analysis
+- Introduction to cluster analysis
+- Hierarchical and partitioning methods
+- Learning objectives: Identify patterns and groupings in data
+- Example exercise: Perform a cluster analysis on a social studies dataset
+
+Week 7: Factor Analysis
+- Overview of factor analysis
+- Exploratory and confirmatory factor analysis
+- Learning objectives: Uncover underlying structures in data
+- Example exercise: Conduct a factor analysis on a dataset to identify latent variables
+
+Week 8: Logistic Regression and Classification
+- Binary and multinomial logistic regression
+- Classification techniques for categorical outcomes
+- Learning objectives: Model and predict categorical outcomes
+- Example exercise: Apply logistic regression to a social studies dataset for classification purposes
+
+Week 9: Time Series Analysis
+- Introduction to time series data
+- Autoregression and moving averages
+- Learning objectives: Analyze and forecast time series data
+- Example exercise: Perform time series analysis on a dataset with a temporal component
+
+Week 10: Final Project Presentations
+- Student presentations of their multivariate statistics and data science projects
+- Feedback and evaluation from peers and instructors
+- Learning objectives: Apply the concepts and techniques learned throughout the course
+- Example exercise: Prepare and present a final project using a social studies dataset
