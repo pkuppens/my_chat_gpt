@@ -1,0 +1,58 @@
+Can you write a Mermaid flowchart for the controller of a Django app, based on the app name and app description?
+The flowchart starts with an HTTP request as entry point and its label is [ > HTTP Request /app name/query].
+It handles URL processing, and redirects the request to decision flows and business process steps.
+Process steps can be a function call, a database query, or a business rule, and have an ID like ([Process step ID]).
+The steps in the flowchart end with a Django view that can be a page render or a HTTP response and its label is [ < view name ].
+Logic decisions are represented by a diamond shape and have a label like {Decision label}.
+
+An example flowchart for the app named links could be:
+Input: App name: links
+Input: App description: 
+Process 'magic' links, validate the 'magic' token. 
+Return an error on invalid tokens. 
+Return a refresh page on expired tokens.
+Restore an order from a valid token and redirect to the order page.
+Output:
+```mermaid
+flowchart TD
+    Start[ > HTTP Request /onfido/user] --> A[Identity verification at Onfido]
+    A --> B([User submits required documents])
+    B --> C{Complete and valid}
+    C -->|No| D[Return to upload page with notification]
+    D --> B
+    C -->|Yes| E([Onfido validates user/documents/photo])
+    E --> F{Check Onfido validation result}
+    F -->|decline| G[Notify user to try again or contact website]
+    G --> A
+    F -->|approve| H([ < Store validation result])
+    H --> I[Response page]
+    F -->|pending review| J[ < Review result]
+```
+
+```mermaid 
+flowchart TD
+    Start[ > HTTP Request /links/'magic'] --> A([Decrypt & decode 'magic' to JSON object, check expired])
+    A -->|invalid| L[Error page]
+    A -->|valid| B{Determine action}
+    B -->|order| C([Restore order])
+    C -->|incomplete| D[Order page]
+    C -->|complete| M[Complete page]
+    B -->|cancel| E([Cancel order])
+    E --> F[Home page]
+    G -->|valid| H[Resource page]
+    G -->|invalid| K[Error page]
+    B -->|resource| G([Check and load resource])
+    A -->|expired| I([Determine new links])
+    I --> J[Refresh links page]
+```
+
+
+App name: onfido
+App description: Authenticate a user with an external authentication service named onfido.
+A user that needs onfido authentication is redirected to a page where he can submit the required documents.
+When the required documents are uploaded, check if the documents are valid and the set is complete.
+When the set is incomplete or invalid return to the upload page with a helpful notification.
+When the document set is complete and valid, use the external onfido service to validate the user and documents.
+When the validation is successful, store the validation result.
+When the validation is not successful, notify the user to try again, or to contact the website.
+
