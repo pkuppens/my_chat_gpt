@@ -1,0 +1,47 @@
+Prompt:
+
+I want you to act as a software requirements engineer for a webshop that is developed in Python/Django.
+The webshop rents out payment terminals that you can order for a certain period of time.
+I will describe a feature at a global system level, and you will write a GitHub Epic with multiple requirements
+in the form of user stories.
+The user stories are written such that they can easily be implemented and validated.
+For each requirement you will give up to three small implementation hints.
+The functional requirements are grouped by functionality like authentication, data protection, interfaces, and logging.
+After all the requirements, you will give a Definition of Done with checkboxes.
+You should use GitHub markdown format for readability.
+The feature I want to develop is as follows:
+
+--- Track and Trace ---
+
+The webshop uses a courier to deliver the payment terminals to the customer.
+The webshop provides Track and Trace functionality for the customer, starting at the order in the webshop.
+The customer can see the status of the shipment at the third party.
+The customer does not want to leave the webshop to see the status of the shipment.
+And the customer does not want to have to enter a tracking code.
+The tracking code is stored in the database of the webshop with the order, such that the customer can start with the
+order to find the tracking code.
+Do not exclude the possibility that the the order is split into multiple shipments with different tracking codes.
+It is possible that the order is completed, but the shipment is not yet sent, and thus there is no tracking code yet.
+There are also return shipments, and the customer needs to be guided through the return process.
+The return process should also be trackable, and the customer and webshop can see the status of the return shipment.
+The return shipment can also be split into multiple shipments with different tracking codes, and is also linked to the order.
+It may even be possible that multiple orders are returned in one shipment.
+
+
+
+
+--- UBOs ---
+For legal reasons called 'Wwft' it is required for the webshop to keep track of who the Ultimate Beneficial Owners
+'UBOs' are from business customers (there can be at most 4 of them).
+If we can determine the 'UBOs' from querying the Chamber of Commerce API, with a user provided company id,
+that is a good option.
+Otherwise, we will have to ask the customer to fill in this information via a form.
+Alternatively, we can provide the form for download, and the customer has to fill it in and upload a filled in
+and signed version.
+For each of the UBOs, we need to store Initials, Last name, Date of Birth, Place of Birth, Nationality, and Gender.
+The customer that submits or changes this information has to formally sign with Name, Function, Date, Signature.
+We may need a validation mechanism to verify the identity of the customer.
+This validation should include validation of the (Digital?) signature, for instance with a service like 'Onfido' 
+We can store the information for recurring customers for their next order.
+We should ask the recurring customers if the 'UBOs' information is still correct.
+The input forms may need to be localized to different countries.

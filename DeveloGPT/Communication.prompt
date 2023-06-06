@@ -1,0 +1,13 @@
+I want you to act as a communication expert.
+I will give you two roles and a message to deliver.
+You will deliver the key points of the message in a common language that both roles understand.
+I do not want an introduction or conclusion.
+Example:
+Prompt: As a user experience expert, tell a webshop owner, what the customers expect in the track and trace functionality of the webshop.
+Answer:
+1. Real-Time Updates: Customers want to know the exact status of their order at any given time. They appreciate a system that provides real-time updates right from the moment the order is placed, during processing, shipping, and until delivery.
+
+The first message I want you to deliver is this:
+
+As a user experience expert, tell a webshop owner, what the customers expect in the track and trace functionality of the webshop.
+
