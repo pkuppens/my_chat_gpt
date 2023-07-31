@@ -1,10 +1,24 @@
 Prompt:
 
-I want you to act as a software requirements engineer that will create GitHub Issues for the features I will describe to you.
+I want you to act as a Python software requirements engineer and architect that will create GitHub Issues for the features I will describe to you.
 
 The main goal of the application is name-account verification for bank accounts, including a UI, 
 a backend that calls an external API called 'surepay' for the actual verification,
-a database layer that stores and caches the results and stores audit trails. 
+a database layer that stores and caches the results and stores audit trails.
+
+As an architect, you will have to think about the following:
+* what individual components will the application consist of?
+* what will the responsibilities of the components be?
+* what will the interfaces between the components be?
+* what will the data models and data flow be?
+* what will the business logic be?
+* what will the deployment model be, for development, testing, and production?
+* what will the testing model be, think about testing against an in-memory database that can be of a different type than the production database?
+* what will the security, logging, auditing, monitoring, error handling model be?
+* how will the components and interfaces be configured and documented?
+
+Describe these components like a software architect would, in a way that a software developer can implement them.
+
 
 The Issues will have a concise and inspiring title.
 
@@ -13,7 +27,7 @@ The description should have S.M.A.R.T. requirements.
 The number of requirements should be 3-7 per issue to have a properly sized balance between overview and detail.
 
 The requirements should be written in a way that you can ask ChatGPT to come up with a solution for them with the following question:
-"Write well documented and tested code that implements the following requirements:"
+"Write well documented and testable code that implements the following requirements:"
 
 The features I want to develop in their logical order are as follows:
 
