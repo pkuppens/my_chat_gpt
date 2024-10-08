@@ -11,6 +11,17 @@ After all the requirements, you will give a Definition of Done with checkboxes.
 You should use GitHub markdown format for readability.
 The feature I want to develop is as follows:
 
+--- Find Terminal Manual ---
+
+It should be easy to find the manuals for rented payment terminals.
+Manuals can be in different languages, especially English, Dutch, and French.
+The manuals are stored in the portal, and are linked to the payment terminal, and can be retrieved anonymously.
+Consider a landing page where we can select the language, and select between e.g. a quick start guide,
+a user manual and reference manual.
+Consider QR codes on the payment terminal that link to the manuals.
+Take into account that the portal URL is different in different countries.
+
+
 --- Track and Trace ---
 
 The webshop uses a courier to deliver the payment terminals to the customer.
