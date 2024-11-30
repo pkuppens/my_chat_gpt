@@ -8,26 +8,46 @@ import { getPrefilledData, getDropdownContent } from './utils/data';
  * @returns {JSX.Element} The rendered component.
  */
 const App = () => {
-  const [selectedClass, setSelectedClass] = useState('');
-  const [fields, setFields] = useState([]);
-  const [data, setData] = useState({});
+  const [selectedSpec, setSelectedSpec] = useState('');
+  const [specifications, setSpecifications] = useState([]);
+  const [data, setData] = useState({ input: {}, output: {} });
 
   useEffect(() => {
     const fetchData = async () => {
       const dropdownContent = await getDropdownContent();
-      setFields(dropdownContent);
+      setSpecifications(dropdownContent);
     };
     fetchData();
   }, []);
 
   /**
-   * Handles the change of the selected class.
-   * @param {string} className - The name of the selected class.
+   * Parses the specification string into input and output keys.
+   * @param {string} specString - The specification string.
+   * @returns {Object} The parsed input and output keys.
    */
-  const handleClassChange = (className) => {
-    setSelectedClass(className);
-    const prefilledData = getPrefilledData(className);
-    setData(prefilledData);
+  const parseSpecification = (specString) => {
+    const [input, output] = specString.split('->').map((s) => s.trim());
+    const inputKeys = input.split(',').map((s) => s.trim());
+    const outputKey = output;
+    return { inputKeys, outputKey };
+  };
+
+  /**
+   * Handles the change of the selected specification.
+   * @param {string} specName - The name of the selected specification.
+   */
+  const handleSpecChange = (specName) => {
+    setSelectedSpec(specName);
+    const spec = specifications.find((s) => s.name === specName);
+    const parsedSpec = parseSpecification(spec.value);
+    const prefilledData = getPrefilledData(specName);
+    setData({
+      input: parsedSpec.inputKeys.reduce((acc, key) => {
+        acc[key] = prefilledData[key] || '';
+        return acc;
+      }, {}),
+      output: { [parsedSpec.outputKey]: prefilledData[parsedSpec.outputKey] || '' },
+    });
   };
 
   /**
@@ -41,18 +61,30 @@ const App = () => {
   return (
     <div>
       <h1>DSpy Signatures</h1>
-      <Dropdown options={fields} onChange={handleClassChange} />
-      {selectedClass && (
+      <Dropdown options={specifications.map((spec) => spec.name)} onChange={handleSpecChange} />
+      {selectedSpec && (
         <div>
-          {Object.keys(data).map((key) => (
-            <div key={key}>
-              <label>{key}</label>
-              <input type="text" value={data[key]} readOnly />
-            </div>
-          ))}
+          <div>
+            <h2>Input</h2>
+            {Object.keys(data.input).map((key) => (
+              <div key={key}>
+                <label>{key}</label>
+                <input type="text" value={data.input[key]} readOnly />
+              </div>
+            ))}
+          </div>
+          <Button onClick={handleProcess}>Process</Button>
+          <div>
+            <h2>Output</h2>
+            {Object.keys(data.output).map((key) => (
+              <div key={key}>
+                <label>{key}</label>
+                <input type="text" value={data.output[key]} readOnly />
+              </div>
+            ))}
+          </div>
         </div>
       )}
-      <Button onClick={handleProcess}>Process</Button>
     </div>
   );
 };
