@@ -1,29 +1,89 @@
-# dspyui
+# Getting Started with DSPYUI Create React App
 
-This directory contains the React application for processing DSpy 'signatures'.
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-## Installation Instructions
+It was modified to contain a React application for processing DSpy 'signatures'.
+
+## Bootstrap/Installation instructions
+
+npx create-react-app dspyui
+
+## Available Scripts
 
 1. Ensure you have Node.js and npm installed on your machine. You can download them from [Node.js](https://nodejs.org/).
 
-2. Clone the repository and navigate to the `dspyui` directory:
-   ```bash
-   git clone <repository-url>
-   cd dspyui
-   ```
+2. Bootstrap the dspyui application:
 
-3. Install the required dependencies:
-   ```bash
-   npm install
-   ```
+    `npx create-react-app dspyui`
 
-## Execution Instructions
+3. Make the necessary modifications - Copilot Workspace
 
-1. Start the development server:
-   ```bash
-   npm start
-   ```
+4. In the project directory, run:
 
-2. Open your browser and navigate to `http://localhost:3000` to view the application.
+    `npm start`
 
-3. You should see the DSpy Signatures application with a dropdown to select class names, fields based on the selected class name, and a button to invoke processing.
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
+
+
+## Other Bootstrap Information
+
+Left from the initial bootstrap.
+
+### `npm test`
+
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+
+### `npm run build`
+
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
+
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
+
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+
+### `npm run eject`
+
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+
+## Learn More
+
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+
+To learn React, check out the [React documentation](https://reactjs.org/).
+
+### Code Splitting
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+
+### Analyzing the Bundle Size
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
