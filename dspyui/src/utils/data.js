@@ -1,22 +1,25 @@
 /**
- * Retrieves pre-filled data based on the class name.
- * @param {string} className - The name of the class.
- * @returns {Object} The pre-filled data for the class.
+ * Retrieves pre-filled data based on the specification name.
+ * @param {string} specName - The name of the specification.
+ * @returns {Object} The pre-filled data for the specification.
  */
-export const getPrefilledData = (className) => {
-  // Placeholder function to retrieve pre-filled data based on class name
+export const getPrefilledData = (specName) => {
+  // Placeholder function to retrieve pre-filled data based on specification name
   const data = {
-    'ClassA': { field1: 'value1', field2: 'value2' },
-    'ClassB': { field1: 'value3', field2: 'value4' },
+    // 'SpecA': { query: 'What is AI?', context: 'Artificial Intelligence', answer: 'AI is the simulation of human intelligence in machines.' },
+    'SpecB': { query: 'What is ML?', context: 'Machine Learning', answer: 'ML is a subset of AI that involves training algorithms on data.' },
   };
-  return data[className] || {};
+  return data[specName] || {};
 };
 
 /**
  * Retrieves the content for the dropdown.
- * @returns {Promise<Array<string>>} A promise that resolves to an array of class names.
+ * @returns {Promise<Array<Object>>} A promise that resolves to an array of specifications.
  */
 export const getDropdownContent = async () => {
   // Placeholder function to retrieve dropdown content
-  return ['ClassA', 'ClassB'];
+  return [
+    { name: 'SpecA', value: 'sentence -> sentiment' },
+    { name: 'SpecB', value: 'query, context -> answer' },
+  ];
 };

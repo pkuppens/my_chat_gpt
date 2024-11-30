@@ -1,15 +1,15 @@
 import React from 'react';
 
 /**
- * Dropdown component to list class names.
+ * Dropdown component to list specifications.
  * @param {Object} props - The component props.
- * @param {Array<string>} props.options - The list of class names to display in the dropdown.
- * @param {function} props.onChange - The function to call when the selected class changes.
+ * @param {Array<string>} props.options - The list of specifications to display in the dropdown.
+ * @param {function} props.onChange - The function to call when the selected specification changes.
  * @returns {JSX.Element} The rendered component.
  */
 const Dropdown = ({ options, onChange }) => {
   /**
-   * Handles the change of the selected class.
+   * Handles the change of the selected specification.
    * @param {Object} event - The change event.
    */
   const handleChange = (event) => {
@@ -18,7 +18,7 @@ const Dropdown = ({ options, onChange }) => {
 
   return (
     <select onChange={handleChange}>
-      <option value="">Select a class</option>
+      <option value="">Select a specification</option>
       {options.map((option) => (
         <option key={option} value={option}>
           {option}
