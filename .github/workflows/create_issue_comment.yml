@@ -25,5 +25,3 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           python .github/scripts/identify_duplicates.py
-        with:
-          debug: true
