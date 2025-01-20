@@ -39,6 +39,7 @@ class GithubDuplicateIssueDetector:
         Check for similar issues, including those closed in the last 30 days.
         """
         logging.info(f"Processing issue #{current_issue_number}: {issue_title}")
+        logging.info(f"Using similarity threshold: {threshold:.1%}")
         thirty_days_ago = datetime.now() - timedelta(days=30)
         
         # Combine title and body for better comparison
@@ -61,7 +62,6 @@ class GithubDuplicateIssueDetector:
                     logging.info(f"Skipping current issue #{issue.number} ({set_type})")
                     continue
                     
-                logging.debug(f"Processing {set_type} issue #{issue.number}: {issue.title}")
                 existing_issues.append(issue)
                 issue_texts.append(f"{issue.title}\n{issue.body or ''}")
         
@@ -75,6 +75,11 @@ class GithubDuplicateIssueDetector:
         tfidf_matrix = self.vectorizer.fit_transform(all_texts)
         similarities = cosine_similarity(tfidf_matrix[-1:], tfidf_matrix[:-1])[0]
         
+        # Log all similarity scores
+        for i, similarity in enumerate(similarities):
+            logging.info(f"Issue #{existing_issues[i].number}: {existing_issues[i].title} - Similarity: {similarity:.1%}")
+        
+        # Filter issues that exceed threshold
         similar_issues = [
             (existing_issues[i], similarities[i], 'closed' if existing_issues[i].state == 'closed' else 'open')
             for i in range(len(similarities))
@@ -82,11 +87,12 @@ class GithubDuplicateIssueDetector:
         ]
         
         if similar_issues:
-            logging.info(f"Found {len(similar_issues)} similar issues above threshold {threshold}")
-            for issue, similarity, state in similar_issues[:5]:
-                logging.info(f"Similar issue #{issue.number}: {issue.title} ({similarity:.1%} similar, {state})")
+            logging.info(f"\nFound {len(similar_issues)} similar issues above threshold {threshold:.1%}:")
+            for issue, similarity, state in similar_issues:
+                logging.info(f"- #{issue.number}: {issue.title}")
+                logging.info(f"  Similarity: {similarity:.1%}, Status: {state}")
         else:
-            logging.info("No similar issues found above threshold")
+            logging.info(f"No issues found above similarity threshold {threshold:.1%}")
         
         return sorted(similar_issues, key=lambda x: x[1], reverse=True)
 
@@ -99,6 +105,8 @@ class GithubDuplicateIssueDetector:
             return
             
         comment_body = "## Potential Duplicate Issues Found\n\n"
+        comment_body += f"Issues with similarity score >= {similar_issues[0][1]:.1%}:\n\n"
+        
         for similar_issue, similarity, state in similar_issues[:5]:
             status_emoji = "🟢" if state == "open" else "🔴"
             comment_body += (
@@ -107,7 +115,7 @@ class GithubDuplicateIssueDetector:
                 f"   - Status: {state}\n\n"
             )
         
-        logging.info(f"Creating comment on issue #{issue_number}")
+        logging.info(f"Creating comment on issue #{issue_number} with {len(similar_issues[:5])} similar issues")
         issue = self.repo.get_issue(number=issue_number)
         issue.create_comment(comment_body)
 
