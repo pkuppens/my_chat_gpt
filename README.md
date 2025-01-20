@@ -68,3 +68,40 @@ After starting, access the interface at [http://localhost:3000/](http://localhos
 ## Using `uv` Package Management System
 
 For more details on the benefits and installation steps, refer to the documentation `UV.md`.
+
+## GitHub Action for Commenting on Newly Created Issues
+
+This repository includes a GitHub Action that automatically comments on newly created issues with possible duplicate issues based on the description.
+
+### Configuration
+
+1. Create a workflow file named `create_issue_comment.yml` in the `.github/workflows` directory.
+2. Add the following content to the workflow file:
+
+    ```yaml
+    name: Comment on New Issues
+
+    on:
+      issues:
+        types: [opened]
+
+    jobs:
+      comment:
+        runs-on: ubuntu-latest
+
+        steps:
+        - name: Checkout repository
+          uses: actions/checkout@v2
+
+        - name: Run duplicate issue checker
+          run: python scripts/identify_duplicates.py
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    ```
+
+3. Create a Python script named `identify_duplicates.py` in the `scripts` directory.
+4. Add the logic to identify possible duplicate issues and comment on the newly created issue.
+
+### Usage
+
+Once configured, the GitHub Action will automatically run whenever a new issue is created. It will analyze the issue description and comment with links to potential duplicate issues.
