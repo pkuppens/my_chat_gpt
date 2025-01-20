@@ -1,18 +1,27 @@
-name: Comment on New Issues
-
+name: Duplicate Issue Detection
 on:
   issues:
-    types: [opened]
+    types: [opened, edited]
 
 jobs:
-  comment:
+  detect-duplicates:
     runs-on: ubuntu-latest
-
+    permissions:
+      issues: write
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyGithub scikit-learn
 
-    - name: Run duplicate issue checker
-      run: python scripts/identify_duplicates.py
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Analyze Issue
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python .github/scripts/identify_duplicates.py
