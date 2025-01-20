@@ -5,6 +5,14 @@ from datetime import datetime, timedelta
 import os
 import json
 import sys
+import logging
+
+# Configure logging to show in GitHub Actions
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
 
 class GithubDuplicateIssueDetector:
     def __init__(self):
@@ -19,26 +27,18 @@ class GithubDuplicateIssueDetector:
         self.github = Github(self.github_token)
         self.vectorizer = TfidfVectorizer(stop_words='english')
         
-        # Get repository info from environment
         self.repo_name = os.getenv('GITHUB_REPOSITORY')
         if not self.repo_name:
             raise ValueError("GITHUB_REPOSITORY not found in environment")
             
         self.repo = self.github.get_repo(self.repo_name)
+        logging.info(f"Initialized detector for repository: {self.repo_name}")
         
     def find_similar_issues(self, current_issue_number, issue_title, issue_body, threshold=0.8):
         """
         Check for similar issues, including those closed in the last 30 days.
-        
-        Args:
-            current_issue_number (int): Number of the issue being analyzed
-            issue_title (str): Title of the current issue
-            issue_body (str): Body of the current issue
-            threshold (float): Minimum similarity score (0-1) to consider issues as similar
-            
-        Returns:
-            list: List of tuples (issue, similarity_score, status) sorted by similarity
         """
+        logging.info(f"Processing issue #{current_issue_number}: {issue_title}")
         thirty_days_ago = datetime.now() - timedelta(days=30)
         
         # Combine title and body for better comparison
@@ -46,17 +46,30 @@ class GithubDuplicateIssueDetector:
         existing_issues = []
         issue_texts = []
         
-        # Process both open and recently closed issues
-        for issues in [self.repo.get_issues(state='open'), 
-                      self.repo.get_issues(state='closed', since=thirty_days_ago)]:
-            for issue in issues:
+        # Get and count open issues
+        open_issues = list(self.repo.get_issues(state='open'))
+        logging.info(f"Found {len(open_issues)} open issues")
+        
+        # Get and count recently closed issues
+        recently_closed_issues = list(self.repo.get_issues(state='closed', since=thirty_days_ago))
+        logging.info(f"Found {len(recently_closed_issues)} recently closed issues (last 30 days)")
+        
+        # Process both sets of issues
+        for issue_set, set_type in [(open_issues, 'open'), (recently_closed_issues, 'closed')]:
+            for issue in issue_set:
                 if issue.number == current_issue_number:
+                    logging.info(f"Skipping current issue #{issue.number} ({set_type})")
                     continue
+                    
+                logging.debug(f"Processing {set_type} issue #{issue.number}: {issue.title}")
                 existing_issues.append(issue)
                 issue_texts.append(f"{issue.title}\n{issue.body or ''}")
         
         if not issue_texts:
+            logging.info("No existing issues found to compare against")
             return []
+            
+        logging.info(f"Comparing against {len(issue_texts)} existing issues")
             
         all_texts = issue_texts + [current_issue_text]
         tfidf_matrix = self.vectorizer.fit_transform(all_texts)
@@ -68,17 +81,21 @@ class GithubDuplicateIssueDetector:
             if similarities[i] >= threshold
         ]
         
+        if similar_issues:
+            logging.info(f"Found {len(similar_issues)} similar issues above threshold {threshold}")
+            for issue, similarity, state in similar_issues[:5]:
+                logging.info(f"Similar issue #{issue.number}: {issue.title} ({similarity:.1%} similar, {state})")
+        else:
+            logging.info("No similar issues found above threshold")
+        
         return sorted(similar_issues, key=lambda x: x[1], reverse=True)
 
     def create_similarity_comment(self, issue_number, similar_issues):
         """
         Create a comment on the issue with similarity results.
-        
-        Args:
-            issue_number (int): Number of the issue to comment on
-            similar_issues (list): List of similar issues from find_similar_issues
         """
         if not similar_issues:
+            logging.info("No similar issues found, skipping comment creation")
             return
             
         comment_body = "## Potential Duplicate Issues Found\n\n"
@@ -90,6 +107,7 @@ class GithubDuplicateIssueDetector:
                 f"   - Status: {state}\n\n"
             )
         
+        logging.info(f"Creating comment on issue #{issue_number}")
         issue = self.repo.get_issue(number=issue_number)
         issue.create_comment(comment_body)
 
@@ -119,6 +137,7 @@ def validate_github_event():
 
 def main():
     try:
+        logging.info("Starting duplicate issue detection")
         event = validate_github_event()
         detector = GithubDuplicateIssueDetector()
         
@@ -129,25 +148,25 @@ def main():
         )
         
         detector.create_similarity_comment(event['issue']['number'], similar_issues)
+        logging.info("Completed duplicate issue detection")
         
     except Exception as e:
-        print(f"Error: {str(e)}")
+        logging.error(f"Error during execution: {str(e)}")
         sys.exit(1)
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == 'test':
         try:
+            logging.info("Running in test mode")
             detector = GithubDuplicateIssueDetector()
             similar_issues = detector.find_similar_issues(
                 123,  # Test issue number
                 "Test Issue Title",
                 "Test Issue Body"
             )
-            print(f"Found {len(similar_issues)} similar issues")
-            for issue, similarity, state in similar_issues:
-                print(f"#{issue.number}: {issue.title} ({similarity:.1%} similar, {state})")
+            logging.info(f"Test completed: found {len(similar_issues)} similar issues")
         except Exception as e:
-            print(f"Test failed: {str(e)}")
+            logging.error(f"Test failed: {str(e)}")
             sys.exit(1)
     else:
         main()
