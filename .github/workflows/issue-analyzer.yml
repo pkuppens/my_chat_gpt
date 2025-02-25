@@ -1,0 +1,26 @@
+# .github/workflows/issue-analyzer.yml
+name: Issue Analyzer
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  analyze-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install openai pyyaml
+      - name: Run issue analyzer
+        env:
+          LLM_PROVIDER: openai
+          LLM_MODEL: o3-mini
+          MAX_TOKENS: 4096
+          TEMPERATURE: 0.1
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python .github/scripts/analyze_issue.py
