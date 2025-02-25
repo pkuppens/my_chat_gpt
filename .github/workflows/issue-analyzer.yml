@@ -18,7 +18,7 @@ jobs:
       - name: Run issue analyzer
         env:
           LLM_PROVIDER: openai
-          LLM_MODEL: o3-mini
+          LLM_MODEL: gpt-4o-mini
           MAX_TOKENS: 4096
           TEMPERATURE: 0.1
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
