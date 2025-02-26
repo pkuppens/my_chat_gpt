@@ -6,13 +6,49 @@ import yaml
 import re
 import requests
 from datetime import datetime
+from packaging import version
 
 # Configuration
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+
+SAMPLE_GITHUB_EVENT = {
+  "action": "opened",
+  "issue": {
+    "number": 22,
+    "title": "Add an LLM review to newly opened GitHub issues.",
+    "body": """
+When a new Github issue is created, start a workflow that reviews the issue:
+* is the title clear?
+* do the title and description match?
+* is the description 'SMART'?
+
+Optionally:
+* make the workflow multi-stage, e.g. first determine the issue type, add a label for issue type, and make the description review depend on the issue type: bug reports need a different review than EPICs or Subtasks
+
+Test/Proof of Concept:
+* write an issue that implements a software reverse engineering ticket that writes YAML/XML documentation for components/classes/methods
+    """,
+    "html_url": "https://github.com/pkuppens/my_chat_gpt/issues/22",
+    "labels": [
+      {"name": "bug"},
+      {"name": "enhancement"}
+    ]
+  },
+  "repository": {
+    "name": "my_chat_gpt",
+    "owner": {
+      "login": "pkuppens"
+    }
+  },
+  "sender": {
+    "login": "pkuppens"
+  }
+}
+
 GITHUB_EVENT_PATH = os.environ.get("GITHUB_EVENT_PATH")
-LLM_PROVIDER = os.environ.get("LLM_MODEL", "openai")
-LLM_MODEL = os.environ.get("LLM_MODEL", "o3-mini")
+# Use the ChatCompletion model by default
+LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-3.5-turbo")
 MAX_TOKENS = int(os.environ.get("MAX_TOKENS", 2048))
 TEMPERATURE = float(os.environ.get("TEMPERATURE", 0.1))
 
@@ -20,13 +56,25 @@ TEMPERATURE = float(os.environ.get("TEMPERATURE", 0.1))
 ISSUE_TYPES = ["Epic", "Change Request", "Bug Fix", "Task", "Question"]
 PRIORITY_LEVELS = ["Critical", "High", "Medium", "Low"]
 
-# Set up OpenAI
+# Set up OpenAI API key
 openai.api_key = OPENAI_API_KEY
+
+def check_openai_library_version():
+    """Check if the openai library is up-to-date."""
+    required_version = "0.27.0"
+    if version.parse(openai.__version__) < version.parse(required_version):
+        print(f"Your openai library version ({openai.__version__}) is outdated. "
+              f"Please upgrade to at least version {required_version} using:\n"
+              "pip install --upgrade openai")
 
 def get_issue_data():
     """Read the GitHub event data for the issue"""
-    with open(GITHUB_EVENT_PATH, 'r') as f:
-        event_data = json.load(f)
+    if not GITHUB_EVENT_PATH:
+        print("No GitHub event data found.")
+        event_data = SAMPLE_GITHUB_EVENT
+    else:
+        with open(GITHUB_EVENT_PATH, 'r') as f:
+            event_data = json.load(f)
     
     issue = event_data.get('issue', {})
     return {
@@ -40,7 +88,7 @@ def get_issue_data():
     }
 
 def analyze_issue_with_llm(issue_data):
-    """Use OpenAI to analyze the issue"""
+    """Use OpenAI chat.completions to analyze the issue and return parsed YAML output"""
     prompt = f"""
     Analyze and review this GitHub issue and provide the following:
     1. Issue Type (select one): {', '.join(ISSUE_TYPES)}
@@ -75,8 +123,26 @@ def analyze_issue_with_llm(issue_data):
         max_tokens=MAX_TOKENS
     )
     
-    # Extract response markdown content
-    return response.choices[0].message.content.strip()
+    response_content = response.choices[0].message.content.strip()
+    clean_yaml = re.sub(r"^```yaml\n|```$", "", response_content, flags=re.MULTILINE)
+
+
+    # Attempt to parse the YAML output; if parsing fails, fall back to a basic dict
+    try:
+        analysis = yaml.safe_load(clean_yaml)
+        if not isinstance(analysis, dict):
+            raise ValueError("Parsed YAML is not a dictionary.")
+    except Exception as exc:
+        print("Warning: Failed to parse YAML output. Using raw response as feedback.")
+        analysis = {
+            "issue_type": "Unknown",
+            "priority": "Medium",
+            "complexity": "Unknown",
+            "review": response_content,
+            "next_steps": ["Review issue manually"]
+        }
+    
+    return analysis
 
 def get_or_create_labels(repo_owner, repo_name, labels_to_create):
     """Ensure all required labels exist in the repository"""
@@ -123,11 +189,49 @@ def add_comment_to_issue(repo_owner, repo_name, issue_number, comment):
     response = requests.post(url, headers=headers, json=data)
     return response.status_code == 201
 
+def get_available_models():
+    headers = {
+        "Authorization": f"Bearer {OPENAI_API_KEY}"
+    }
+    response = requests.get("https://api.openai.com/v1/models", headers=headers)
+    response.raise_for_status()  # Raises an HTTPError if the response was unsuccessful
+    models_data = response.json().get("data", [])
+    models = [model["id"] for model in models_data]
+    return models
+
+def validate_openai_api_key():
+    """Validate the OpenAI API key and its permissions"""
+    try:
+        get_available_models()
+        return True
+    except Exception as exc:
+        print(f"Error validating OpenAI API key: {exc}")
+        return False
+
+def validate_github_token():
+    """Validate the GitHub token and its permissions"""
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    url = "https://api.github.com/user"
+    response = requests.get(url, headers=headers)
+    return response.status_code == 200
+
 def main():
+    # Check if the openai library is up-to-date
+    check_openai_library_version()
+    
+    # Validate API keys and tokens
+    if not validate_openai_api_key():
+        raise ValueError("Invalid OpenAI API key or insufficient permissions.")
+    if not validate_github_token():
+        raise ValueError("Invalid GitHub token or insufficient permissions.")
+    
     # Get issue data
     issue_data = get_issue_data()
     
-    # Analyze issue with OpenAI
+    # Analyze issue with OpenAI chat.completions
     analysis = analyze_issue_with_llm(issue_data)
     
     # Prepare labels based on analysis
@@ -157,6 +261,12 @@ def main():
     )
     
     # Format the analysis comment
+    next_steps = analysis.get('next_steps', ['Review issue manually'])
+    if isinstance(next_steps, list):
+        steps_formatted = "\n".join(['- ' + step for step in next_steps])
+    else:
+        steps_formatted = next_steps  # If it's not a list, use as is.
+    
     comment = f"""
 ## Issue Analysis
 
@@ -168,7 +278,7 @@ def main():
 {analysis.get('review', 'No summary available.')}
 
 ### Suggested Next Steps
-{chr(10).join(['- ' + step for step in analysis.get('next_steps', ['Review issue manually'])])}
+{steps_formatted}
 
 ---
 *Analyzed automatically at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
