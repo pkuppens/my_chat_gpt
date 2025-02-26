@@ -123,7 +123,31 @@ def add_comment_to_issue(repo_owner, repo_name, issue_number, comment):
     response = requests.post(url, headers=headers, json=data)
     return response.status_code == 201
 
+def validate_openai_api_key():
+    """Validate the OpenAI API key and its permissions"""
+    try:
+        openai.Model.list()
+        return True
+    except openai.error.AuthenticationError:
+        return False
+
+def validate_github_token():
+    """Validate the GitHub token and its permissions"""
+    headers = {
+        "Authorization": f"token {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    url = "https://api.github.com/user"
+    response = requests.get(url, headers=headers)
+    return response.status_code == 200
+
 def main():
+    # Validate API keys and tokens
+    if not validate_openai_api_key():
+        raise ValueError("Invalid OpenAI API key or insufficient permissions.")
+    if not validate_github_token():
+        raise ValueError("Invalid GitHub token or insufficient permissions.")
+    
     # Get issue data
     issue_data = get_issue_data()
     
