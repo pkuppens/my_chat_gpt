@@ -23,6 +23,9 @@
 - [Memory Layers Are Supercharging LLMs](https://levelup.gitconnected.com/memory-layers-are-supercharging-llms-like-never-before-056b99ea75cd)
   - Keywords: LLM, Architecture, Memory Layers, Technical, Medium
 
+- [Structured JSON output](https://python.langchain.com/docs/how_to/structured_output/)
+  - Keywords: Structured Output, JSON, LangChain, Documentation
+
 - [DeepSeek Is Chinese But Its AI Models Are From Another Planet](https://albertoromgar.medium.com/deepseek-is-chinese-but-its-ai-models-are-from-another-planet-e4cf94840086)
   - Keywords: DeepSeek, LLM, AI Models, Analysis, Medium
 
