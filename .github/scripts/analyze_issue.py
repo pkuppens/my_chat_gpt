@@ -244,7 +244,8 @@ def validate_github_token():
     }
     url = "https://api.github.com/user"
     response = requests.get(url, headers=headers)
-    return response.status_code == 200
+    response.raise_for_status()  # Raises an HTTPError if the response was unsuccessful
+    return True
 
 def main():
     # Check if the openai library is up-to-date
@@ -253,6 +254,7 @@ def main():
     # Validate API keys and tokens
     if not validate_openai_api_key():
         raise ValueError("Invalid OpenAI API key or insufficient permissions.")
+
     if not validate_github_token():
         raise ValueError("Invalid GitHub token or insufficient permissions.")
     
