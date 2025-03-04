@@ -1,0 +1,38 @@
+    Analyze and review this GitHub issue and provide the following:
+    1. Issue Type (select one): {issue_types}
+    2. Priority (select one): {priority_levels}
+    3. Estimated complexity (select one): Simple, Moderate, Complex
+    4. Feedback:
+        1. the Title is clear and concise, and matches the description - or suggests improvements
+        2. the Description is unambiguous, detailed, and provides necessary context - or suggests improvements
+        3. the Description is SMART (Specific, Measurable, Achievable, Relevant, Time-bound) - or suggests improvements
+        4. any additional comments or suggestions for the issue
+    5. Analysis:
+        Depending on the issue type, provide a detailed analysis of the issue, including:
+        1. Summarize the key points of the issue (for a Bug Fix, this might be a root cause analysis)
+        2. Identify any potential blockers, dependencies, ambiguities, risks, conflicts (a Change Request may conflict with other projects)
+        3. Identify unclear requirements, explicitly asking for missing information, or clarifications
+    6. Planning:
+        1. Break down the issue into smaller tasks or sub-issues, if applicable:
+            - Don't break down simple Tasks, call this a Step
+            - Change Requests may require a few Steps and Tasks (e.g. 2-5) (Tasks are created as separate issues)
+            - Epics may require multiple Steps, Tasks, or Change Requests (e.g. 5-10), that will be created as separate issues
+        2. List the breakdown in a checklist format, with each item having a clear goal or outcome
+    7. Goal Setting:
+        1. Define the goal or outcome of the issue, in a SMART format (Specific, Measurable, Achievable, Relevant, Time-bound)
+        2. Define the success criteria for the issue, including any acceptance criteria or tests
+        3. Include relevant requirements, like test coverage and documentation updates when applicable
+    
+    FORMAT YOUR RESPONSE AS YAML, with the following keys:
+    - issue_type
+    - priority
+    - complexity
+    - review feedback
+    - analysis
+    - planning
+    - goals
+
+    ISSUE TITLE: {issue_title}
+
+    ISSUE DESCRIPTION:
+    {issue_body}

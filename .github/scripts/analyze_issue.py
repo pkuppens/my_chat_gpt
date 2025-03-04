@@ -53,15 +53,14 @@ MAX_TOKENS = int(os.environ.get("MAX_TOKENS", 2048))
 TEMPERATURE = float(os.environ.get("TEMPERATURE", 0.1))
 
 # Issue categorization options
-ISSUE_TYPES = ["Epic", "Change Request", "Bug Fix", "Task", "Question"]
-PRIORITY_LEVELS = ["Critical", "High", "Medium", "Low"]
+from SuperPrompt import ISSUE_TYPES, PRIORITY_LEVELS
 
 # Set up OpenAI API key
 openai.api_key = OPENAI_API_KEY
 
 def check_openai_library_version():
     """Check if the openai library is up-to-date."""
-    required_version = "0.27.0"
+    required_version = "1.65.2"
     if version.parse(openai.__version__) < version.parse(required_version):
         print(f"Your openai library version ({openai.__version__}) is outdated. "
               f"Please upgrade to at least version {required_version} using:\n"
@@ -87,28 +86,58 @@ def get_issue_data():
         'existing_labels': [label.get('name') for label in issue.get('labels', [])]
     }
 
+
 def analyze_issue_with_llm(issue_data):
     """Use OpenAI chat.completions to analyze the issue and return parsed YAML output"""
-    prompt = f"""
+    from SuperPrompt import load_analyze_issue_prompt
+    
+    unformatted_prompt = load_analyze_issue_prompt()
+
+    prompt = unformatted_prompt.format(
+        issue_types=', '.join(ISSUE_TYPES),
+        priority_levels=', '.join(PRIORITY_LEVELS),
+        issue_data=issue_data,
+        issue_title=issue_data['issue_title'],
+        issue_body=issue_data['issue_body']
+    )
+
+    old_prompt = f"""
     Analyze and review this GitHub issue and provide the following:
     1. Issue Type (select one): {', '.join(ISSUE_TYPES)}
     2. Priority (select one): {', '.join(PRIORITY_LEVELS)}
     3. Estimated complexity (select one): Simple, Moderate, Complex
     4. Feedback:
-        1. whether the Title is clear and concise, and matches the description
-        2. whether the Description is unambiguous, detailed, and provides necessary context
-        3. whether the Description is SMART (Specific, Measurable, Achievable, Relevant, Time-bound)
-        4. suggested first steps to address the issue, if not provided in the issue description
+        1. the Title is clear and concise, and matches the description - or suggests improvements
+        2. the Description is unambiguous, detailed, and provides necessary context - or suggests improvements
+        3. the Description is SMART (Specific, Measurable, Achievable, Relevant, Time-bound) - or suggests improvements
+        4. any additional comments or suggestions for the issue
+    5. Analysis:
+        Depending on the issue type, provide a detailed analysis of the issue, including:
+        1. Summarize the key points of the issue (for a Bug Fix, this might be a root cause analysis)
+        2. Identify any potential blockers, dependencies, ambiguities, risks, conflicts (a Change Request may conflict with other projects)
+        3. Identify unclear requirements, explicitly asking for missing information, or clarifications
+    6. Planning:
+        1. Break down the issue into smaller tasks or sub-issues, if applicable:
+            - Don't break down simple Tasks, call this a Step
+            - Change Requests may require a few Steps and Tasks (e.g. 2-5) (Tasks are created as separate issues)
+            - Epics may require multiple Steps, Tasks, or Change Requests (e.g. 5-10), that will be created as separate issues
+        2. List the breakdown in a checklist format, with each item having a clear goal or outcome
+    7. Goal Setting:
+        1. Define the goal or outcome of the issue, in a SMART format (Specific, Measurable, Achievable, Relevant, Time-bound)
+        2. Define the success criteria for the issue, including any acceptance criteria or tests
+        3. Include relevant requirements, like test coverage and documentation updates when applicable
     
     FORMAT YOUR RESPONSE AS YAML, with the following keys:
     - issue_type
     - priority
     - complexity
-    - review
-    - next_steps
-    
+    - review feedback
+    - analysis
+    - planning
+    - goals
+
     ISSUE TITLE: {issue_data['issue_title']}
-    
+
     ISSUE DESCRIPTION:
     {issue_data['issue_body']}
     """
@@ -125,7 +154,6 @@ def analyze_issue_with_llm(issue_data):
     
     response_content = response.choices[0].message.content.strip()
     clean_yaml = re.sub(r"^```yaml\n|```$", "", response_content, flags=re.MULTILINE)
-
 
     # Attempt to parse the YAML output; if parsing fails, fall back to a basic dict
     try:
