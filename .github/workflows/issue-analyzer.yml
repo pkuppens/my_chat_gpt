@@ -16,9 +16,7 @@ jobs:
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
       - name: Install dependencies
-        run: pip install openai pyyaml requests
-      - name: Install pytest
-        run: pip install pytest
+        run: pip install openai pyyaml requests PyGithub pytest
       - name: Run issue analyzer
         env:
           LLM_PROVIDER: openai

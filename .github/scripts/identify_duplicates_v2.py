@@ -215,7 +215,7 @@ class GitHubEventProcessor:
             title=issue_data['title'],
             body=issue_data.get('body'),
             state=issue_data['state'],
-            created_at=datetime.fromisoformat(issue_data['created_at']),
+            created_at=datetime.fromisoformat(issue_data['created_at'].replace("Z", "+00:00")),
             url=issue_data['html_url']
         )
 
