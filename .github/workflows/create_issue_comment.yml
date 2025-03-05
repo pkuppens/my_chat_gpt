@@ -1,7 +1,7 @@
 name: Duplicate Issue Detection
 on:
   issues:
-    types: [opened, edited]
+    types: [opened]
 
 jobs:
   detect-duplicates:
