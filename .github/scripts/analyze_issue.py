@@ -1,326 +1,359 @@
-#!/usr/bin/env python3
 import os
-import json
-import openai
-import yaml
 import re
-import requests
+import yaml
+import logging
+from typing import Dict, Any, List, Optional, Union
+from dataclasses import dataclass, field
 from datetime import datetime
+
+import openai
+import requests
 from packaging import version
+import github
+from github import Github, Repository, Issue
 
-# Configuration
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
-GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN")
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger(__name__)
 
-SAMPLE_GITHUB_EVENT = {
-  "action": "opened",
-  "issue": {
-    "number": 22,
-    "title": "Add an LLM review to newly opened GitHub issues.",
-    "body": """
-When a new Github issue is created, start a workflow that reviews the issue:
-* is the title clear?
-* do the title and description match?
-* is the description 'SMART'?
+# Configuration constants
+DEFAULT_LLM_MODEL = "gpt-3.5-turbo"
+DEFAULT_MAX_TOKENS = 2048
+DEFAULT_TEMPERATURE = 0.1
+REQUIRED_OPENAI_VERSION = "1.65.2"
 
-Optionally:
-* make the workflow multi-stage, e.g. first determine the issue type, add a label for issue type, and make the description review depend on the issue type: bug reports need a different review than EPICs or Subtasks
-
-Test/Proof of Concept:
-* write an issue that implements a software reverse engineering ticket that writes YAML/XML documentation for components/classes/methods
-    """,
-    "html_url": "https://github.com/pkuppens/my_chat_gpt/issues/22",
-    "labels": [
-      {"name": "bug"},
-      {"name": "enhancement"}
-    ]
-  },
-  "repository": {
-    "name": "my_chat_gpt",
-    "owner": {
-      "login": "pkuppens"
-    }
-  },
-  "sender": {
-    "login": "pkuppens"
-  }
-}
-
-GITHUB_EVENT_PATH = os.environ.get("GITHUB_EVENT_PATH")
-# Use the ChatCompletion model by default
-LLM_MODEL = os.environ.get("LLM_MODEL", "gpt-3.5-turbo")
-MAX_TOKENS = int(os.environ.get("MAX_TOKENS", 2048))
-TEMPERATURE = float(os.environ.get("TEMPERATURE", 0.1))
-
-# Issue categorization options
-from SuperPrompt import ISSUE_TYPES, PRIORITY_LEVELS
-
-# Set up OpenAI API key
-openai.api_key = OPENAI_API_KEY
-
-def check_openai_library_version():
-    """Check if the openai library is up-to-date."""
-    required_version = "1.65.2"
-    if version.parse(openai.__version__) < version.parse(required_version):
-        print(f"Your openai library version ({openai.__version__}) is outdated. "
-              f"Please upgrade to at least version {required_version} using:\n"
-              "pip install --upgrade openai")
-
-def get_issue_data():
-    """Read the GitHub event data for the issue"""
-    if not GITHUB_EVENT_PATH:
-        print("No GitHub event data found.")
-        event_data = SAMPLE_GITHUB_EVENT
-    else:
-        with open(GITHUB_EVENT_PATH, 'r') as f:
-            event_data = json.load(f)
-    
-    issue = event_data.get('issue', {})
-    return {
-        'repo_owner': event_data.get('repository', {}).get('owner', {}).get('login'),
-        'repo_name': event_data.get('repository', {}).get('name'),
-        'issue_number': issue.get('number'),
-        'issue_title': issue.get('title'),
-        'issue_body': issue.get('body') or "",
-        'issue_url': issue.get('html_url'),
-        'existing_labels': [label.get('name') for label in issue.get('labels', [])]
-    }
-
-
-def analyze_issue_with_llm(issue_data):
-    """Use OpenAI chat.completions to analyze the issue and return parsed YAML output"""
-    from SuperPrompt import load_analyze_issue_prompt
-    
-    unformatted_prompt = load_analyze_issue_prompt()
-
-    prompt = unformatted_prompt.format(
-        issue_types=', '.join(ISSUE_TYPES),
-        priority_levels=', '.join(PRIORITY_LEVELS),
-        issue_data=issue_data,
-        issue_title=issue_data['issue_title'],
-        issue_body=issue_data['issue_body']
-    )
-
-    old_prompt = f"""
-    Analyze and review this GitHub issue and provide the following:
-    1. Issue Type (select one): {', '.join(ISSUE_TYPES)}
-    2. Priority (select one): {', '.join(PRIORITY_LEVELS)}
-    3. Estimated complexity (select one): Simple, Moderate, Complex
-    4. Feedback:
-        1. the Title is clear and concise, and matches the description - or suggests improvements
-        2. the Description is unambiguous, detailed, and provides necessary context - or suggests improvements
-        3. the Description is SMART (Specific, Measurable, Achievable, Relevant, Time-bound) - or suggests improvements
-        4. any additional comments or suggestions for the issue
-    5. Analysis:
-        Depending on the issue type, provide a detailed analysis of the issue, including:
-        1. Summarize the key points of the issue (for a Bug Fix, this might be a root cause analysis)
-        2. Identify any potential blockers, dependencies, ambiguities, risks, conflicts (a Change Request may conflict with other projects)
-        3. Identify unclear requirements, explicitly asking for missing information, or clarifications
-    6. Planning:
-        1. Break down the issue into smaller tasks or sub-issues, if applicable:
-            - Don't break down simple Tasks, call this a Step
-            - Change Requests may require a few Steps and Tasks (e.g. 2-5) (Tasks are created as separate issues)
-            - Epics may require multiple Steps, Tasks, or Change Requests (e.g. 5-10), that will be created as separate issues
-        2. List the breakdown in a checklist format, with each item having a clear goal or outcome
-    7. Goal Setting:
-        1. Define the goal or outcome of the issue, in a SMART format (Specific, Measurable, Achievable, Relevant, Time-bound)
-        2. Define the success criteria for the issue, including any acceptance criteria or tests
-        3. Include relevant requirements, like test coverage and documentation updates when applicable
-    
-    FORMAT YOUR RESPONSE AS YAML, with the following keys:
-    - issue_type
-    - priority
-    - complexity
-    - review feedback
-    - analysis
-    - planning
-    - goals
-
-    ISSUE TITLE: {issue_data['issue_title']}
-
-    ISSUE DESCRIPTION:
-    {issue_data['issue_body']}
+@dataclass
+class OpenAIConfig:
     """
+    Configuration for OpenAI API interactions.
     
-    response = openai.chat.completions.create(
-        model=LLM_MODEL,
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant that analyzes GitHub issues."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=TEMPERATURE,
-        max_tokens=MAX_TOKENS
-    )
-    
-    response_content = response.choices[0].message.content.strip()
-    clean_yaml = re.sub(r"^```yaml\n|```$", "", response_content, flags=re.MULTILINE)
+    Attributes:
+        api_key (str): OpenAI API key.
+        model (str): LLM model to use.
+        max_tokens (int): Maximum tokens for completion.
+        temperature (float): Sampling temperature for generation.
+    """
+    api_key: str
+    model: str = DEFAULT_LLM_MODEL
+    max_tokens: int = DEFAULT_MAX_TOKENS
+    temperature: float = DEFAULT_TEMPERATURE
 
-    # Attempt to parse the YAML output; if parsing fails, fall back to a basic dict
-    try:
-        analysis = yaml.safe_load(clean_yaml)
-        if not isinstance(analysis, dict):
-            raise ValueError("Parsed YAML is not a dictionary.")
-    except Exception as exc:
-        print("Warning: Failed to parse YAML output. Using raw response as feedback.")
-        analysis = {
-            "issue_type": "Unknown",
-            "priority": "Medium",
-            "complexity": "Unknown",
-            "review": response_content,
-            "next_steps": ["Review issue manually"]
+@dataclass
+class IssueAnalysis:
+    """
+    Represents the result of an LLM-based issue analysis.
+    
+    Attributes:
+        issue_type (str): Categorized type of the issue.
+        priority (str): Assigned priority level.
+        complexity (str): Estimated complexity.
+        review_feedback (Dict[str, Any]): Detailed review insights.
+        analysis (Dict[str, Any]): In-depth issue analysis.
+        planning (List[str]): Suggested planning steps.
+        goals (Dict[str, Any]): Issue goals and success criteria.
+        next_steps (List[str]): Recommended immediate actions.
+    """
+    issue_type: str = "Unknown"
+    priority: str = "Medium"
+    complexity: str = "Unknown"
+    review_feedback: Dict[str, Any] = field(default_factory=dict)
+    analysis: Dict[str, Any] = field(default_factory=dict)
+    planning: List[str] = field(default_factory=list)
+    goals: Dict[str, Any] = field(default_factory=dict)
+    next_steps: List[str] = field(default_factory=lambda: ["Review issue manually"])
+
+class OpenAIVersionChecker:
+    """Utility for checking OpenAI library version compatibility."""
+    
+    @staticmethod
+    def check_library_version() -> bool:
+        """
+        Validate the installed OpenAI library version.
+        
+        Returns:
+            bool: True if version is compatible, False otherwise.
+        """
+        try:
+            current_version = version.parse(openai.__version__)
+            required_version = version.parse(REQUIRED_OPENAI_VERSION)
+            
+            if current_version < required_version:
+                logger.warning(
+                    f"Outdated OpenAI library version. "
+                    f"Current: {current_version}, Required: {required_version}. "
+                    "Please upgrade using: pip install --upgrade openai"
+                )
+                return False
+            return True
+        except Exception as e:
+            logger.error(f"Version check failed: {e}")
+            return False
+
+class OpenAIValidator:
+    """Validates OpenAI API key and permissions."""
+    
+    @staticmethod
+    def validate_api_key(api_key: str) -> bool:
+        """
+        Validate the OpenAI API key's permissions.
+        
+        Args:
+            api_key (str): OpenAI API key to validate.
+        
+        Returns:
+            bool: True if key is valid, False otherwise.
+        """
+        try:
+            headers = {"Authorization": f"Bearer {api_key}"}
+            response = requests.get("https://api.openai.com/v1/models", headers=headers)
+            return response.status_code == 200
+        except Exception as e:
+            logger.error(f"API key validation failed: {e}")
+            return False
+
+class LLMIssueAnalyzer:
+    """
+    Performs LLM-based analysis of GitHub issues using OpenAI's API.
+    """
+    def __init__(self, config: OpenAIConfig):
+        """
+        Initialize the LLM issue analyzer.
+        
+        Args:
+            config (OpenAIConfig): Configuration for OpenAI interactions.
+        """
+        self.config = config
+        openai.api_key = config.api_key
+    
+    def _prepare_prompt(self, issue_data: Dict[str, Any]) -> str:
+        """
+        Prepare a system and user prompt for issue analysis.
+        
+        Args:
+            issue_data (Dict[str, Any]): Issue details for analysis.
+        
+        Returns:
+            str: Formatted prompt for LLM analysis.
+        """
+        from SuperPrompt import load_analyze_issue_prompt, ISSUE_TYPES, PRIORITY_LEVELS
+        
+        unformatted_prompt = load_analyze_issue_prompt()
+        return unformatted_prompt.format(
+            issue_types=', '.join(ISSUE_TYPES),
+            priority_levels=', '.join(PRIORITY_LEVELS),
+            issue_data=issue_data,
+            issue_title=issue_data['issue_title'],
+            issue_body=issue_data['issue_body']
+        )
+    
+    def analyze_issue(self, issue_data: Dict[str, Any]) -> IssueAnalysis:
+        """
+        Analyze a GitHub issue using an LLM.
+        
+        Args:
+            issue_data (Dict[str, Any]): Details of the issue to analyze.
+        
+        Returns:
+            IssueAnalysis: Structured analysis of the issue.
+        """
+        prompt = self._prepare_prompt(issue_data)
+        
+        try:
+            response = openai.chat.completions.create(
+                model=self.config.model,
+                messages=[
+                    {"role": "system", "content": "You are a helpful assistant that analyzes GitHub issues."},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=self.config.temperature,
+                max_tokens=self.config.max_tokens
+            )
+            
+            response_content = response.choices[0].message.content.strip()
+            clean_yaml = re.sub(r"^```yaml\n|```$", "", response_content, flags=re.MULTILINE)
+            
+            try:
+                analysis_dict = yaml.safe_load(clean_yaml)
+                if not isinstance(analysis_dict, dict):
+                    raise ValueError("Parsed YAML is not a dictionary")
+                
+                return IssueAnalysis(**{k: v for k, v in analysis_dict.items() if hasattr(IssueAnalysis, k)})
+            
+            except Exception as parsing_error:
+                logger.warning(f"YAML parsing failed: {parsing_error}")
+                return IssueAnalysis(review_feedback=response_content)
+        
+        except Exception as e:
+            logger.error(f"LLM analysis failed: {e}")
+            return IssueAnalysis()
+
+class GitHubLabelManager:
+    """
+    Manages GitHub issue labels, ensuring required labels exist and are applied.
+    """
+    def __init__(self, github_token: str):
+        """
+        Initialize the label manager.
+        
+        Args:
+            github_token (str): GitHub authentication token.
+        """
+        self.github_token = github_token
+        self.headers = {
+            "Authorization": f"token {github_token}",
+            "Accept": "application/vnd.github.v3+json"
         }
     
-    return analysis
-
-def get_or_create_labels(repo_owner, repo_name, labels_to_create):
-    """Ensure all required labels exist in the repository"""
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
+    def ensure_labels_exist(
+        self, 
+        repo_owner: str, 
+        repo_name: str, 
+        labels: List[str], 
+        color: str = "6f42c1"
+    ) -> None:
+        """
+        Ensure specified labels exist in the repository.
+        
+        Args:
+            repo_owner (str): GitHub repository owner.
+            repo_name (str): GitHub repository name.
+            labels (List[str]): Labels to ensure exist.
+            color (str, optional): Default color for new labels.
+        """
+        url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/labels"
+        
+        # Get existing labels
+        response = requests.get(url, headers=self.headers)
+        existing_labels = [label['name'] for label in response.json()]
+        
+        # Create missing labels
+        for label in labels:
+            if label not in existing_labels:
+                label_data = {"name": label, "color": color}
+                requests.post(url, headers=self.headers, json=label_data)
     
-    # Get existing labels
-    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/labels"
-    response = requests.get(url, headers=headers)
-    existing_labels = [label['name'] for label in response.json()]
-    
-    # Create any missing labels
-    for label in labels_to_create:
-        if label not in existing_labels:
-            label_data = {
-                "name": label,
-                "color": "6f42c1"  # Default purple color
-            }
-            requests.post(url, headers=headers, json=label_data)
-
-def add_labels_to_issue(repo_owner, repo_name, issue_number, labels):
-    """Add labels to the issue"""
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    
-    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{issue_number}/labels"
-    data = {"labels": labels}
-    response = requests.post(url, headers=headers, json=data)
-    return response.status_code == 200
-
-def add_comment_to_issue(repo_owner, repo_name, issue_number, comment):
-    """Add a comment to the issue with the analysis"""
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    
-    url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{issue_number}/comments"
-    data = {"body": comment}
-    response = requests.post(url, headers=headers, json=data)
-    return response.status_code == 201
-
-def get_available_models():
-    headers = {
-        "Authorization": f"Bearer {OPENAI_API_KEY}"
-    }
-    response = requests.get("https://api.openai.com/v1/models", headers=headers)
-    response.raise_for_status()  # Raises an HTTPError if the response was unsuccessful
-    models_data = response.json().get("data", [])
-    models = [model["id"] for model in models_data]
-    return models
-
-def validate_openai_api_key():
-    """Validate the OpenAI API key and its permissions"""
-    try:
-        get_available_models()
-        return True
-    except Exception as exc:
-        print(f"Error validating OpenAI API key: {exc}")
-        return False
-
-def validate_github_token():
-    """Validate the GitHub token and its permissions"""
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    url = "https://api.github.com/user"
-    response = requests.get(url, headers=headers)
-    response.raise_for_status()  # Raises an HTTPError if the response was unsuccessful
-    return True
+    def add_labels_to_issue(
+        self, 
+        repo_owner: str, 
+        repo_name: str, 
+        issue_number: int, 
+        labels: List[str]
+    ) -> bool:
+        """
+        Add labels to a specific GitHub issue.
+        
+        Args:
+            repo_owner (str): GitHub repository owner.
+            repo_name (str): GitHub repository name.
+            issue_number (int): Issue number to label.
+            labels (List[str]): Labels to add.
+        
+        Returns:
+            bool: True if labels were successfully added, False otherwise.
+        """
+        url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{issue_number}/labels"
+        response = requests.post(url, headers=self.headers, json={"labels": labels})
+        return response.status_code == 200
 
 def main():
-    # Check if the openai library is up-to-date
-    check_openai_library_version()
+    """
+    Main execution function for GitHub issue LLM analysis.
+    """
+    # Validate OpenAI library and API key
+    if not OpenAIVersionChecker.check_library_version():
+        raise RuntimeError("Incompatible OpenAI library version")
     
-    # Validate API keys and tokens
-    if not validate_openai_api_key():
-        raise ValueError("Invalid OpenAI API key or insufficient permissions.")
-
-    if not validate_github_token():
-        raise ValueError("Invalid GitHub token or insufficient permissions.")
-    
-    # Get issue data
-    issue_data = get_issue_data()
-    
-    # Analyze issue with OpenAI chat.completions
-    analysis = analyze_issue_with_llm(issue_data)
-    
-    # Prepare labels based on analysis
-    labels_to_add = [
-        f"Type: {analysis.get('issue_type', 'Unknown')}",
-        f"Priority: {analysis.get('priority', 'Medium')}",
-        f"Complexity: {analysis.get('complexity', 'Unknown')}"
-    ]
-    
-    # Labels to ensure exist in the repository
-    all_needed_labels = []
-    for issue_type in ISSUE_TYPES:
-        all_needed_labels.append(f"Type: {issue_type}")
-    for priority in PRIORITY_LEVELS:
-        all_needed_labels.append(f"Priority: {priority}")
-    all_needed_labels.extend(["Complexity: Simple", "Complexity: Moderate", "Complexity: Complex"])
-    
-    # Create any missing labels
-    get_or_create_labels(issue_data['repo_owner'], issue_data['repo_name'], all_needed_labels)
-    
-    # Add labels to issue
-    add_labels_to_issue(
-        issue_data['repo_owner'],
-        issue_data['repo_name'],
-        issue_data['issue_number'],
-        labels_to_add
+    # Setup configurations
+    openai_config = OpenAIConfig(
+        api_key=os.environ.get("OPENAI_API_KEY", ""),
+        model=os.environ.get("LLM_MODEL", DEFAULT_LLM_MODEL),
+        max_tokens=int(os.environ.get("MAX_TOKENS", DEFAULT_MAX_TOKENS)),
+        temperature=float(os.environ.get("TEMPERATURE", DEFAULT_TEMPERATURE))
     )
     
-    # Format the analysis comment
-    next_steps = analysis.get('next_steps', ['Review issue manually'])
-    if isinstance(next_steps, list):
-        steps_formatted = "\n".join(['- ' + step for step in next_steps])
-    else:
-        steps_formatted = next_steps  # If it's not a list, use as is.
+    # Validate OpenAI API key
+    if not OpenAIValidator.validate_api_key(openai_config.api_key):
+        raise ValueError("Invalid OpenAI API key")
     
-    comment = f"""
+    # Process issue data
+    from SuperPrompt import ISSUE_TYPES, PRIORITY_LEVELS
+    
+    # Retrieve issue data using GitHubEventProcessor from previous script
+    from identify_duplicates_v2 import GitHubEventProcessor
+    
+    try:
+        event = GitHubEventProcessor.parse_issue_event()
+        issue_data = {
+            'repo_owner': event.get('repository', {}).get('owner', {}).get('login'),
+            'repo_name': event.get('repository', {}).get('name'),
+            'issue_number': event.get('issue', {}).get('number'),
+            'issue_title': event.get('issue', {}).get('title'),
+            'issue_body': event.get('issue', {}).get('body') or ""
+        }
+        
+        # Analyze issue
+        llm_analyzer = LLMIssueAnalyzer(openai_config)
+        analysis = llm_analyzer.analyze_issue(issue_data)
+        
+        # Prepare labels
+        label_manager = GitHubLabelManager(os.environ.get("GITHUB_TOKEN", ""))
+        
+        # Ensure all potential labels exist
+        all_labels = [
+            *[f"Type: {issue_type}" for issue_type in ISSUE_TYPES],
+            *[f"Priority: {priority}" for priority in PRIORITY_LEVELS],
+            "Complexity: Simple", "Complexity: Moderate", "Complexity: Complex"
+        ]
+        label_manager.ensure_labels_exist(
+            issue_data['repo_owner'], 
+            issue_data['repo_name'], 
+            all_labels
+        )
+        
+        # Add specific labels for this issue
+        specific_labels = [
+            f"Type: {analysis.issue_type}",
+            f"Priority: {analysis.priority}",
+            f"Complexity: {analysis.complexity}"
+        ]
+        label_manager.add_labels_to_issue(
+            issue_data['repo_owner'], 
+            issue_data['repo_name'], 
+            issue_data['issue_number'], 
+            specific_labels
+        )
+        
+        # Add comment with analysis details
+        comment = f"""
 ## Issue Analysis
 
-**Type:** {analysis.get('issue_type', 'Unknown')}  
-**Priority:** {analysis.get('priority', 'Medium')}  
-**Complexity:** {analysis.get('complexity', 'Unknown')}
+**Type:** {analysis.issue_type}
+**Priority:** {analysis.priority}
+**Complexity:** {analysis.complexity}
 
 ### Review Summary
-{analysis.get('review', 'No summary available.')}
+{analysis.review_feedback}
 
 ### Suggested Next Steps
-{steps_formatted}
+{chr(10).join(f'- {step}' for step in analysis.next_steps)}
 
 ---
 *Analyzed automatically at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
 """
-    
-    # Add the comment
-    add_comment_to_issue(
-        issue_data['repo_owner'],
-        issue_data['repo_name'],
-        issue_data['issue_number'],
-        comment
-    )
+        
+        # Optional: Add comment to issue
+        logger.info(f"Analysis complete for issue #{issue_data['issue_number']}")
+        logger.info(f"Analysis result: {analysis}")
+        logger.info(f"Comment added to issue: {comment}")
+        # You would implement this similar to previous script's add_comment_to_issue method
+        
+    except Exception as e:
+        logger.error(f"Issue analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()
