@@ -19,6 +19,10 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
+# just to see which of these work.
+logging.info("Logging the start of the issue analysis...")
+logger.info("Logger the start of the issue analysis...")
+print("Printing the start of the issue analysis...")
 
 # Configuration constants
 DEFAULT_LLM_MODEL = "gpt-3.5-turbo"

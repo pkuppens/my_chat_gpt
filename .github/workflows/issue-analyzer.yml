@@ -16,7 +16,7 @@ jobs:
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
       - name: Install dependencies
-        run: pip install openai pyyaml requests PyGithub pytest
+        run: pip install openai pyyaml requests PyGithub pytest sklearn
       - name: Run issue analyzer
         env:
           LLM_PROVIDER: openai
@@ -25,7 +25,8 @@ jobs:
           TEMPERATURE: 0.1
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python .github/scripts/analyze_issue.py
+          PYTHONUNBUFFERED: "1"
+        run: python -u .github/scripts/analyze_issue.py
       - name: Run analyze_issue.ipynb notebook
         run: |
           pip install jupyter
