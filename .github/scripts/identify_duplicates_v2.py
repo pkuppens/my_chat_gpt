@@ -6,6 +6,8 @@ import logging
 import sys
 from datetime import datetime, timedelta
 
+from github import Github, Repository, Issue
+
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 

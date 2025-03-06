@@ -154,14 +154,15 @@ class LLMIssueAnalyzer:
         Returns:
             str: Formatted prompt for LLM analysis.
         """
-        from SuperPrompt import load_analyze_issue_prompt
+        from utils.prompts import load_analyze_issue_prompt
 
         placeholders = {
             "issue_types": ', '.join(ISSUE_TYPES),
             "priority_levels": ', '.join(PRIORITY_LEVELS),
             "issue_data": issue_data,
-            "issue_title": issue_data['issue_title'],
-            "issue_body": issue_data['issue_body']
+            # try to fill these placeholder, otherwise keep as placeholders
+            "issue_title": issue_data.get('issue_title', '{issue_title}'),
+            "issue_body": issue_data.get('issue_body', '{issue_body}'),
         }
         
         system_prompt, user_prompt = load_analyze_issue_prompt(placeholders=placeholders)
@@ -297,7 +298,7 @@ def main():
         raise ValueError("Invalid OpenAI API key")
     
     # Process issue data
-    from SuperPrompt import ISSUE_TYPES, PRIORITY_LEVELS
+    from utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS
     
     # Retrieve issue data using GitHubEventProcessor from previous script
     from identify_duplicates_v2 import GitHubEventProcessor

@@ -1,5 +1,23 @@
-import os
-import requests
+"""
+GitHub Issue Management Utility
+
+This module provides functionality for working with GitHub issues programmatically.
+It includes helper functions for connecting to GitHub, accessing repositories,
+and performing common issue operations such as creating, retrieving, editing,
+and commenting on issues.
+
+Dependencies:
+    - PyGithub
+
+Usage:
+    Import this module to interact with GitHub issues using the provided functions.
+    You will need a valid GitHub access token to authenticate requests.
+
+Example:
+    client = get_github_client("your-github-token")
+    repo = get_repository(client, "username/repository")
+    issues = get_issues(repo)
+"""
 from github import Github
 
 # Constants for tags, priority levels, and issue types

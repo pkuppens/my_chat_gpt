@@ -1,7 +1,8 @@
 import os
-import requests
 import logging
 from datetime import datetime, timedelta
+
+import requests
 
 # Configure logging to show in GitHub Actions
 logging.basicConfig(
@@ -97,7 +98,14 @@ def main():
 
     # Get and count recently closed issues (last 120 days)
     one_hundred_twenty_days_ago = datetime.now() - timedelta(days=120)
-    recently_closed_issues = [issue for issue in issues if issue["state"] == "closed" and datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ") > one_hundred_twenty_days_ago]
+    recently_closed_issues = [
+        issue
+        for issue in issues
+        if (
+            issue["state"] == "closed" and
+            datetime.strptime(issue["closed_at"], "%Y-%m-%dT%H:%M:%SZ") > one_hundred_twenty_days_ago
+        )
+        ]
     logging.info(f"Found {len(recently_closed_issues)} recently closed issues (last 120 days)")
 
     high_similarity_issues, moderate_similarity_issues = find_similar_issues(new_issue, open_issues + recently_closed_issues)
