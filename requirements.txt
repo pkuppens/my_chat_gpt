@@ -261,9 +261,6 @@ python-dotenv
 python-json-logger
 python-multipart
 pytz
-pywin32
-pywin32-ctypes
-pywinpty
 PyYAML
 pyzmq
 RapidFuzz

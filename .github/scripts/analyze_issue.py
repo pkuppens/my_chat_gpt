@@ -9,7 +9,6 @@ from datetime import datetime
 import openai
 import requests
 from packaging import version
-import github
 from github import Github, Repository, Issue
 
 from utils.github_utils import (
@@ -30,7 +29,8 @@ logging.basicConfig(
     handlers=[logging.StreamHandler()]
 )
 logger = logging.getLogger(__name__)
-# just to see which of these work.
+
+# Which of these work? Actually, all of them, with the PYTHONUNBUFFERED option on.
 logging.info("Logging the start of the issue analysis...")
 logger.info("Logger the start of the issue analysis...")
 print("Printing the start of the issue analysis...")
