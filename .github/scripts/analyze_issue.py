@@ -155,15 +155,17 @@ class LLMIssueAnalyzer:
             str: Formatted prompt for LLM analysis.
         """
         from SuperPrompt import load_analyze_issue_prompt
+
+        placeholders = {
+            "issue_types": ', '.join(ISSUE_TYPES),
+            "priority_levels": ', '.join(PRIORITY_LEVELS),
+            "issue_data": issue_data,
+            "issue_title": issue_data['issue_title'],
+            "issue_body": issue_data['issue_body']
+        }
         
-        unformatted_prompt = load_analyze_issue_prompt()
-        return unformatted_prompt.format(
-            issue_types=', '.join(ISSUE_TYPES),
-            priority_levels=', '.join(PRIORITY_LEVELS),
-            issue_data=issue_data,
-            issue_title=issue_data['issue_title'],
-            issue_body=issue_data['issue_body']
-        )
+        system_prompt, user_prompt = load_analyze_issue_prompt(placeholders=placeholders)
+        return system_prompt, user_prompt
     
     def analyze_issue(self, issue_data: Dict[str, Any]) -> IssueAnalysis:
         """
@@ -175,14 +177,14 @@ class LLMIssueAnalyzer:
         Returns:
             IssueAnalysis: Structured analysis of the issue.
         """
-        prompt = self._prepare_prompt(issue_data)
+        system_prompt, user_prompt = self._prepare_prompt(issue_data)
         
         try:
             response = openai.chat.completions.create(
                 model=self.config.model,
                 messages=[
-                    {"role": "system", "content": "You are a helpful assistant that analyzes GitHub issues."},
-                    {"role": "user", "content": prompt}
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
                 ],
                 temperature=self.config.temperature,
                 max_tokens=self.config.max_tokens
