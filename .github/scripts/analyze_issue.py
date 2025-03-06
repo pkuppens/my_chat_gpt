@@ -12,6 +12,17 @@ from packaging import version
 import github
 from github import Github, Repository, Issue
 
+from utils.github_utils import (
+    get_github_client,
+    get_repository,
+    get_issues,
+    create_issue,
+    edit_issue,
+    add_comment,
+    ISSUE_TYPES,
+    PRIORITY_LEVELS
+)
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
@@ -143,7 +154,7 @@ class LLMIssueAnalyzer:
         Returns:
             str: Formatted prompt for LLM analysis.
         """
-        from SuperPrompt import load_analyze_issue_prompt, ISSUE_TYPES, PRIORITY_LEVELS
+        from SuperPrompt import load_analyze_issue_prompt
         
         unformatted_prompt = load_analyze_issue_prompt()
         return unformatted_prompt.format(
