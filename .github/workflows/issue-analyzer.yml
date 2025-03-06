@@ -15,8 +15,6 @@ jobs:
           python-version: '3.10'
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
-      - name: Install dependencies
-        run: pip install openai pyyaml requests PyGithub pytest scikit-learn python-dotenv
       - name: Install dependencies from requirements.txt
         run: pip install -r requirements.txt
       - name: Run issue analyzer
