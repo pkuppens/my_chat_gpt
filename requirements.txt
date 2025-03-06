@@ -25,7 +25,6 @@ beautifulsoup4
 bleach
 boto3
 botocore
-browser-use
 build
 CacheControl
 cachetools
