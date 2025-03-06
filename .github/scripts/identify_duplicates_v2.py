@@ -6,9 +6,19 @@ import logging
 import sys
 from datetime import datetime, timedelta
 
-from github import Github, Repository, Issue
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
+from utils.github_utils import (
+    get_github_client,
+    get_repository,
+    get_issues,
+    create_issue,
+    edit_issue,
+    add_comment,
+    ISSUE_TYPES,
+    PRIORITY_LEVELS
+)
 
 # Configure logging
 logging.basicConfig(
@@ -56,7 +66,7 @@ class GithubClientFactory:
         github_token = os.getenv('GITHUB_TOKEN')
         if not github_token:
             raise ValueError("GITHUB_TOKEN not found in environment variables")
-        return Github(github_token)
+        return get_github_client(github_token)
     
     @classmethod
     def get_repository(cls, client: Github) -> Repository.Repository:
@@ -75,7 +85,7 @@ class GithubClientFactory:
         repo_name = os.getenv('GITHUB_REPOSITORY')
         if not repo_name:
             raise ValueError("GITHUB_REPOSITORY not found in environment variables")
-        return client.get_repo(repo_name)
+        return get_repository(client, repo_name)
 
 class IssueRetriever:
     """
@@ -106,7 +116,7 @@ class IssueRetriever:
             List[IssueContext]: List of recent issues in the repository.
         """
         cutoff_date = datetime.now() - timedelta(days=days_back)
-        issues = self.repository.get_issues(state=state, since=cutoff_date)
+        issues = get_issues(self.repository, state=state)
         
         return [
             IssueContext(
@@ -116,7 +126,7 @@ class IssueRetriever:
                 state=issue.state,
                 created_at=issue.created_at,
                 url=issue.html_url
-            ) for issue in issues
+            ) for issue in issues if issue.created_at >= cutoff_date
         ]
 
 class IssueSimilarityAnalyzer:
