@@ -207,7 +207,7 @@ class LLMIssueAnalyzer:
         
         except Exception as e:
             logger.error(f"LLM analysis failed: {e}")
-            return IssueAnalysis()
+            raise
 
 class GitHubLabelManager:
     """
@@ -374,4 +374,8 @@ def main():
         raise
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logger.error(f"Execution failed: {e}")
+        raise
