@@ -3,6 +3,7 @@ name: Issue Analyzer
 on:
   issues:
     types: [opened, edited]
+  workflow_dispatch:
 
 jobs:
   analyze-issue:
