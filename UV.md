@@ -11,7 +11,7 @@ The original github repo can be found [here](https://github.com/astral-sh/uv).
 - **Compatibility**: `uv` maintains compatibility with existing Python packaging tools while offering improved performance.
 - **Modern Features**: Includes advanced caching, lockfile support, and virtual environment management.
 
-## Installation Steps
+## Installation Steps - Once per system.
 
 1. Ensure you have Python installed on your machine.
 
@@ -21,12 +21,23 @@ The original github repo can be found [here](https://github.com/astral-sh/uv).
     pip install uv
     ```
 
+3. Install `Rust`
+
+    Go to:
+    https://www.rust-lang.org/tools/install
+    and/or immediately download:
+    https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe
+
+    Follow the default installation instructions, and restart the command terminal/restart visual studio code.
+
+
 ## Creating a New Environment with `uv`
 
 1. Create a new virtual environment:
+    Use version 3.12 to prevent some incompatibilities with earlier or later versions.
 
     ```sh
-    uv venv
+    uv venv --python=3.12
     ```
    
    Or specify a location:
