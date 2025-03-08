@@ -4,12 +4,7 @@ from datetime import datetime, timedelta
 
 import requests
 
-# Configure logging to show in GitHub Actions
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
-)
+from utils.logger import logger
 
 def get_issues(repo, token):
     url = f"https://api.github.com/repos/{repo}/issues"
