@@ -54,3 +54,8 @@ def edit_issue(issue, title: str = None, body: str = None, state: str = None, la
 def add_comment(issue, comment: str):
     """Add a comment to an issue."""
     return issue.create_comment(comment)
+
+def append_response_to_issue(issue, response: str):
+    """Append the complete response to the issue comments."""
+    comment = f"## OpenAI API Response\n\n{response}"
+    return add_comment(issue, comment)

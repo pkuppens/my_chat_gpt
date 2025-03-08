@@ -19,8 +19,10 @@ from utils.github_utils import (
     edit_issue,
     add_comment,
     ISSUE_TYPES,
-    PRIORITY_LEVELS
+    PRIORITY_LEVELS,
+    append_response_to_issue
 )
+from utils.openai_utils import parse_openai_response
 
 # Configure logging
 logging.basicConfig(
@@ -192,17 +194,12 @@ class LLMIssueAnalyzer:
             )
             
             response_content = response.choices[0].message.content.strip()
-            clean_yaml = re.sub(r"^```yaml\n|```$", "", response_content, flags=re.MULTILINE)
+            analysis_dict = parse_openai_response(response_content)
             
-            try:
-                analysis_dict = yaml.safe_load(clean_yaml)
-                if not isinstance(analysis_dict, dict):
-                    raise ValueError("Parsed YAML is not a dictionary")
-                
+            if isinstance(analysis_dict, dict):
                 return IssueAnalysis(**{k: v for k, v in analysis_dict.items() if hasattr(IssueAnalysis, k)})
-            
-            except Exception as parsing_error:
-                logger.warning(f"YAML parsing failed: {parsing_error}")
+            else:
+                append_response_to_issue(issue_data, response_content)
                 return IssueAnalysis(review_feedback=response_content)
         
         except Exception as e:
