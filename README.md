@@ -105,3 +105,27 @@ This repository includes a GitHub Action that automatically comments on newly cr
 ### Usage
 
 Once configured, the GitHub Action will automatically run whenever a new issue is created. It will analyze the issue description and comment with links to potential duplicate issues.
+
+## Linting Configuration
+
+This project uses `black` and `flake8` for linting. The linting configuration is documented in the `LINTING.md` file.
+
+### Pre-commit Hook
+
+A pre-commit hook has been added to prevent deteriorating the lint score. The pre-commit script is located at `.github/scripts/pre_commit_lint.sh`. To bypass the lint check, use the `--no-verify` option when committing.
+
+### Standalone Lint Run
+
+To run the linting tools manually, use the following commands:
+
+    black .
+    flake8
+
+### Recommended Plugin Extensions
+
+For a better development experience, it is recommended to use the following plugin extensions:
+
+- **Python**: Provides rich support for the Python language, including features such as IntelliSense, linting, debugging, and more.
+- **Pylance**: A performant, feature-rich language server for Python in Visual Studio Code.
+- **Black**: A code formatter for Python.
+- **Flake8**: A linting tool for Python.
