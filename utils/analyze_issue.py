@@ -1,18 +1,12 @@
 import os
 import logging
-from typing import Dict, Any
+from typing import Dict, List, Any
 from dataclasses import dataclass, field
 
+from utils.logger import logger
 from utils.github_utils import append_response_to_issue
 from utils.openai_utils import parse_openai_response, make_openai_api_call
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
-)
-logger = logging.getLogger(__name__)
 
 @dataclass
 class IssueAnalysis:
@@ -36,20 +30,21 @@ class IssueAnalysis:
     analysis: Dict[str, Any] = field(default_factory=dict)
     planning: List[str] = field(default_factory=list)
     goals: Dict[str, Any] = field(default_factory=dict)
-    next_steps: List[str] = field(default_factory=lambda: ["Review issue manually"])
+    next_steps: List[str] = field(default_factory=lambda: ["Review issue manually - default action."])
 
 class LLMIssueAnalyzer:
     """
     Performs LLM-based analysis of GitHub issues using OpenAI's API.
     """
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: OpenAIConfig):
         """
         Initialize the LLM issue analyzer.
         
         Args:
-            config (Dict[str, Any]): Configuration for OpenAI interactions.
+            config (OpenAIConfig): Configuration for OpenAI interactions.
         """
         self.config = config
+        openai.api_key = config.api_key
     
     def _prepare_prompt(self, issue_data: Dict[str, Any]) -> str:
         """
@@ -64,9 +59,10 @@ class LLMIssueAnalyzer:
         from utils.prompts import load_analyze_issue_prompt
 
         placeholders = {
-            "issue_types": ', '.join(self.config.get('issue_types', [])),
-            "priority_levels": ', '.join(self.config.get('priority_levels', [])),
+            "issue_types": ', '.join(ISSUE_TYPES),
+            "priority_levels": ', '.join(PRIORITY_LEVELS),
             "issue_data": issue_data,
+            # try to fill these placeholder, otherwise keep as placeholders
             "issue_title": issue_data.get('issue_title', '{issue_title}'),
             "issue_body": issue_data.get('issue_body', '{issue_body}'),
         }
@@ -87,17 +83,17 @@ class LLMIssueAnalyzer:
         system_prompt, user_prompt = self._prepare_prompt(issue_data)
         
         try:
-            response_content = make_openai_api_call(
-                api_key=self.config['api_key'],
-                model=self.config['model'],
+            response = openai.chat.completions.create(
+                model=self.config.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=self.config['temperature'],
-                max_tokens=self.config['max_tokens']
+                temperature=self.config.temperature,
+                max_tokens=self.config.max_tokens
             )
             
+            response_content = response.choices[0].message.content.strip()
             analysis_dict = parse_openai_response(response_content)
             
             if isinstance(analysis_dict, dict):
@@ -109,3 +105,4 @@ class LLMIssueAnalyzer:
         except Exception as e:
             logger.error(f"LLM analysis failed: {e}")
             raise
+

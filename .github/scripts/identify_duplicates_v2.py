@@ -11,6 +11,7 @@ from github import Github, Repository, Issue
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from utils.logger import logger
 from utils.github_utils import (
     get_github_client,
     get_repository,
@@ -21,14 +22,6 @@ from utils.github_utils import (
     ISSUE_TYPES,
     PRIORITY_LEVELS
 )
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
-)
-logger = logging.getLogger(__name__)
 
 @dataclass
 class IssueContext:
