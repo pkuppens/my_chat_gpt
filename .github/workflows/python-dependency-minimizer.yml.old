@@ -1,5 +1,8 @@
 name: Detect Minimal Python Dependencies
 
+# Has been renamed to .old to disable:
+# It is quite costly for each single pull request, and could exceed GitHub action runner resources.
+
 on:
   push:
   pull_request:
