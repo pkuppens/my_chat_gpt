@@ -63,6 +63,13 @@ To update an existing project to use `uv`, follow these steps:
 
 4. Add your project dependencies to the `pyproject.toml` file under `[tool.uv.dependencies]`. You can copy the dependencies from your existing `requirements.txt` file.
 
+   Note: to minimize the dependencies, we can use a similar way as with the `python-dependency-minimizer.yaml`
+   github workflow file. We need to have `pipdeptree` package installed, and call something like:
+
+   `pipdeptree --warn silence --freeze | grep -E '^\S' > minimal-requirements.txt`
+
+   (Needs small modification or manual edits on Windows command terminal without `grep`)
+
 5. Install the dependencies using `uv`:
 
     ```sh

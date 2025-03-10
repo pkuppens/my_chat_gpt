@@ -162,3 +162,4 @@ cython_debug/
 
 # uv specific files
 .uv/
+test_env/
