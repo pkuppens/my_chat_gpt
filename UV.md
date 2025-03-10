@@ -1,52 +1,77 @@
 # UV Package Management System
 
+This document explains the use of `uv` package manager for Python projects.
+The original github repo can be found [here](https://github.com/astral-sh/uv).
+
 ## Benefits of Using `uv`
 
-- **Speed**: `uv` is designed to be faster in resolving dependencies and installing packages compared to `pip` and `poetry`. This can significantly reduce the time required for setting up and managing project dependencies.
-- **Efficiency**: `uv` optimizes the installation process by minimizing redundant operations and leveraging parallel downloads, leading to more efficient package management.
-- **Flexibility**: `uv` offers greater flexibility in handling complex dependency trees and version constraints, making it easier to manage projects with intricate dependency requirements.
-- **Compatibility**: While `uv` may have some compatibility issues, it provides mechanisms to detect and handle these issues effectively, ensuring smooth integration with various environments.
-- **Documentation and Support**: `uv` comes with comprehensive documentation and community support, making it easier for developers to adopt and troubleshoot any issues that may arise.
+- **Speed**: `uv` is significantly faster than `pip` and `poetry` for resolving dependencies and installing packages, reducing setup time for projects.
+- **Efficiency**: `uv` optimizes installation through parallel downloads and minimizing redundant operations.
+- **Reliability**: `uv` provides consistent, reproducible environments with precise dependency resolution.
+- **Compatibility**: `uv` maintains compatibility with existing Python packaging tools while offering improved performance.
+- **Modern Features**: Includes advanced caching, lockfile support, and virtual environment management.
 
-## Installation Steps
+## Installation Steps - Once per system.
 
-1. Ensure you have Python installed on your machine. You can download it from [Python.org](https://www.python.org/).
-
-2. Install `uv` using pip:
-
-    ```sh
-    pip install uv
-    ```
-
-3. Initialize a new `uv` project: - Skip this when migrating existing projects to `uv`.
-
-    ```sh
-    uv init
-    ```
-
-4. Add dependencies to your project:
-
-    ```sh
-    uv add <package-name>
-    ```
-
-5. Install dependencies:
-
-    ```sh
-    uv install
-    ```
-
-## Updating an Existing Project to Use `uv`
-
-To update an existing project to use `uv`, follow these steps:
-
-1. Ensure you have Python installed on your machine. You can download it from [Python.org](https://www.python.org/).
+1. Ensure you have Python installed on your machine.
 
 2. Install `uv` using pip:
 
     ```sh
     pip install uv
     ```
+
+3. Install `Rust`
+
+    Go to:
+    https://www.rust-lang.org/tools/install
+    and/or immediately download:
+    https://static.rust-lang.org/rustup/dist/x86_64-pc-windows-msvc/rustup-init.exe
+
+    Follow the default installation instructions, and restart the command terminal/restart visual studio code.
+
+
+## Creating a New Environment with `uv`
+
+1. Create a new virtual environment:
+    Use version 3.12 to prevent some incompatibilities with earlier or later versions.
+
+    ```sh
+    uv venv --python=3.12
+    ```
+   
+   Or specify a location:
+   
+    ```sh
+    uv venv /path/to/venv
+    ```
+
+2. Activate the environment:
+
+    ```sh
+    # On Windows
+    /path/to/venv/Scripts/activate
+    
+    # On macOS/Linux
+    source /path/to/venv/bin/activate
+    ```
+
+## Managing Dependencies
+
+### Installing Packages
+
+To install packages:
+
+```sh
+# Install a single package
+uv pip install requests
+
+# Install from requirements.txt
+uv pip install -r requirements.txt
+
+# Install from pyproject.toml
+uv pip install -e .
+```
 
 3. Create or check the `pyproject.toml` file in the root directory of your project with the necessary configurations. Here is an example:
 

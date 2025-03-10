@@ -1,0 +1,9 @@
+Review the following GitHub issue according to the provided guidelines.
+
+### **Issue Details**
+**Title**: {issue_title}
+
+**Description**:
+{issue_body}
+
+Analyze and structure your response in YAML format, as defined in the system instructions.

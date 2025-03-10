@@ -7,12 +7,7 @@ import json
 import sys
 import logging
 
-# Configure logging to show in GitHub Actions
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
-)
+from utils.logger import logger
 
 class GithubDuplicateIssueDetector:
     def __init__(self):

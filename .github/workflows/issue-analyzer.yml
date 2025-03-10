@@ -3,6 +3,7 @@ name: Issue Analyzer
 on:
   issues:
     types: [opened, edited]
+  workflow_dispatch:
 
 jobs:
   analyze-issue:
@@ -12,11 +13,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.10'
-      - name: Install dependencies
-        run: pip install openai pyyaml requests
-      - name: Install pytest
-        run: pip install pytest
+          python-version: '3.12'
+      - name: Set PYTHONPATH
+        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
+      - name: Install dependencies from requirements, specific for github workflow
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.github.workflow
       - name: Run issue analyzer
         env:
           LLM_PROVIDER: openai
@@ -25,8 +28,5 @@ jobs:
           TEMPERATURE: 0.1
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python .github/scripts/analyze_issue.py
-      - name: Run analyze_issue.ipynb notebook
-        run: |
-          pip install jupyter
-          jupyter nbconvert --to notebook --execute notebooks/analyze_issue.ipynb
+          PYTHONUNBUFFERED: "1"
+        run: python -u .github/scripts/analyze_issue.py
