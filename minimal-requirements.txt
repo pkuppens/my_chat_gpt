@@ -1,6 +1,8 @@
-ipykernel==6.29.5
-langchain-community==0.3.16
-langchain-ollama==0.2.3
-openai==1.65.5
-PySocks==1.7.1
-selenium==4.29.0
+ipykernel
+langchain-community
+langchain-ollama
+openai
+PySocks
+selenium
+black[jupyter]
+flake8

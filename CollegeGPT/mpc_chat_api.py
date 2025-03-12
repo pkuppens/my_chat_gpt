@@ -14,8 +14,10 @@ def read_text_from_file(file_path):
     with open(file_path, "r") as file:
         return file.read()
 
+
 def chunk_text(text, max_tokens):
     return textwrap.wrap(text, max_tokens)
+
 
 def start_conversation():
     response = openai.ChatCompletion.create(
@@ -26,17 +28,15 @@ def start_conversation():
         top_p=1,
         frequency_penalty=0.0,
         presence_penalty=0.6,
-        stop=[" Human:", " AI:"]
+        stop=[" Human:", " AI:"],
     )
     return response["id"]
 
+
 def send_message(conversation_id, message):
-    response = openai.ChatCompletion.append_message(
-        conversation_id,
-        role="user",
-        content=message
-    )
+    response = openai.ChatCompletion.append_message(conversation_id, role="user", content=message)
     return response.choices[0].text.strip()
+
 
 def main():
     # Step 1: Read the text from a file
@@ -68,6 +68,7 @@ def main():
     more_questions_request = "Should more multiple choice questions be generated?"
     more_questions_response = send_message(conversation_id, more_questions_request)
     print("\nMore Questions Response:\n", more_questions_response)
+
 
 if __name__ == "__main__":
     main()
