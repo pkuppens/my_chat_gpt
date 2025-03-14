@@ -1,9 +1,11 @@
 [flake8]
 max-line-length = 132
-ignore = I100, I101, I201
+ignore = I100, I101, I201, R0902, R0903
 select = E999
 
 # Linting configuration for the project
 # - max-line-length: Set to 132 to allow longer lines
 # - ignore: Ignore import order warnings
 # - select: Be strict about syntax errors
+# R0902: too-many-instance-attributes > 7
+# R0903: min-public-methods < 2
