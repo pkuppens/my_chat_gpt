@@ -337,4 +337,4 @@ xxhash
 y-py
 yarl
 ypy-websocket
-zipp
+local_utils

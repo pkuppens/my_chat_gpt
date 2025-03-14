@@ -266,6 +266,7 @@ dependencies = [
     "yarl==1.18.3",
     "ypy-websocket==0.12.4",
     "zipp==3.21.0",
+    "local_utils"
 ]
 
 [build-system]
@@ -274,6 +275,3 @@ build-backend = "uv.build"
 
 [tool.black]
 line-length = 132
-
-# Linting configuration for the project
-# - line-length: Set to 132 to allow longer lines

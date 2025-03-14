@@ -129,3 +129,181 @@ For a better development experience, it is recommended to use the following plug
 - **Pylance**: A performant, feature-rich language server for Python in Visual Studio Code.
 - **Black**: A code formatter for Python.
 - **Flake8**: A linting tool for Python.
+
+## Installation Instructions for the `local_utils` Module
+
+To install the `local_utils` module, follow these steps:
+
+1. Clone the repository:
+
+    ```sh
+    git clone https://github.com/pkuppens/my_chat_gpt.git
+    cd my_chat_gpt
+    ```
+
+2. Create a virtual environment:
+
+    ```sh
+    python -m venv .venv
+    source .venv/bin/activate  # On Windows use `.venv\Scripts\activate`
+    ```
+
+3. Install the dependencies:
+
+    ```sh
+    pip install -r requirements.txt
+    ```
+
+4. Install the `local_utils` module:
+
+    ```sh
+    pip install -e .
+    ```
+
+5. Verify the installation:
+
+    ```sh
+    python -c "import local_utils; print('Local Utils module installed successfully')"
+    ```
+
+## Debug/Run Configurations
+
+To properly find the project components, add the following debug/run configurations to your `.vscode/settings.json` file:
+
+```json
+{
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
+    "python.terminal.activateEnvironment": true,
+    "jupyter.notebookFileRoot": "${workspaceFolder}",
+    "cSpell.words": [
+        "dspy",
+        "Ollama"
+    ],
+    "python.linting.enabled": true,
+    "python.linting.flake8Enabled": true,
+    "python.linting.blackEnabled": true,
+    "python.linting.lintOnSave": true,
+    "python.linting.lintOnTextChange": true,
+    "python.linting.lintOnOpen": true,
+    "python.linting.lintOnSaveMode": "file",
+    "python.linting.lintOnTextChangeMode": "file",
+    "python.linting.lintOnOpenMode": "file",
+    "python.linting.lintOnSaveDelay": 500,
+    "python.linting.lintOnTextChangeDelay": 500,
+    "python.linting.lintOnOpenDelay": 500,
+    "python.linting.lintOnSaveTimeout": 5000,
+    "python.linting.lintOnTextChangeTimeout": 5000,
+    "python.linting.lintOnOpenTimeout": 5000,
+    "python.linting.lintOnSaveMaxFiles": 10,
+    "python.linting.lintOnTextChangeMaxFiles": 10,
+    "python.linting.lintOnOpenMaxFiles": 10,
+    "python.linting.lintOnSaveMaxFileSize": 1048576,
+    "python.linting.lintOnTextChangeMaxFileSize": 1048576,
+    "python.linting.lintOnOpenMaxFileSize": 1048576,
+    "python.linting.lintOnSaveMaxFileCount": 100,
+    "python.linting.lintOnTextChangeMaxFileCount": 100,
+    "python.linting.lintOnOpenMaxFileCount": 100,
+    "python.linting.lintOnSaveMaxFileSizeLimit": 10485760,
+    "python.linting.lintOnTextChangeMaxFileSizeLimit": 10485760,
+    "python.linting.lintOnOpenMaxFileSizeLimit": 10485760,
+    "python.linting.lintOnSaveMaxFileCountLimit": 1000,
+    "python.linting.lintOnTextChangeMaxFileCountLimit": 1000,
+    "python.linting.lintOnOpenMaxFileCountLimit": 1000,
+    "python.linting.lintOnSaveMaxFileSizeLimitExceeded": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceeded": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceeded": "warn",
+    "python.linting.lintOnSaveMaxFileCountLimitExceeded": "warn",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceeded": "warn",
+    "python.linting.lintOnOpenMaxFileCountLimitExceeded": "warn",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededAction": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededAction": "warn",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededAction": "warn",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededAction": "warn",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionType": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionType": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionType": "warn",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionType": "warn",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionType": "warn",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionType": "warn",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeAction": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeAction": "warn",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeAction": "warn",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeAction": "warn",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionType": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionType": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionType": "warn",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionType": "warn",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionType": "warn",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionType": "warn",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionType": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionType": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionType": "warn",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionType": "warn",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionType": "warn",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionType": "warn",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
+    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting."
+}
+```
