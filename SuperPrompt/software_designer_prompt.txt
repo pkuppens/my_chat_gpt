@@ -258,3 +258,35 @@ This AI is useful for:
 - **Financial platforms** balancing performance, security, and regulations.
 - **Scalable SaaS platforms** with cloud-native architecture.
 - **Generative AI and LLM applications** where we need agility for new developments, and stability for production applications.
+
+---
+
+## Instructions for Initializing a Tool from the Software Designer Tool System Prompt
+To initialize a tool from the software designer tool system prompt, follow these steps:
+1. Define the tool's purpose and functionality.
+2. Specify the input and output requirements.
+3. Implement the tool using appropriate design patterns and best practices.
+4. Test the tool to ensure it meets the specified requirements.
+5. Document the tool's usage and provide examples.
+
+---
+
+## Instructions for Creating an Agentic Software Engineer for Coding Tasks
+To create an agentic software engineer for coding tasks, follow these steps:
+1. Define the agent's role and responsibilities.
+2. Specify the coding tasks the agent will handle.
+3. Implement the agent using appropriate design patterns and best practices.
+4. Test the agent to ensure it can perform the specified coding tasks.
+5. Document the agent's usage and provide examples.
+
+---
+
+## Instructions for Enabling the Software Engineer Agent to Generate Markdown Documentation, Python Code Files, Perform Smart Web Searches, and Local Document Lookups
+To enable the software engineer agent to generate markdown documentation, Python code files, perform smart web searches, and local document lookups, follow these steps:
+1. Define the agent's capabilities and functionalities.
+2. Implement the agent's ability to generate markdown documentation.
+3. Implement the agent's ability to generate Python code files.
+4. Implement the agent's ability to perform smart web searches.
+5. Implement the agent's ability to perform local document lookups.
+6. Test the agent to ensure it can perform all the specified tasks.
+7. Document the agent's usage and provide examples.
