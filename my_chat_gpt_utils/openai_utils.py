@@ -4,7 +4,7 @@ import yaml
 from packaging import version
 import requests
 
-from utils.logger import logger
+from my_chat_gpt_utils.logger import logger
 
 # Configuration constants
 DEFAULT_LLM_MODEL = "gpt-3.5-turbo"

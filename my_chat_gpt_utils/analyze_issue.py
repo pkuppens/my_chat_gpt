@@ -3,9 +3,11 @@ import logging
 from typing import Dict, List, Any
 from dataclasses import dataclass, field
 
-from utils.logger import logger
-from utils.github_utils import append_response_to_issue
-from utils.openai_utils import parse_openai_response, make_openai_api_call
+import openai
+
+from my_chat_gpt_utils.logger import logger
+from my_chat_gpt_utils.github_utils import append_response_to_issue
+from my_chat_gpt_utils.openai_utils import OpenAIConfig, parse_openai_response, make_openai_api_call
 
 
 @dataclass
@@ -59,7 +61,7 @@ class LLMIssueAnalyzer:
         Returns:
             str: Formatted prompt for LLM analysis.
         """
-        from utils.prompts import load_analyze_issue_prompt
+        from my_chat_gpt_utils.prompts import load_analyze_issue_prompt
 
         placeholders = {
             "issue_types": ", ".join(ISSUE_TYPES),

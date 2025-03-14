@@ -7,7 +7,7 @@ import json
 import sys
 import logging
 
-from utils.logger import logger
+from my_chat_gpt_utils.logger import logger
 
 
 class GithubDuplicateIssueDetector:

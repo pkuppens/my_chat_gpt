@@ -9,7 +9,7 @@ The module leverages issue classification constants from github_utils to ensure
 consistency in how issues are categorized and prioritized across the application.
 
 Dependencies:
-    - utils.github_utils
+    - my_chat_gpt_utils.github_utils
 
 Usage:
     Import this module to load pre-defined prompts for issue analysis,
@@ -31,9 +31,9 @@ import tempfile
 import pytest
 from typing import Dict, Tuple
 
-# Try to import from utils package, but fallback to constants if running standalone
+# Try to import from my_chat_gpt_utils package, but fallback to constants if running standalone
 try:
-    from utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS
+    from my_chat_gpt_utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS
 except ImportError:
     # Define constants for standalone operation
     ISSUE_TYPES = ["Epic", "Change Request", "Bug Fix", "Task", "Question"]

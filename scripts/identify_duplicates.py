@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 import requests
 
-from utils.logger import logger
+from my_chat_gpt_utils.logger import logger
 
 
 def get_issues(repo, token):
