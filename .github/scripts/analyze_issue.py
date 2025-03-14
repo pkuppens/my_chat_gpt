@@ -9,9 +9,9 @@ from datetime import datetime
 from github import Github, Repository, Issue
 
 
-from utils.analyze_issue import IssueAnalysis, LLMIssueAnalyzer
+from my_chat_gpt_utils.analyze_issue import IssueAnalysis, LLMIssueAnalyzer
 
-from utils.github_utils import (
+from my_chat_gpt_utils.github_utils import (
     GitHubLabelManager,
     get_github_client,
     get_repository,
@@ -23,8 +23,7 @@ from utils.github_utils import (
     PRIORITY_LEVELS,
     append_response_to_issue,
 )
-from utils.logger import logger
-from utils.openai_utils import (
+from my_chat_gpt_utils.openai_utils import (
     parse_openai_response,
     OpenAIConfig,
     OpenAIVersionChecker,
@@ -33,8 +32,7 @@ from utils.openai_utils import (
     DEFAULT_MAX_TOKENS,
     DEFAULT_TEMPERATURE,
 )
-from utils.analyze_issue import IssueAnalysis, LLMIssueAnalyzer
-
+from my_chat_gpt_utils.logger import logger
 
 # Which of these work? Actually, all of them, with the PYTHONUNBUFFERED option on.
 logging.info("Logging the start of the issue analysis...")
@@ -61,9 +59,6 @@ def main():
     # Validate OpenAI API key
     if not OpenAIValidator.validate_api_key(openai_config.api_key):
         raise ValueError("Invalid OpenAI API key")
-
-    # Process issue data
-    from utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS
 
     # Retrieve issue data using GitHubEventProcessor from previous script
     from identify_duplicates_v2 import GitHubEventProcessor

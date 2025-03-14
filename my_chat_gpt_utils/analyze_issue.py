@@ -1,11 +1,25 @@
-import os
-import logging
+"""
+This module provides functionality for analyzing GitHub issues using a language model (LLM) via OpenAI's API.
+
+Classes:
+    IssueAnalysis: Represents the result of an LLM-based issue analysis.
+    LLMIssueAnalyzer: Performs LLM-based analysis of GitHub issues using OpenAI's API.
+
+Functions:
+    LLMIssueAnalyzer.__init__: Initializes the LLM issue analyzer with the given OpenAI configuration.
+    LLMIssueAnalyzer._prepare_prompt: Prepares a system and user prompt for issue analysis.
+    LLMIssueAnalyzer.analyze_issue: Analyzes a GitHub issue using an LLM and returns a structured analysis.
+"""
+
 from typing import Dict, List, Any
 from dataclasses import dataclass, field
 
-from utils.logger import logger
-from utils.github_utils import append_response_to_issue
-from utils.openai_utils import parse_openai_response, make_openai_api_call
+import openai
+
+from my_chat_gpt_utils.logger import logger
+from my_chat_gpt_utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS, append_response_to_issue
+from my_chat_gpt_utils.openai_utils import OpenAIConfig, parse_openai_response
+from my_chat_gpt_utils.prompts import load_analyze_issue_prompt
 
 
 @dataclass
@@ -31,7 +45,7 @@ class IssueAnalysis:
     analysis: Dict[str, Any] = field(default_factory=dict)
     planning: List[str] = field(default_factory=list)
     goals: Dict[str, Any] = field(default_factory=dict)
-    next_steps: List[str] = field(default_factory=lambda: ["Review issue manually - default action."])
+    next_steps: List[str] = field(default_factory=lambda: ["Review issue manually - default."])
 
 
 class LLMIssueAnalyzer:
@@ -59,8 +73,6 @@ class LLMIssueAnalyzer:
         Returns:
             str: Formatted prompt for LLM analysis.
         """
-        from utils.prompts import load_analyze_issue_prompt
-
         placeholders = {
             "issue_types": ", ".join(ISSUE_TYPES),
             "priority_levels": ", ".join(PRIORITY_LEVELS),
@@ -98,10 +110,10 @@ class LLMIssueAnalyzer:
 
             if isinstance(analysis_dict, dict):
                 return IssueAnalysis(**{k: v for k, v in analysis_dict.items() if hasattr(IssueAnalysis, k)})
-            else:
-                append_response_to_issue(issue_data, response_content)
-                return IssueAnalysis(review_feedback=response_content)
+
+            append_response_to_issue(issue_data, response_content)
+            return IssueAnalysis(review_feedback=response_content)
 
         except Exception as e:
-            logger.error(f"LLM analysis failed: {e}")
+            logger.error("LLM analysis failed: %s", e)
             raise
