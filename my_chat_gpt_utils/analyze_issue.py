@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 import openai
 
 from my_chat_gpt_utils.logger import logger
-from my_chat_gpt_utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS, append_response_to_issue
+from my_chat_gpt_utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS, append_response_to_issue, get_github_issue
 from my_chat_gpt_utils.openai_utils import OpenAIConfig, parse_openai_response
 from my_chat_gpt_utils.prompts import load_analyze_issue_prompt
 
@@ -111,7 +111,8 @@ class LLMIssueAnalyzer:
             if isinstance(analysis_dict, dict):
                 return IssueAnalysis(**{k: v for k, v in analysis_dict.items() if hasattr(IssueAnalysis, k)})
 
-            append_response_to_issue(issue_data, response_content)
+            client = get_github_issue(issue_data["repo_owner"], issue_data["repo_name"], issue_data)
+            append_response_to_issue(client, issue_data["repo_name"], issue_data, response_content)
             return IssueAnalysis(review_feedback=response_content)
 
         except Exception as e:

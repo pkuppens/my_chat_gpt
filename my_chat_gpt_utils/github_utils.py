@@ -19,7 +19,7 @@ Example:
     issues = get_issues(repo)
 """
 
-from typing import List
+from typing import List, Dict, Any
 import requests
 
 from github import Github
@@ -66,8 +66,15 @@ def add_comment(issue, comment: str):
     return issue.create_comment(comment)
 
 
-def append_response_to_issue(issue, response: str):
+def get_github_issue(client: Github, repo_name: str, issue_data: Dict[str, Any]):
+    """Convert a dictionary to a GitHub issue object."""
+    repo = get_repository(client, repo_name)
+    return repo.get_issue(number=issue_data["issue_number"])
+
+
+def append_response_to_issue(client: Github, repo_name: str, issue_data: Dict[str, Any], response: str):
     """Append the complete response to the issue comments."""
+    issue = get_github_issue(client, repo_name, issue_data)
     comment = f"## OpenAI API Response\n\n{response}"
     return add_comment(issue, comment)
 
