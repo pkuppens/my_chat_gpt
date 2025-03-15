@@ -337,4 +337,4 @@ xxhash
 y-py
 yarl
 ypy-websocket
-local_utils
+my_chat_gpt_utils

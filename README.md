@@ -130,9 +130,9 @@ For a better development experience, it is recommended to use the following plug
 - **Black**: A code formatter for Python.
 - **Flake8**: A linting tool for Python.
 
-## Installation Instructions for the `local_utils` Module
+## Installation Instructions for the `my_chat_gpt_utils` Module
 
-To install the `local_utils` module, follow these steps:
+To install the `my_chat_gpt_utils` module, follow these steps:
 
 1. Clone the repository:
 
@@ -154,7 +154,7 @@ To install the `local_utils` module, follow these steps:
     pip install -r requirements.txt
     ```
 
-4. Install the `local_utils` module:
+4. Install the `my_chat_gpt_utils` module:
 
     ```sh
     pip install -e .
@@ -163,7 +163,7 @@ To install the `local_utils` module, follow these steps:
 5. Verify the installation:
 
     ```sh
-    python -c "import local_utils; print('Local Utils module installed successfully')"
+    python -c "import my_chat_gpt_utils; print('Local ChatGPT Utils module installed successfully')"
     ```
 
 ## Debug/Run Configurations
