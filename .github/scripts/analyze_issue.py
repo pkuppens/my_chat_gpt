@@ -5,6 +5,7 @@ from datetime import datetime
 from my_chat_gpt_utils.analyze_issue import LLMIssueAnalyzer
 
 from my_chat_gpt_utils.github_utils import (
+    GitHubEventProcessor,
     GitHubLabelManager,
     ISSUE_TYPES,
     PRIORITY_LEVELS,
@@ -46,9 +47,6 @@ def main():
         raise ValueError("Invalid OpenAI API key")
 
     # Retrieve issue data using GitHubEventProcessor from previous script
-    # TODO: Solve with move to GithubUtils
-    from identify_duplicates_v2 import GitHubEventProcessor
-
     try:
         event = GitHubEventProcessor.parse_issue_event()
         issue_data = {
