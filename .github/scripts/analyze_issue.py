@@ -1,30 +1,15 @@
 import os
-import re
-import yaml
 import logging
-from typing import Dict, Any, List, Optional, Union
-from dataclasses import dataclass, field
 from datetime import datetime
 
-from github import Github, Repository, Issue
-
-
-from my_chat_gpt_utils.analyze_issue import IssueAnalysis, LLMIssueAnalyzer
+from my_chat_gpt_utils.analyze_issue import LLMIssueAnalyzer
 
 from my_chat_gpt_utils.github_utils import (
     GitHubLabelManager,
-    get_github_client,
-    get_repository,
-    get_issues,
-    create_issue,
-    edit_issue,
-    add_comment,
     ISSUE_TYPES,
     PRIORITY_LEVELS,
-    append_response_to_issue,
 )
 from my_chat_gpt_utils.openai_utils import (
-    parse_openai_response,
     OpenAIConfig,
     OpenAIVersionChecker,
     OpenAIValidator,
@@ -61,6 +46,7 @@ def main():
         raise ValueError("Invalid OpenAI API key")
 
     # Retrieve issue data using GitHubEventProcessor from previous script
+    # TODO: Solve with move to GithubUtils
     from identify_duplicates_v2 import GitHubEventProcessor
 
     try:

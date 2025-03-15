@@ -2,3 +2,4 @@
 min-public-methods=1
 max-attributes=10
 max-line-length=132
+disable=W1203
