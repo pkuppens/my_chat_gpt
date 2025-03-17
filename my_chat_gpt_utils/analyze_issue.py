@@ -11,14 +11,15 @@ Functions:
     LLMIssueAnalyzer.analyze_issue: Analyzes a GitHub issue using an LLM and returns a structured analysis.
 """
 
+import os
 from typing import Dict, List, Any
 from dataclasses import dataclass, field
 
 import openai
 
 from my_chat_gpt_utils.logger import logger
-from my_chat_gpt_utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS, append_response_to_issue, get_github_issue
-from my_chat_gpt_utils.openai_utils import OpenAIConfig, parse_openai_response
+from my_chat_gpt_utils.github_utils import ISSUE_TYPES, PRIORITY_LEVELS, append_response_to_issue, get_github_client, get_github_issue
+from my_chat_gpt_utils.openai_utils import DEFAULT_LLM_MODEL, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, OpenAIConfig, parse_openai_response
 from my_chat_gpt_utils.prompts import load_analyze_issue_prompt
 
 
@@ -118,3 +119,52 @@ class LLMIssueAnalyzer:
         except Exception as e:
             logger.error("LLM analysis failed: %s", e)
             raise
+
+    def analyze_latest_issue(self, repo_owner: str, repo_name: str) -> IssueAnalysis:
+        """
+        Analyze the latest GitHub issue in a repository.
+
+        Args:
+            repo_owner (str): The owner of the repository.
+            repo_name (str): The name of the repository.
+
+        Returns:
+            IssueAnalysis: Structured analysis of the latest issue.
+        """
+        client = get_github_client()
+        repo = client.get_repo(f"{repo_owner}/{repo_name}")
+        # Get the latest open issue:
+        issues = repo.get_issues(state="open", sort="created", direction="desc")
+        latest_issue = issues.get_page(0)[0] if issues.totalCount > 0 else None
+
+        if latest_issue:
+            issue_data = {
+                "repo_owner": repo_owner,
+                "repo_name": repo_name,
+                "issue_number": latest_issue.number,
+                "issue_title": latest_issue.title,
+                "issue_body": latest_issue.body,
+            }
+            logger.info(f"Analyzing latest issue: {latest_issue.title}")
+            return self.analyze_issue(issue_data)
+        else:
+            logger.warning("No open issues found in the repository.")
+            return IssueAnalysis(review_feedback="No open issues found.")
+
+if __name__ == "__main__":
+    # Setup configurations
+    from dotenv import load_dotenv
+
+    load_dotenv()
+
+    openai_config = OpenAIConfig(
+        api_key=os.environ.get("OPENAI_API_KEY", ""),
+        model=os.environ.get("LLM_MODEL", DEFAULT_LLM_MODEL),
+        max_tokens=int(os.environ.get("MAX_TOKENS", DEFAULT_MAX_TOKENS)),
+        temperature=float(os.environ.get("TEMPERATURE", DEFAULT_TEMPERATURE)),
+    )
+
+    analysis = LLMIssueAnalyzer(
+        config=openai_config
+        ).analyze_latest_issue("pkuppens", "my_chat_gpt")
+    print(analysis)

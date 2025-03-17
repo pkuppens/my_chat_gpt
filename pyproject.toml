@@ -3,7 +3,7 @@ name = "my_chat_gpt"
 version = "0.1.0"
 description = "A collection of LLM documents and experiments, including ChatGPT and local Ollama."
 authors = [{name = "Pieter Kuppens <pieter.kuppens@gmail.com>"}]
-license = {name = "MIT", file = "LICENSE"}
+license = {text = "MIT"}
 
 dependencies = [
     "aiofiles==24.1.0",
@@ -197,6 +197,7 @@ dependencies = [
     "pyparsing==3.2.0",
     "pyproject_hooks==1.2.0",
     "pyrsistent==0.20.0",
+    "pytest==8.3.5",
     "python-dateutil==2.9.0.post0",
     "python-dotenv==1.0.1",
     "python-json-logger==3.2.1",

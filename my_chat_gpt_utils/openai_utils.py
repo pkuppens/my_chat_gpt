@@ -91,12 +91,14 @@ def parse_openai_response(response_content: str):
 
     Returns:
         dict: Parsed YAML content as a dictionary.
+        text: The response content if parsing fails.
     """
     try:
+        response_content = response_content.strip('`')  # remove markdown open/close tags
         return yaml.safe_load(response_content)
     except yaml.YAMLError as e:
         logger.warning(f"YAML parsing failed: {e}")
-        return None
+        return response_content
 
 
 def make_openai_api_call(api_key: str, model: str, messages: list, temperature: float, max_tokens: int):
@@ -120,3 +122,45 @@ def make_openai_api_call(api_key: str, model: str, messages: list, temperature: 
     except Exception as e:
         logger.error(f"OpenAI API call failed: {e}")
         raise
+
+def main():
+    """
+    Main function to validate OpenAI API key and library version.
+    """
+    logger.info("Starting OpenAI API key and library version validation...")
+
+    # Check OpenAI library version
+    if not OpenAIVersionChecker.check_library_version():
+        logger.error("OpenAI library version check failed. Exiting.")
+        return
+
+    # Load API key from environment variable
+    import os
+    from dotenv import load_dotenv
+    load_dotenv()
+    api_key = os.getenv("OPENAI_API_KEY")
+
+    if not api_key:
+        logger.error("OpenAI API key not found in environment variables. Exiting.")
+        return
+
+    # Validate API key
+    if not OpenAIValidator.validate_api_key(api_key):
+        logger.error("OpenAI API key validation failed. Exiting.")
+        return
+
+    logger.info("OpenAI API key and library version validation successful.")
+    
+    # Validate API key by fetching models
+    try:
+        openai.api_key = api_key
+        models = openai.Model.list()
+        logger.info("API key is valid. Available models:")
+        for model in models['data']:
+            logger.info(model['id'])
+    except Exception as e:
+        logger.error(f"API key validation by fetching models failed: {e}")
+        return
+
+if __name__ == "__main__":
+    main()

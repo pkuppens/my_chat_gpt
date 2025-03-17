@@ -150,11 +150,39 @@ class GithubClientFactory:
     """
     Factory class for creating GitHub API clients and retrieving repository context.
     """
+    @classmethod
+    def get_github_token(cls) -> str:
+        """
+        Retrieves the GitHub token from environment variables.
+
+        Returns:
+            str: GitHub token.
+
+        Raises:
+            ValueError: If GitHub token is not found in environment.
+        """
+        github_token = os.getenv("GITHUB_TOKEN")
+        if not github_token:
+            try:
+                from dotenv import load_dotenv
+
+                load_dotenv()
+                github_token = os.getenv("GITHUB_TOKEN")
+            except ImportError:
+                pass
+        if not github_token:
+            raise ValueError("GITHUB_TOKEN not found in environment variables")
+        return github_token
+
 
     @classmethod
-    def create_client(cls) -> Github:
+    def create_client(cls, github_token: Optional[str] = None) -> Github:
         """
         Creates a GitHub client using environment-based authentication.
+
+        Args:
+            github_token (Optional[str]): GitHub token for authentication.
+            Defaults to None, that wiil be read from environment.
 
         Returns:
             Github: Authenticated GitHub client instance.
@@ -162,12 +190,19 @@ class GithubClientFactory:
         Raises:
             ValueError: If GitHub token is not found in environment.
         """
-        github_token = os.getenv("GITHUB_TOKEN")
-        if not github_token:
-            raise ValueError("GITHUB_TOKEN not found in environment variables")
-        return get_github_client(github_token)
+        github_token = github_token or cls.get_github_token()
 
-    @classmethod
+        try:
+            if not github_token:
+                raise ValueError("GITHUB_TOKEN not provided nor found in environment variables")
+            client = Github(github_token)
+            client.get_user().login  # Check if the token is valid
+            return client
+        except Exception as e:
+            logger.error(f"Failed to create GitHub client with provided token: {e}")
+            raise ValueError("Invalid or expired GITHUB_TOKEN or unable to connect to GitHub") from e
+
+        
     def get_repository(cls, client: Github) -> Repository.Repository:
         """
         Retrieves the GitHub repository from environment configuration.
@@ -243,9 +278,11 @@ class GitHubEventProcessor:
         )
 
 
-def get_github_client(token: str) -> Github:
+def get_github_client(token: Optional[str] = None) -> Github:
     """Get an authenticated GitHub client."""
-    return Github(token)
+    client = GithubClientFactory.create_client(token)
+    return client
+    # return Github(token)
 
 
 def get_repository(client: Github, repo_name: str):

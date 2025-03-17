@@ -20,10 +20,8 @@ from my_chat_gpt_utils.openai_utils import (
 )
 from my_chat_gpt_utils.logger import logger
 
-# Which of these work? Actually, all of them, with the PYTHONUNBUFFERED option on.
+# Needs the PYTHONUNBUFFERED option on to log in the github actions
 logging.info("Logging the start of the issue analysis...")
-logger.info("Logger the start of the issue analysis...")
-print("Printing the start of the issue analysis...")
 
 
 def main():
