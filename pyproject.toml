@@ -270,7 +270,7 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools>=42", "wheel", "uv"]
+requires = ["setuptools>=76", "wheel", "uv"]
 build-backend = "setuptools.build_meta"
 # build-backend = "uv.build"
 

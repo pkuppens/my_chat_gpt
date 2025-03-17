@@ -35,7 +35,7 @@ PyYAML==6.0.1
 requests==2.31.0
 rich==13.7.1
 service-identity==24.1.0
-setuptools==68.1.2
+setuptools==76.0.0
 systemd-python==235
 twisted==24.3.0
 typing-extensions==4.10.0
