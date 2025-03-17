@@ -236,9 +236,34 @@ Workflow & Outputs:
 [Additional workflow steps as needed]
 
 Key Interactions:
-- [Role 1]: [Nature of interaction]
-- [Role 2]: [Nature of interaction]
-- [...]
+- [Role 1]: [Type of interaction] - [Purpose]
+  - Escalation: When issues exceed authority or expertise
+    - Example: Escalate security vulnerabilities to Security Officer
+    - Example: Escalate budget overruns to Project Sponsor
+  - Delegation: Assign ongoing responsibility for a task/area
+    - Example: Delegate code review responsibilities to Senior Developer
+    - Example: Delegate sprint planning to Scrum Master
+  - Handoff: Transfer specific work item or task
+    - Example: Handoff completed feature to QA team
+    - Example: Handoff resolved bug to deployment team
+  - Consultation: Seek expertise or advice
+    - Example: Consult with Security Expert on encryption approach
+    - Example: Consult with UX Designer on accessibility
+  - Collaboration: Joint work on shared deliverables
+    - Example: Pair programming on complex features
+    - Example: Joint architecture design sessions
+  - Review: Verify and validate work
+    - Example: Review delegated code changes
+    - Example: Review handoff documentation
+  - Support: Provide assistance or resources
+    - Example: Support junior developer with debugging
+    - Example: Support operations team with deployment
+  - Give Feedback: Provide input to improve others' work
+    - Example: Give code review comments
+    - Example: Give performance feedback
+  - Receive Feedback: Get input to improve own work
+    - Example: Receive peer review feedback
+    - Example: Receive user testing feedback
 
 Human Oversight Points:
 - [Decision/Output 1]: [Review process]
