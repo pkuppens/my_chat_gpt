@@ -71,7 +71,7 @@ class LLMIssueAnalyzer:
             config (OpenAIConfig): Configuration for OpenAI API.
         """
         self.config = config
-        openai.api_key = config.api_key
+        self.client = openai.OpenAI(api_key=config.api_key)
 
     def analyze_issue(self, issue_data: Dict[str, Any]) -> IssueAnalysis:
         """
@@ -84,19 +84,21 @@ class LLMIssueAnalyzer:
             IssueAnalysis: Analysis results.
 
         Raises:
-            Exception: If API call fails or response parsing fails.
+            ValueError: If the response format is invalid.
+            json.JSONDecodeError: If the response content is not valid JSON.
+            Exception: For other API or processing errors.
         """
-        try:
-            # Prepare the prompt
-            system_prompt, user_prompt = load_analyze_issue_prompt(
-                {
-                    "issue_title": issue_data.get("title", issue_data.get("issue_title", "")),
-                    "issue_body": issue_data.get("body", issue_data.get("issue_body", "")),
-                }
-            )
+        # Prepare the prompt
+        system_prompt, user_prompt = load_analyze_issue_prompt(
+            {
+                "issue_title": issue_data.get("title", issue_data.get("issue_title", "")),
+                "issue_body": issue_data.get("body", issue_data.get("issue_body", "")),
+            }
+        )
 
+        try:
             # Call OpenAI API
-            response = openai.chat.completions.create(
+            response = self.client.chat.completions.create(
                 model=self.config.model,
                 messages=[
                     {"role": "system", "content": system_prompt},
@@ -106,8 +108,33 @@ class LLMIssueAnalyzer:
                 max_tokens=self.config.max_tokens,
             )
 
+            # Validate response structure
+            if not hasattr(response, "choices") or not response.choices:
+                raise ValueError("OpenAI response missing 'choices' array")
+
+            if not hasattr(response.choices[0], "message"):
+                raise ValueError("OpenAI response missing 'message' in first choice")
+
+            if not hasattr(response.choices[0].message, "content"):
+                raise ValueError("OpenAI response missing 'content' in message")
+
+            # Get and validate content
+            content = response.choices[0].message.content
+            if not isinstance(content, (str, bytes, bytearray)):
+                raise ValueError(f"Invalid content type: {type(content)}. Expected str, bytes, or bytearray.")
+
             # Parse response
-            analysis_dict = json.loads(response.choices[0].message.content)
+            try:
+                analysis_dict = json.loads(content)
+            except json.JSONDecodeError as e:
+                logger.error(f"Failed to parse OpenAI response as JSON: {content}")
+                raise
+
+            # Validate required fields
+            required_fields = ["issue_type", "priority", "complexity"]
+            missing_fields = [field for field in required_fields if field not in analysis_dict]
+            if missing_fields:
+                raise ValueError(f"Analysis missing required fields: {missing_fields}")
 
             return IssueAnalysis(
                 issue_type=analysis_dict["issue_type"],

@@ -11,6 +11,7 @@ This module tests the functionality for analyzing GitHub issues using LLMs. The 
 The tests cover both direct API interactions and GitHub workflow integration.
 """
 
+# Test comment for IDE pre-commit hooks
 import json
 import os
 from datetime import datetime
@@ -37,35 +38,161 @@ from my_chat_gpt_utils.openai_utils import (
 )
 
 
+@pytest.fixture(autouse=True)
+def mock_openai_client():
+    """Automatically mock OpenAI client for all tests."""
+    with patch("openai.OpenAI") as mock_client:
+        mock_client.return_value = MagicMock()
+        yield mock_client
+
+
 class MockOpenAI:
-    """Mock class for OpenAI API interactions."""
+    """
+    Mock class for OpenAI API interactions.
+
+    This is a practical example of how to mock an external API client. Here's how it works:
+
+    1. When we create a mock, we tell it what response to return:
+       mock = MockOpenAI({"issue_type": "Bug Fix", "priority": "High"})
+
+    2. The mock mimics the real OpenAI client's structure:
+       Real client: client.chat.completions.create(...)
+       Our mock:   mock.chat.completions.create(...)
+
+    3. When the code calls create(), our mock returns a fake response that looks like:
+       {
+           "choices": [
+               {
+                   "message": {
+                       "content": '{"issue_type": "Bug Fix", "priority": "High"}'
+                   }
+               }
+           ]
+       }
+
+    This lets us test our code without making real API calls. For example:
+    >>> mock = MockOpenAI({"issue_type": "Bug Fix"})
+    >>> analyzer = LLMIssueAnalyzer(config)
+    >>> analyzer.client = mock  # Use our mock instead of real client
+    >>> result = analyzer.analyze_issue(data)  # This uses our mock, not real API
+    >>> assert result.issue_type == "Bug Fix"  # Test passes!
+    """
 
     def __init__(self, expected_response: Dict[str, Any]):
+        """
+        Create a mock that will return the given response.
+
+        Args:
+            expected_response: The data we want our mock to return.
+                             This should match what our code expects.
+        """
         self.expected_response = expected_response
 
-    def create(self, **kwargs):
+        # Create the nested structure that matches OpenAI's client
+        self.chat = MagicMock()
+        self.chat.completions = MagicMock()
+
+        # Tell the mock what to return when create() is called
+        self.chat.completions.create = MagicMock(return_value=self._create_mock_response())
+
+    def _create_mock_response(self):
+        """
+        Create a fake response that looks like what OpenAI would return.
+
+        The real OpenAI API returns responses in this format:
+        {
+            "choices": [
+                {
+                    "message": {
+                        "content": "JSON string here"
+                    }
+                }
+            ]
+        }
+
+        We create a similar structure using MagicMock objects:
+        - mock_response.choices[0].message.content = "our JSON string"
+        """
         mock_response = MagicMock()
         mock_response.choices = [MagicMock(message=MagicMock(content=json.dumps(self.expected_response)))]
         return mock_response
 
 
 class MockGitHub:
-    """Mock class for GitHub API interactions."""
+    """
+    Mock class for GitHub API interactions.
+
+    This mock simulates GitHub's API by:
+    1. Storing actions (like adding labels or comments) in memory
+    2. Providing methods that match GitHub's API structure
+    3. Allowing us to check what actions were performed
+
+    Example usage:
+    >>> mock_github = MockGitHub()
+    >>> mock_github.add_labels_to_issue("owner", "repo", 123, ["bug", "high"])
+    >>> mock_github.labels  # Check what labels were added
+    ['bug', 'high']
+
+    The mock tracks:
+    - Labels: What labels were created and added to issues
+    - Comments: What comments were posted to issues
+
+    This lets us verify that our code:
+    1. Creates the right labels
+    2. Adds labels to issues
+    3. Posts comments with the right content
+    """
 
     def __init__(self):
-        self.labels = []
-        self.comments = []
+        """Initialize empty lists to track labels and comments."""
+        self.labels = []  # Track all labels that were created or added
+        self.comments = []  # Track all comments that were posted
 
     def ensure_labels_exist(self, owner: str, repo: str, labels: list) -> list:
-        self.labels.extend(labels)
+        """
+        Simulate creating labels in a GitHub repository.
+
+        Args:
+            owner: Repository owner (not used in mock)
+            repo: Repository name (not used in mock)
+            labels: List of labels to create
+
+        Returns:
+            list: The labels that were created
+        """
+        self.labels.extend(labels)  # Track the labels
         return labels
 
     def add_labels_to_issue(self, owner: str, repo: str, issue_number: int, labels: list) -> bool:
-        self.labels.extend(labels)
+        """
+        Simulate adding labels to a GitHub issue.
+
+        Args:
+            owner: Repository owner (not used in mock)
+            repo: Repository name (not used in mock)
+            issue_number: Issue number (not used in mock)
+            labels: List of labels to add
+
+        Returns:
+            bool: Always True in mock
+        """
+        self.labels.extend(labels)  # Track the labels
         return True
 
     def append_response_to_issue(self, client, repo_name: str, issue_data: Dict[str, Any], comment: str) -> bool:
-        self.comments.append(comment)
+        """
+        Simulate posting a comment to a GitHub issue.
+
+        Args:
+            client: GitHub client (not used in mock)
+            repo_name: Repository name (not used in mock)
+            issue_data: Issue data (not used in mock)
+            comment: The comment text to post
+
+        Returns:
+            bool: Always True in mock
+        """
+        self.comments.append(comment)  # Track the comment
         return True
 
 
@@ -114,16 +241,34 @@ def mock_openai_config():
 
 
 def test_analyze_issue(mock_openai, mock_issue_data, mock_openai_config):
-    """Test the core issue analysis functionality."""
-    with patch("openai.chat.completions.create", side_effect=mock_openai.create):
-        analyzer = LLMIssueAnalyzer(mock_openai_config)
-        analysis = analyzer.analyze_issue(mock_issue_data)
+    """
+    Test the core issue analysis functionality.
 
-        assert analysis.issue_type == "Bug Fix"
-        assert analysis.priority == "High"
-        assert analysis.complexity == "Moderate"
-        assert analysis.review_feedback == "Test feedback"
-        assert analysis.next_steps == ["Step 1", "Step 2"]
+    This test shows how to use our mock in practice:
+    1. Create an analyzer with test config
+    2. Replace its client with our mock
+    3. Call analyze_issue() - it will use our mock instead of real API
+    4. Check that we got the expected results
+
+    The mock_openai fixture provides a mock configured to return:
+    {
+        "issue_type": "Bug Fix",
+        "priority": "High",
+        "complexity": "Moderate",
+        "review_feedback": "Test feedback",
+        "next_steps": ["Step 1", "Step 2"]
+    }
+    """
+    analyzer = LLMIssueAnalyzer(mock_openai_config)
+    analyzer.client = mock_openai  # Use mock instead of real client
+    analysis = analyzer.analyze_issue(mock_issue_data)
+
+    # Verify we got the expected results from our mock
+    assert analysis.issue_type == "Bug Fix"
+    assert analysis.priority == "High"
+    assert analysis.complexity == "Moderate"
+    assert analysis.review_feedback == "Test feedback"
+    assert analysis.next_steps == ["Step 1", "Step 2"]
 
 
 def test_get_required_labels():
@@ -152,18 +297,45 @@ def test_create_analysis_comment(mock_issue_analysis):
 
 
 def test_process_issue_analysis(mock_openai, mock_github, mock_issue_data, mock_openai_config):
-    """Test the complete issue analysis process including GitHub interactions."""
-    with patch("openai.chat.completions.create", side_effect=mock_openai.create), patch(
-        "my_chat_gpt_utils.analyze_issue.GitHubLabelManager", return_value=mock_github
-    ), patch("my_chat_gpt_utils.analyze_issue.append_response_to_issue", side_effect=mock_github.append_response_to_issue):
+    """
+    Test the complete issue analysis process including GitHub interactions.
 
-        result = process_issue_analysis(mock_issue_data, mock_openai_config)
+    This test shows how to use both mocks together:
+    1. MockOpenAI simulates the LLM analysis
+    2. MockGitHub simulates GitHub API interactions
 
-        assert result.issue_type == "Bug Fix"
-        assert result.priority == "High"
-        assert result.complexity == "Moderate"
-        assert len(mock_github.labels) > 0
-        assert len(mock_github.comments) == 1
+    We can verify that:
+    1. The right labels were created and added
+    2. The right comment was posted
+    3. The analysis results are correct
+
+    Example of checking mock results:
+    >>> result = process_issue_analysis(mock_issue_data, mock_openai_config)
+    >>> mock_github.labels  # Check what labels were added
+    ['Type: Bug Fix', 'Priority: High', ...]
+    >>> mock_github.comments  # Check what comment was posted
+    ['## Issue Analysis\n**Type:** Bug Fix\n...']
+    """
+    # Create analyzer with mock OpenAI client
+    analyzer = LLMIssueAnalyzer(mock_openai_config)
+    analyzer.client = mock_openai  # Use mock directly
+
+    # Mock GitHub interactions
+    with patch("my_chat_gpt_utils.analyze_issue.GitHubLabelManager", return_value=mock_github), patch(
+        "my_chat_gpt_utils.analyze_issue.append_response_to_issue", side_effect=mock_github.append_response_to_issue
+    ):
+        # Create a new analyzer in process_issue_analysis with our mock
+        with patch("my_chat_gpt_utils.analyze_issue.LLMIssueAnalyzer", return_value=analyzer):
+            result = process_issue_analysis(mock_issue_data, mock_openai_config)
+
+            # Verify analysis results
+            assert result.issue_type == "Bug Fix"
+            assert result.priority == "High"
+            assert result.complexity == "Moderate"
+
+            # Verify GitHub interactions
+            assert len(mock_github.labels) > 0  # Labels were created
+            assert len(mock_github.comments) == 1  # Comment was posted
 
 
 def test_get_issue_data_with_provided_data(mock_issue_data):
@@ -270,8 +442,12 @@ def test_setup_openai_config_default_values():
 
 def test_analyze_issue_error_handling(mock_issue_data, mock_openai_config):
     """Test error handling in analyze_issue method."""
-    with patch("openai.chat.completions.create", side_effect=Exception("API Error")):
-        analyzer = LLMIssueAnalyzer(mock_openai_config)
-        with pytest.raises(Exception) as exc_info:
-            analyzer.analyze_issue(mock_issue_data)
-        assert "API Error" in str(exc_info.value)
+    analyzer = LLMIssueAnalyzer(mock_openai_config)
+    mock_client = MagicMock()
+    mock_client.chat = MagicMock()
+    mock_client.chat.completions = MagicMock()
+    mock_client.chat.completions.create = MagicMock(side_effect=Exception("API Error"))
+    analyzer.client = mock_client
+    with pytest.raises(Exception) as exc_info:
+        analyzer.analyze_issue(mock_issue_data)
+    assert "API Error" in str(exc_info.value)
