@@ -8,7 +8,7 @@ and demonstrate my ability to quickly produce a Proof of Concept for new ideas.
 
 ## Problem Statement
 
-While Generative AI using LLMs might be able to produce texts quite easily these days, there 
+While Generative AI using LLMs might be able to produce texts quite easily these days, there
 are also challenges, like Ethics, Privacy, Bias, Explainability, and Hallucinations.
 
 I want to explore a different direction, that is somewhat related to Explainability, namely
@@ -18,7 +18,7 @@ the question 'For whom are we generating the texts?'
 
 My goal is to leverage the power of Generative AI to enhance communication in the healthcare sector.
 The 'For whom?' question is important here: the same medical records and diagnosis should be explained
-differently to patient with different (medical) language proficiencies, and a colleague healthcare 
+differently to patient with different (medical) language proficiencies, and a colleague healthcare
 professional that gets a referral for examination or treatment.
 
 The primary objective of my contribution to this Hackathon is to help healthcare practitioners communicate

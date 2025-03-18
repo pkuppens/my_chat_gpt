@@ -25,16 +25,13 @@ Functions:
     main: Main execution function for GitHub issue similarity detection.
 """
 
-from typing import List, Optional, Dict, Any, Tuple
 from dataclasses import dataclass
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional, Tuple
 
+from my_chat_gpt_utils.github_utils import (GithubClientFactory,
+                                            GitHubEventProcessor, get_issues)
 from my_chat_gpt_utils.logger import logger
-from my_chat_gpt_utils.github_utils import (
-    GitHubEventProcessor,
-    GithubClientFactory,
-    get_issues,
-)
 
 
 def main():

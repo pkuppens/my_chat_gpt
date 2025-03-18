@@ -1,6 +1,8 @@
-import requests
 import json
-from typing import Generator, Optional, List
+from typing import Generator, List, Optional
+
+import requests
+
 
 class OllamaClient:
     def __init__(self, base_url: str = "http://localhost:11434"):
@@ -31,12 +33,7 @@ class OllamaClient:
             return []
 
     def generate(
-        self,
-        prompt: str,
-        model: str = "llama3.1:8b",
-        stream: bool = False,
-        temperature: float = 0.1,
-        top_p: float = 0.9
+        self, prompt: str, model: str = "llama3.1:8b", stream: bool = False, temperature: float = 0.1, top_p: float = 0.9
     ) -> Optional[str]:
         """Generate a response from the model."""
         if model not in self.available_models:
@@ -44,29 +41,21 @@ class OllamaClient:
             return None
 
         url = f"{self.base_url}/api/generate"
-        
-        payload = {
-            "model": model,
-            "prompt": prompt,
-            "stream": stream,
-            "options": {
-                "temperature": temperature,
-                "top_p": top_p
-            }
-        }
-        
+
+        payload = {"model": model, "prompt": prompt, "stream": stream, "options": {"temperature": temperature, "top_p": top_p}}
+
         try:
             response = requests.post(url, json=payload)
             if response.status_code == 404:
                 print(f"Error: Model '{model}' not found. Available models: {', '.join(self.available_models)}")
                 return None
             response.raise_for_status()
-            
+
             if stream:
                 return self._handle_stream(response)
             else:
                 return response.json()["response"]
-                
+
         except requests.exceptions.RequestException as e:
             print(f"Error: {e}")
             return None
@@ -81,27 +70,29 @@ class OllamaClient:
                 except json.JSONDecodeError:
                     continue
 
+
 def main():
     try:
         # Create client (this will check Ollama status and available models)
         client = OllamaClient()
-        
+
         # Print available models
         print(f"Available models: {', '.join(client.available_models)}")
-        
+
         # Generate response
         response = client.generate("What is the capital of France?")
         if response:
             print(response)
-        
+
         # Test streaming
         print("\nTesting streaming response:")
         for chunk in client.generate("Tell me a short story", stream=True):
             print(chunk, end="", flush=True)
         print()
-        
+
     except Exception as e:
         print(f"Error: {e}")
 
+
 if __name__ == "__main__":
-    main() 
+    main()

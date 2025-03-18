@@ -2,21 +2,21 @@
 
 ## Purpose
 
-This guide explains how to securely retrieve, store, and use an **OpenAI API key** in Python.  
+This guide explains how to securely retrieve, store, and use an **OpenAI API key** in Python.
 It also includes error handling for missing, incorrect, or expired API keys by validating access before making requests.
 
 ## Steps to Obtain the API Key
 
-1. **Log in to OpenAI**  
+1. **Log in to OpenAI**
    - Go to [OpenAI's API platform](https://platform.openai.com/).
    - Log in with your OpenAI account.
 
-2. **Generate an API Key**  
+2. **Generate an API Key**
    - Navigate to **API Keys** and click **Create a new secret key**.
    - Give the key a descriptive name (e.g., `my_app_key`).
    - **Copy the key immediately**, as it will not be displayed again.
 
-3. **Store the API Key Securely**  
+3. **Store the API Key Securely**
    - **Do not hardcode** the key in your code. Instead, store it in:
      - A `.env` file (recommended for local development)
      - System environment variables (recommended for production)
@@ -25,7 +25,7 @@ It also includes error handling for missing, incorrect, or expired API keys by v
 
 ### Option 1: Using a `.env` File
 
-1. **Create a `.env` File**  
+1. **Create a `.env` File**
    - In your project directory, create a file named `.env`.
    - Add the following line:
 
@@ -35,13 +35,13 @@ It also includes error handling for missing, incorrect, or expired API keys by v
 
    - **Ensure the `.env` file is included in `.gitignore`** to prevent accidental exposure.
 
-2. **Install `python-dotenv`**  
+2. **Install `python-dotenv`**
 
    ```bash
    pip install python-dotenv
    ```
 
-3. **Load the API Key in Python**  
+3. **Load the API Key in Python**
 
    ```python
    import os
@@ -59,7 +59,7 @@ It also includes error handling for missing, incorrect, or expired API keys by v
 
 ### Option 2: Using Windows Environment Variables
 
-1. **Set the Environment Variable**  
+1. **Set the Environment Variable**
    - Open **Start** → search for **Environment Variables** → **Edit the system environment variables**.
    - Click **Environment Variables**.
    - Under **User variables**, click **New** and add:
@@ -69,7 +69,7 @@ It also includes error handling for missing, incorrect, or expired API keys by v
      Variable value: your_openai_api_key
      ```
 
-2. **Load the API Key in Python**  
+2. **Load the API Key in Python**
 
    ```python
    import os

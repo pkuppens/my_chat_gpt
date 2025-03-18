@@ -7,9 +7,9 @@ Logic decisions are represented by a diamond shape and have a label like {Decisi
 
 An example flowchart for the app named links could be:
 Input: App name: links
-Input: App description: 
-Process 'magic' links, validate the 'magic' token. 
-Return an error on invalid tokens. 
+Input: App description:
+Process 'magic' links, validate the 'magic' token.
+Return an error on invalid tokens.
 Return a refresh page on expired tokens.
 Restore an order from a valid token and redirect to the order page.
 Output:
@@ -29,7 +29,7 @@ flowchart TD
     F -->|pending review| J[ < Review result]
 ```
 
-```mermaid 
+```mermaid
 flowchart TD
     Start[ > HTTP Request /links/'magic'] --> A([Decrypt & decode 'magic' to JSON object, check expired])
     A -->|invalid| L[Error page]
@@ -55,4 +55,3 @@ When the set is incomplete or invalid return to the upload page with a helpful n
 When the document set is complete and valid, use the external onfido service to validate the user and documents.
 When the validation is successful, store the validation result.
 When the validation is not successful, notify the user to try again, or to contact the website.
-

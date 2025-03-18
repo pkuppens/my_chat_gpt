@@ -1,11 +1,12 @@
+import json
+import logging
+import os
+import sys
+from datetime import datetime, timedelta
+
 from github import Github
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from datetime import datetime, timedelta
-import os
-import json
-import sys
-import logging
 
 from my_chat_gpt_utils.logger import logger
 

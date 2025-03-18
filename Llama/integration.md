@@ -33,7 +33,7 @@ class CodeGenerator(Module):
     def __init__(self):
         super().__init__()
         self.generate = dspy.ChainOfThought("input -> output")
-    
+
     def forward(self, input):
         return self.generate(input=input)
 ```
@@ -155,7 +155,7 @@ async def stream_response(prompt, model="llama2"):
             "prompt": prompt,
             "stream": True
         }))
-        
+
         while True:
             response = await websocket.recv()
             if response == "[DONE]":
@@ -183,4 +183,4 @@ async def stream_response(prompt, model="llama2"):
 4. **Testing**
    - Write unit tests
    - Test error scenarios
-   - Validate responses 
+   - Validate responses

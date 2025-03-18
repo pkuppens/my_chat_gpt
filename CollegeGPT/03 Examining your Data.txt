@@ -29,12 +29,12 @@ Data Management
 Data Quality
 • True “value” of analysis may rest in data quality
 • Conceptualized in eight dimensions:
-• Completeness, 
+• Completeness,
 • Availability and accessibility,
-• Currency (Is data still ‘fresh’/up to date? Sometimes also refers to ‘in time’), 
-• Accuracy, 
-• Validity (Was data gathered correctly, to the rules, correct procedures, etc.), 
-• Usability and interpretability, 
+• Currency (Is data still ‘fresh’/up to date? Sometimes also refers to ‘in time’),
+• Accuracy,
+• Validity (Was data gathered correctly, to the rules, correct procedures, etc.),
+• Usability and interpretability,
 • Reliability and credibility, and (consistency, similar results in similar conditions)
 • Consistency.
 • Many times, “hidden” in basic nature of the data (Invest time in your data!)
@@ -46,13 +46,13 @@ Preliminary Examination
 Many tools are available
 • Fundamental tool in data examination is graphical examination
 
-Univariate profiling, examining the shape of the distribution:  
+Univariate profiling, examining the shape of the distribution:
 • Histogram
 • Box & Whisker plot
 • Stem and Leaf plot
 • Frequency Table
 
-Bivariate profiling, relationships are best viewed using:  
+Bivariate profiling, relationships are best viewed using:
 • Scatterplot matrix
 • Outliers
 
@@ -105,11 +105,11 @@ Step 1:  Determine the Type of Missing Data
 • Three levels of missingness (Newman, 2014):
 • Item-level – missing data for individual variable.
 • Construct-level – missing data for entire set of questions about a specific construct.
-• Person-level – missing data related to individual’s willingness or ability to provide responses. 
+• Person-level – missing data related to individual’s willingness or ability to provide responses.
 
 Step 2: Determine the Extent of Missing Data
 • Basic question: Is the extent or amount of missing data low enough to not affect the results, even if it operates in a nonrandom manner?
-• Levels of analysis: percentage of data missing by . . . 
+• Levels of analysis: percentage of data missing by . . .
 • Variable – common form of assessment.
 • Case – amount of missing data across all variables by case.
 • Guidelines for deleting variables and/or cases:
@@ -123,7 +123,7 @@ Step 3: Diagnose the Randomness of the Missing Data
 • Levels of Randomness of the Missing Data Process
 
 - Missing Data at Random (MAR)
-• missing values of Y depend on X, but not on Y. 
+• missing values of Y depend on X, but not on Y.
 • Example – When there are more missing values for household income for males than for females.
 
 - Missing Completely at Random (MCAR)
@@ -133,7 +133,7 @@ Step 3: Diagnose the Randomness of the Missing Data
 - Not Missing at Random (NMAR)
 • Distinct non-random pattern of missing data.
 • Non-random pattern not related to any other variables.
-• Example – all individuals with high household income had missing data. 
+• Example – all individuals with high household income had missing data.
 
 • t test of Missingness
 • Test of differences between cases with missing data versus not missing data on other variables:
@@ -292,7 +292,7 @@ Homoscedasticity
 • Analysis of residuals best illustrates this point.
 
 Linearity
-• Relationship represented by a straight line (i.e., constant unit change (slope) of the dependent variable for a constant unit change of the independent variable. 
+• Relationship represented by a straight line (i.e., constant unit change (slope) of the dependent variable for a constant unit change of the independent variable.
 
 Non-correlated Errors
 • Prediction errors are uncorrelated with each other.
@@ -332,7 +332,7 @@ Tests for homoscedasticity:
 Remedies for heteroscedasticity:
 • Transformation of variable(s) [See section on transformations (normalization)].
 • Use of heteroscedasticity-consistent standard errors (HCSE).
-• Use bootstrapping in e.g., regression 
+• Use bootstrapping in e.g., regression
 (produces more robust standard errors).
 
 Linearity Assumption
@@ -359,7 +359,7 @@ In linear regression, you can check Durbin-Watson (which is a residuals check)
 Four reasons for the Transformation of Data
 Data transformations provide the researcher a wide range of methods to achieve specific outcomes:
 • Enhancing statistical properties;
-• Ease of interpretation; 
+• Ease of interpretation;
 
 Ease of Interpretation
 Transformations can also assist in improving the interpretation of a variable. The two most used approaches in this category are standardization and centering.
@@ -373,7 +373,7 @@ To judge the potential impact of a transformation, calculate the ratio of the va
 Generally applied to the independent variables except in the case of heteroscedasticity.
 • Heteroscedasticity can be remedied only by the transformation of the dependent variable in a dependence relationship.  If a heteroscedastic relationship is also nonlinear, the dependent variable, and perhaps the independent variables, must be transformed.
 
-Transformations may change the interpretation of the variables. 
+Transformations may change the interpretation of the variables.
 • For example, transforming variables by taking their logarithm translates the relationship into a measure of proportional change (elasticity).  Always be sure to explore thoroughly the possible interpretations of the transformed variables.
 • Use variables in their original (untransformed) format when profiling or interpreting results.
 
@@ -389,7 +389,7 @@ Any transformation/mutation/decision that has influenced the sample size needs t
 
 Was this everything there is to learn?
 • Fortunately, not, each section could have been expanded to a full lecture and even then, the discussion would not have been complete.
-• You have seen the basis. Almost every individual problem has an individual solution. 
+• You have seen the basis. Almost every individual problem has an individual solution.
 • You are expected to know where to look for and find this individual solution. There is a lot of knowledge available in articles, books, internet.
 
 Learning checkpoint

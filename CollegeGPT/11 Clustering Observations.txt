@@ -24,7 +24,7 @@ Segmentation
 • Research into personas for instance, which is sometimes very useful in marketing cases.
 
 Classification
-• Similarly, 
+• Similarly,
 • in psychology, it is sometimes relevant to identify psychological personality clusters.
 • In biology, to derive taxonomies in order to help group living organisms.
 • In business studies, help identify groups of businesses based on their dynamic properties.
@@ -96,8 +96,8 @@ Theoretical, conceptual and practical considerations in variable selection
 • The process does not exclude “irrelevant” variables once it has started.
 
 Types of variables included
-• Can employ either metric or non-metric, but generally not in mixed fashion: 
-• Stick to using one variable type 
+• Can employ either metric or non-metric, but generally not in mixed fashion:
+• Stick to using one variable type
 (continuous and binary can be mixed, if standardized first)
 • Multiple measures of similarity for each type exist:
 • We stick to the most used: Squared Euclidian Distance
@@ -131,9 +131,9 @@ Outliers
 
 Measuring interobject similarity
 • Interobject similarity
-• An empirical measure of correspondence, or resemblance, between objects to be clustered. 
+• An empirical measure of correspondence, or resemblance, between objects to be clustered.
 • Calculated across the entire set of clustering variables to allow for the grouping of observations and their comparison to each other.
-• Different methods most widely used in applications of cluster analysis: 
+• Different methods most widely used in applications of cluster analysis:
 • Distance measures – most often used (Euclidean = straight line).
 • Correlational measures – less often used as they measure patterns, not distance.
 • Association measures – applicable for non-metric clustering variables (e.g., Chi2).
@@ -172,7 +172,7 @@ A multi-step process
 • Continue the process until all observations are in a single cluster. (Stops at 2 clusters, as a 1-cluster solution is basically an average of all variables)
 
 Agglomerative clustering algorithms
-All clustering algorithms start in the same manner with the first observation they come across. 
+All clustering algorithms start in the same manner with the first observation they come across.
 This implies that the way data is ordered ALWAYS influences the results!
 Strong suggestion to randomly order data prior to clustering!
 
@@ -202,13 +202,13 @@ How to validate clusters?
 • Validation is essential in cluster analysis since the clusters are descriptive of structure and require additional support for their relevance.
 Two approaches
 • Cross-validation – empirically validates a cluster solution by creating two sub-samples (randomly splitting the sample) and then comparing the two cluster solutions for consistency with respect to number of clusters and the cluster profiles.
-• Criterion validity – achieved by examining differences on variables not included in the cluster analysis but for which there is a theoretical and relevant reason to expect variation across the clusters. 
+• Criterion validity – achieved by examining differences on variables not included in the cluster analysis but for which there is a theoretical and relevant reason to expect variation across the clusters.
 
 How to profile a cluster solution?
 • Describing the characteristics of each cluster on a set of additional variables (not the clustering variables) to further understand the differences between clusters
 • Examples include descriptive variables (e.g., demographics) as well as other outcome-related measures.
 • Provides insight to researchers as to nature and character of the clusters.
-• Clusters should differ on these relevant dimensions. This typically involves the use of discriminant analysis or ANOVA. 
+• Clusters should differ on these relevant dimensions. This typically involves the use of discriminant analysis or ANOVA.
 
 Learning checkpoint
 • Why might we use cluster analysis?

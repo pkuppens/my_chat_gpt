@@ -92,4 +92,4 @@ To run Open Web UI locally:
 docker run -d -p 3000:8080 --name open-webui ghcr.io/open-webui/open-webui:cuda
 ```
 
-Access the interface at [http://localhost:3000/](http://localhost:3000/). 
+Access the interface at [http://localhost:3000/](http://localhost:3000/).

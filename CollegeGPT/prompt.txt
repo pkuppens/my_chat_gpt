@@ -20,7 +20,7 @@ https://github.com/pkuppens/my_chat_gpt/blob/main/MPC_AvL/09%20Clustering%20Vari
 
 # PROMPT 2:
 
-Please provide the text you'd like me to study. After analyzing the text, I will create a concise summary and confirm if you agree with it. We will iterate on the summary until you are satisfied with it. 
+Please provide the text you'd like me to study. After analyzing the text, I will create a concise summary and confirm if you agree with it. We will iterate on the summary until you are satisfied with it.
 Following that, I will generate a set of 5 multiple-choice questions based on the text, with varying difficulty levels (easy, intermediate, advanced).
  Each question will be clear, concise, and have a single correct answer, accompanied by explanations for the correct answer and the incorrect options. Additionally, I will provide an explanation for the difficulty level of each question.
 

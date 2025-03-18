@@ -8,9 +8,9 @@ It writes their content to individual files based on the specified file names in
 
 import json
 import os
-from pathlib import Path
 import sys
-from typing import Dict, List, Union, Optional, Any
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Union
 
 
 def read_json_file(file_path: str) -> List[Dict[str, Any]]:

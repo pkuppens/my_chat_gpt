@@ -38,3 +38,5 @@ repos:
         types: [python]
         pass_filenames: false
         always_run: true
+        additional_dependencies: []
+        stages: [pre-commit]

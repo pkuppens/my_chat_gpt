@@ -24,8 +24,11 @@ from my_chat_gpt_utils.analyze_issue import (IssueAnalysis, LLMIssueAnalyzer,
                                              get_issue_data,
                                              get_issue_specific_labels,
                                              get_required_labels,
-                                             process_issue_analysis)
-from my_chat_gpt_utils.openai_utils import OpenAIConfig
+                                             process_issue_analysis,
+                                             setup_openai_config)
+from my_chat_gpt_utils.openai_utils import (DEFAULT_LLM_MODEL,
+                                            DEFAULT_MAX_TOKENS,
+                                            DEFAULT_TEMPERATURE, OpenAIConfig)
 
 
 class MockOpenAI:
@@ -106,7 +109,7 @@ def mock_openai_config():
 
 def test_analyze_issue(mock_openai, mock_issue_data, mock_openai_config):
     """Test the core issue analysis functionality."""
-    with patch("my_chat_gpt_utils.analyze_issue.openai.chat.completions.create", side_effect=mock_openai.create):
+    with patch("openai.chat.completions.create", side_effect=mock_openai.create):
         analyzer = LLMIssueAnalyzer(mock_openai_config)
         analysis = analyzer.analyze_issue(mock_issue_data)
 
@@ -144,7 +147,7 @@ def test_create_analysis_comment(mock_issue_analysis):
 
 def test_process_issue_analysis(mock_openai, mock_github, mock_issue_data, mock_openai_config):
     """Test the complete issue analysis process including GitHub interactions."""
-    with patch("my_chat_gpt_utils.analyze_issue.openai.chat.completions.create", side_effect=mock_openai.create), patch(
+    with patch("openai.chat.completions.create", side_effect=mock_openai.create), patch(
         "my_chat_gpt_utils.analyze_issue.GitHubLabelManager", return_value=mock_github
     ), patch("my_chat_gpt_utils.analyze_issue.append_response_to_issue", side_effect=mock_github.append_response_to_issue):
 
@@ -165,28 +168,41 @@ def test_get_issue_data_with_provided_data(mock_issue_data):
 
 def test_get_issue_data_from_env():
     """Test getting issue data from environment variable."""
-    test_data = {"title": "Test Issue", "body": "Test body"}
+    test_data = {"title": "Test Issue", "body": "Test Body"}
     with patch.dict("os.environ", {"ISSUE_DATA": json.dumps(test_data)}):
         result = get_issue_data()
         assert result == test_data
 
 
 def test_get_issue_data_from_event_file():
-    """Test getting issue data from GitHub event file."""
-    test_data = {"title": "Test Issue", "body": "Test body"}
-    event_data = {"issue": test_data}
-    with patch.dict("os.environ", {"GITHUB_EVENT_PATH": "test_event.json"}):
-        with patch("os.path.exists", return_value=True):
-            with patch("builtins.open", mock_open(read_data=json.dumps(event_data))):
-                result = get_issue_data()
-                assert result == test_data
+    """Test getting issue data from event file."""
+    test_data = {"issue": {"title": "Test Issue", "body": "Test Body"}}
+    with patch("os.path.exists", return_value=True), patch("builtins.open", mock_open(read_data=json.dumps(test_data))):
+        with patch.dict("os.environ", {"GITHUB_EVENT_PATH": "test_path"}):
+            result = get_issue_data()
+            assert result == test_data["issue"]
 
 
-def test_get_issue_data_no_data():
-    """Test getting issue data when no data is available."""
+def test_get_issue_data_event_file_error():
+    """Test handling of event file reading error."""
+    with patch("os.path.exists", return_value=True), patch("builtins.open", side_effect=IOError("File error")):
+        with patch.dict("os.environ", {"GITHUB_EVENT_PATH": "test_path"}):
+            result = get_issue_data()
+            assert result == {}
+
+
+def test_get_issue_data_empty_env():
+    """Test getting issue data with empty environment."""
     with patch.dict("os.environ", {}, clear=True):
         result = get_issue_data()
         assert result == {}
+
+
+def test_get_issue_data_provided_data():
+    """Test getting issue data from provided data."""
+    test_data = {"title": "Test Issue", "body": "Test Body"}
+    result = get_issue_data(test_data)
+    assert result == test_data
 
 
 def test_get_issue_data_invalid_json():
@@ -196,9 +212,60 @@ def test_get_issue_data_invalid_json():
         assert result == {}
 
 
-def test_get_issue_data_invalid_event_file():
-    """Test handling of invalid event file."""
-    with patch.dict("os.environ", {"GITHUB_EVENT_PATH": "test_event.json"}):
-        with patch("builtins.open", mock_open(read_data="invalid json")):
-            result = get_issue_data()
-            assert result == {}
+def test_setup_openai_config_success():
+    """Test successful OpenAI configuration setup."""
+    with patch.dict(
+        "os.environ", {"OPENAI_API_KEY": "test-key", "LLM_MODEL": "test-model", "MAX_TOKENS": "100", "TEMPERATURE": "0.5"}
+    ), patch("my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version", return_value=True), patch(
+        "my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key", return_value=True
+    ):
+
+        config = setup_openai_config()
+        assert config.api_key == "test-key"
+        assert config.model == "test-model"
+        assert config.max_tokens == 100
+        assert config.temperature == 0.5
+
+
+def test_setup_openai_config_invalid_version():
+    """Test OpenAI configuration setup with invalid library version."""
+    with patch.dict(
+        "os.environ", {"OPENAI_API_KEY": "test-key", "LLM_MODEL": "test-model", "MAX_TOKENS": "100", "TEMPERATURE": "0.5"}
+    ), patch("my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version", return_value=False):
+
+        with pytest.raises(RuntimeError, match="Incompatible OpenAI library version"):
+            setup_openai_config()
+
+
+def test_setup_openai_config_invalid_api_key():
+    """Test OpenAI configuration setup with invalid API key."""
+    with patch.dict(
+        "os.environ", {"OPENAI_API_KEY": "test-key", "LLM_MODEL": "test-model", "MAX_TOKENS": "100", "TEMPERATURE": "0.5"}
+    ), patch("my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version", return_value=True), patch(
+        "my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key", return_value=False
+    ):
+
+        with pytest.raises(ValueError, match="Invalid OpenAI API key"):
+            setup_openai_config()
+
+
+def test_setup_openai_config_default_values():
+    """Test OpenAI configuration setup with default values."""
+    with patch.dict("os.environ", {}, clear=True), patch(
+        "my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version", return_value=True
+    ), patch("my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key", return_value=True):
+
+        config = setup_openai_config()
+        assert config.api_key == ""
+        assert config.model == DEFAULT_LLM_MODEL
+        assert config.max_tokens == DEFAULT_MAX_TOKENS
+        assert config.temperature == DEFAULT_TEMPERATURE
+
+
+def test_analyze_issue_error_handling(mock_issue_data, mock_openai_config):
+    """Test error handling in analyze_issue method."""
+    with patch("openai.chat.completions.create", side_effect=Exception("API Error")):
+        analyzer = LLMIssueAnalyzer(mock_openai_config)
+        with pytest.raises(Exception) as exc_info:
+            analyzer.analyze_issue(mock_issue_data)
+        assert "API Error" in str(exc_info.value)

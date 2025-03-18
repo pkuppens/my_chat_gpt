@@ -1,7 +1,6 @@
 import sys
-from typing import Optional
-
 from pathlib import Path
+from typing import Optional
 
 from my_chat_gpt_utils.ai_doc_writer import main as ai_doc_writer_main
 

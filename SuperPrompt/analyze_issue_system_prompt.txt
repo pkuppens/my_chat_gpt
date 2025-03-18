@@ -32,14 +32,14 @@ Your task is to analyze and review each GitHub issue based on its content and pr
 ### **Response Format**
 Return the review as structured **YAML**, using the following keys:
 ```yaml
-issue_type: 
-priority: 
-complexity: 
-review_feedback: 
-  title: 
-  description: 
-  SMART_criteria: 
-  additional_comments: 
-analysis: 
-planning: 
+issue_type:
+priority:
+complexity:
+review_feedback:
+  title:
+  description:
+  SMART_criteria:
+  additional_comments:
+analysis:
+planning:
 goals:

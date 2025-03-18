@@ -39,9 +39,9 @@ The original github repo can be found [here](https://github.com/astral-sh/uv).
     ```sh
     uv venv --python=3.12
     ```
-   
+
    Or specify a location:
-   
+
     ```sh
     uv venv /path/to/venv
     ```
@@ -51,7 +51,7 @@ The original github repo can be found [here](https://github.com/astral-sh/uv).
     ```sh
     # On Windows
     /path/to/venv/Scripts/activate
-    
+
     # On macOS/Linux
     source /path/to/venv/bin/activate
     ```

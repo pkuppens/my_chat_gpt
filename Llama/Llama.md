@@ -1,7 +1,7 @@
 # Exploratory Project: Learning Ollama and LlamaIndex
 
 ## Overview
-This project aims to explore the use of local large language models (LLMs) through Ollama and 
+This project aims to explore the use of local large language models (LLMs) through Ollama and
 LlamaIndex for various software engineering tasks. The goal is to build a proof-of-concept that
 utilizes LLMs in areas such as requirements engineering, software architecture, code generation,
 and code review.

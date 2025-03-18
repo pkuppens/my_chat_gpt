@@ -1,8 +1,9 @@
 from dataclasses import dataclass
+
 import openai
+import requests
 import yaml
 from packaging import version
-import requests
 
 from my_chat_gpt_utils.logger import logger
 
@@ -94,7 +95,7 @@ def parse_openai_response(response_content: str):
         text: The response content if parsing fails.
     """
     try:
-        response_content = response_content.strip('`')  # remove markdown open/close tags
+        response_content = response_content.strip("`")  # remove markdown open/close tags
         return yaml.safe_load(response_content)
     except yaml.YAMLError as e:
         logger.warning(f"YAML parsing failed: {e}")
@@ -123,6 +124,7 @@ def make_openai_api_call(api_key: str, model: str, messages: list, temperature: 
         logger.error(f"OpenAI API call failed: {e}")
         raise
 
+
 def main():
     """
     Main function to validate OpenAI API key and library version.
@@ -136,7 +138,9 @@ def main():
 
     # Load API key from environment variable
     import os
+
     from dotenv import load_dotenv
+
     load_dotenv()
     api_key = os.getenv("OPENAI_API_KEY")
 
@@ -150,17 +154,18 @@ def main():
         return
 
     logger.info("OpenAI API key and library version validation successful.")
-    
+
     # Validate API key by fetching models
     try:
         openai.api_key = api_key
         models = openai.Model.list()
         logger.info("API key is valid. Available models:")
-        for model in models['data']:
-            logger.info(model['id'])
+        for model in models["data"]:
+            logger.info(model["id"])
     except Exception as e:
         logger.error(f"API key validation by fetching models failed: {e}")
         return
+
 
 if __name__ == "__main__":
     main()

@@ -85,11 +85,11 @@ problem("Create a database cache for expensive API calls that take 1 mandatory a
 The AI Python Pair Programming Assistant might suggest a solution like this:
 
 ```
-Main Solution: 
+Main Solution:
 Use a caching library like Redis or Memcached to cache the results of the API calls.
 The key for the cache will be a string representation of the API call parameters, and the value will be the result of the API call. Set the cache timeout to 30 days.
 
-Alternative Solution: 
+Alternative Solution:
 Create a custom caching mechanism using a database like SQLite or PostgreSQL.
 This might be more complex and less efficient, but it could be a good choice if you need more control over the caching process
 or if you can't use external libraries for some reason.
@@ -105,7 +105,7 @@ representation of the API call parameters, and the value will be the result of t
 The AI Python Pair Programming Assistant might suggest an implementation like this:
 
 ```
-Implementation Option: 
+Implementation Option:
 1. Data Tier: Use Redis as the caching database. It's fast and supports setting a timeout for each key.
 2. Logic Tier: In your application, before making an API call, check if the result is in the cache using the parameters as the key.
 If it's not, make the API call and store the result in the cache.
@@ -122,14 +122,14 @@ ticket("Use Redis as the caching database. In your application, before making an
 The AI Python Pair Programming Assistant might create a ticket like this:
 
 ```
-Ticket: 
+Ticket:
 Title: Implement Redis Cache for API Calls
 Description: Implement a caching mechanism using Redis for expensive API calls. Before making an API call, the application should check if the result is already in the cache. If it's not, make the API call and store the result in the cache.
-Requirements: 
+Requirements:
 1. Install and set up Redis.
 2. Implement the caching mechanism in the application.
 3. The cache timeout should be 30 days.
-Acceptance Criteria: 
+Acceptance Criteria:
 1. The application should make the API call only if the result is not in the cache.
 2. The application should return the result from the cache if it's available.
 3. The application should store the result of the API call in the cache if it's not already there.

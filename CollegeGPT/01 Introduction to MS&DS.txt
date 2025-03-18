@@ -13,7 +13,7 @@ Data Science (what is)
 • Presenting data
 
 Data Science (interdisciplinarity)
-• Often referred to as an interdisciplinary field, because of the many practices, specialisations and fields involved. 
+• Often referred to as an interdisciplinary field, because of the many practices, specialisations and fields involved.
 • Think of:
 - Business intelligence officer managing data streams within a company
 - Social scientist testing a theoretical model
@@ -71,13 +71,13 @@ New techniques have allowed for new approaches
 
 Two fundamentally different approaches to data analysis
 • Statistical/data models
-Analysis where a specific model is proposed (e.g., dependent and independent variables to be analyzed by the general linear model), the model is then estimated, and a statistical inference is made as to its generalizability to the population through statistical tests. 
+Analysis where a specific model is proposed (e.g., dependent and independent variables to be analyzed by the general linear model), the model is then estimated, and a statistical inference is made as to its generalizability to the population through statistical tests.
 • Data mining/algorithmic models
 Models based on algorithms (e.g., neural networks, decision trees, support vector machine) that are widely used in many Big Data applications. Their emphasis is on predictive accuracy rather than statistical inference and explanation.
 
 Two fundamentally different approaches to data analysis
 • Statistical/data models
-Analysis where a specific model is proposed (e.g., dependent and independent variables to be analyzed by the general linear model), the model is then estimated, and a statistical inference is made as to its generalizability to the population through statistical tests. 
+Analysis where a specific model is proposed (e.g., dependent and independent variables to be analyzed by the general linear model), the model is then estimated, and a statistical inference is made as to its generalizability to the population through statistical tests.
 • Data mining/algorithmic models
 Models based on algorithms (e.g., neural networks, decision trees, support vector machine) that are widely used in many Big Data applications. Their emphasis is on predictive accuracy rather than statistical inference and explanation.
 

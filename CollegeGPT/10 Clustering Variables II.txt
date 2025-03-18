@@ -33,7 +33,7 @@ It is thus strange to use unsupervised learning
 - Dataset is split in exploratory set and confirmatory set
 
 EFA plays an important role in scale development
-• Theoretical constructs may … 
+• Theoretical constructs may …
 - … be culturally biased
 - … not have been tested extensively enough.
 • This is part of the scale construction process and EFA plays an important role in the development and usage of these constructs.
@@ -73,7 +73,7 @@ Broad approach to ensure the validity of a set of items as representative for a 
 • Convergent validity
 The degree to which measures that theoretically should be related, are in fact related.
 
-• Discriminant Validity 
+• Discriminant Validity
 Tests whether concepts or measurements that are not supposed to be related are actually unrelated.
 
 • Nomological Validity (ability to make accurate predictions)
@@ -84,7 +84,7 @@ Broad approach to ensure the validity of a set of items as representative for a 
 • Convergent validity
 When you control for cross loadings (and remove these), you are increasing the convergent validity.
 
-• Discriminant Validity 
+• Discriminant Validity
 Determining that the Average Variance Extracted (AVE) for each construct is > . 5, ideally > 7, is an accepted way to demonstrate discriminant validity.
 
 • Construct Reliability
@@ -98,14 +98,14 @@ Produces Factors rather than Components
 • Though particularly with larger samples the results of PAF and PCA tend to be similar, under the hood they work quite differently.
 
 • PCA is a linear combination of variables
-Communalities are assumed to be 1 (No error variance!) 
+Communalities are assumed to be 1 (No error variance!)
 
 • PAF is a measurement model of a latent variable
 Communalities are determined by common variance
 
 Partitioning the variance
 • Variables ideally hold variance.
-• This variance can be partitioned in 
+• This variance can be partitioned in
 • Common variance
 • Unique variance
 • Specific variance

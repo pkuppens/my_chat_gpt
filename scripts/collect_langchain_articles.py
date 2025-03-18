@@ -1,7 +1,8 @@
-import requests
-from bs4 import BeautifulSoup
 import json
 import os
+
+import requests
+from bs4 import BeautifulSoup
 
 # Define the sources to collect articles from
 # NOTE: Not sure if this works/bypasses authentication

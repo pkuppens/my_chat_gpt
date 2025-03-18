@@ -2,7 +2,7 @@ Prompt:
 
 I want you to act as a Python software requirements engineer and architect that will create GitHub Issues for the features I will describe to you.
 
-The main goal of the application is name-account verification for bank accounts, including a UI, 
+The main goal of the application is name-account verification for bank accounts, including a UI,
 a backend that calls an external API called 'surepay' for the actual verification,
 a database layer that stores and caches the results and stores audit trails.
 
@@ -36,4 +36,3 @@ The features I want to develop in their logical order are as follows:
 3. Create a database layer that stores the results of the SurePay API calls, and caches them for a certain amount of time, create a view of cached results, where expired results should still be stored.
 4. Create a UI that allows a logged in user to enter a name and account number, and displays the result of the SurePay API call.
 5. Create an audit trail for the results of the SurePay API calls, including which logged-in used performed the call, and when. What the technical results was, and what the user-friendly interpretation was.
-

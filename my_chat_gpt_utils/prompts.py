@@ -28,8 +28,9 @@ The current function could leave undefined placeholders in the prompt.
 
 import os
 import tempfile
-import pytest
 from typing import Dict, Tuple
+
+import pytest
 
 # Try to import from my_chat_gpt_utils package, but fallback to constants if running standalone
 try:

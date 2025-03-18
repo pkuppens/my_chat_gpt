@@ -52,7 +52,7 @@ and signed version.
 For each of the UBOs, we need to store Initials, Last name, Date of Birth, Place of Birth, Nationality, and Gender.
 The customer that submits or changes this information has to formally sign with Name, Function, Date, Signature.
 We may need a validation mechanism to verify the identity of the customer.
-This validation should include validation of the (Digital?) signature, for instance with a service like 'Onfido' 
+This validation should include validation of the (Digital?) signature, for instance with a service like 'Onfido'
 We can store the information for recurring customers for their next order.
 We should ask the recurring customers if the 'UBOs' information is still correct.
 The input forms may need to be localized to different countries.

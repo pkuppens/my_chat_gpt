@@ -108,4 +108,4 @@ For GPU support:
 3. **GPU Not Detected**
    - Verify NVIDIA drivers
    - Check CUDA installation
-   - Ensure Docker has GPU access 
+   - Ensure Docker has GPU access
