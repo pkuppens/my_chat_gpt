@@ -19,16 +19,22 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
-from my_chat_gpt_utils.analyze_issue import (IssueAnalysis, LLMIssueAnalyzer,
-                                             create_analysis_comment,
-                                             get_issue_data,
-                                             get_issue_specific_labels,
-                                             get_required_labels,
-                                             process_issue_analysis,
-                                             setup_openai_config)
-from my_chat_gpt_utils.openai_utils import (DEFAULT_LLM_MODEL,
-                                            DEFAULT_MAX_TOKENS,
-                                            DEFAULT_TEMPERATURE, OpenAIConfig)
+from my_chat_gpt_utils.analyze_issue import (
+    IssueAnalysis,
+    LLMIssueAnalyzer,
+    create_analysis_comment,
+    get_issue_data,
+    get_issue_specific_labels,
+    get_required_labels,
+    process_issue_analysis,
+    setup_openai_config,
+)
+from my_chat_gpt_utils.openai_utils import (
+    DEFAULT_LLM_MODEL,
+    DEFAULT_MAX_TOKENS,
+    DEFAULT_TEMPERATURE,
+    OpenAIConfig,
+)
 
 
 class MockOpenAI:

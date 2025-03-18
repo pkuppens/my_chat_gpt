@@ -17,18 +17,24 @@ from typing import Any, Dict, List, Optional
 
 import openai
 
-from my_chat_gpt_utils.github_utils import (ISSUE_TYPES, PRIORITY_LEVELS,
-                                            GitHubEventProcessor,
-                                            GitHubLabelManager,
-                                            IssueDataProvider,
-                                            append_response_to_issue,
-                                            get_github_client)
+from my_chat_gpt_utils.github_utils import (
+    ISSUE_TYPES,
+    PRIORITY_LEVELS,
+    GitHubEventProcessor,
+    GitHubLabelManager,
+    IssueDataProvider,
+    append_response_to_issue,
+    get_github_client,
+)
 from my_chat_gpt_utils.logger import logger
-from my_chat_gpt_utils.openai_utils import (DEFAULT_LLM_MODEL,
-                                            DEFAULT_MAX_TOKENS,
-                                            DEFAULT_TEMPERATURE, OpenAIConfig,
-                                            OpenAIValidator,
-                                            OpenAIVersionChecker)
+from my_chat_gpt_utils.openai_utils import (
+    DEFAULT_LLM_MODEL,
+    DEFAULT_MAX_TOKENS,
+    DEFAULT_TEMPERATURE,
+    OpenAIConfig,
+    OpenAIValidator,
+    OpenAIVersionChecker,
+)
 from my_chat_gpt_utils.prompts import load_analyze_issue_prompt
 
 

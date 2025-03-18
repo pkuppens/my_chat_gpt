@@ -1,8 +1,7 @@
 import unittest
 from unittest.mock import MagicMock, patch
 
-from my_chat_gpt_utils.github_utils import (append_response_to_issue,
-                                            get_github_issue)
+from my_chat_gpt_utils.github_utils import append_response_to_issue, get_github_issue
 
 
 class TestGitHubUtils(unittest.TestCase):
