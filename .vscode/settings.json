@@ -4,7 +4,28 @@
     "jupyter.notebookFileRoot": "${workspaceFolder}",
     "cSpell.words": [
         "dspy",
-        "Ollama"
+        "Ollama",
+        "PYTHONUNBUFFERED",
+        "Tfidf",
+        "Vectorizer",
+        "vectorizer",
+        "tfidf",
+        "dotenv"
+    ],
+    "cSpell.ignorePaths": [
+        "**/node_modules/**",
+        "**/venv/**",
+        "**/.venv/**",
+        "**/__pycache__/**",
+        "**/.pytest_cache/**",
+        "**/.coverage",
+        "**/coverage.xml"
+    ],
+    "cSpell.ignoreRegExpList": [
+        "\\([^)]*\\)",
+        "`[^`]*`",
+        "'[^']*'",
+        "\"[^\"]*\""
     ],
     "python.linting.enabled": true,
     "python.linting.flake8Enabled": true,

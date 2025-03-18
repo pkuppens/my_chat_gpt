@@ -19,17 +19,16 @@ Example:
     issues = get_issues(repo)
 """
 
-from dataclasses import dataclass
 import datetime
 import json
 import os
-from typing import List, Dict, Any, Optional, Tuple
-import requests
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional, Tuple
 
+import requests
+from github import Github, Repository
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
-from github import Github, Repository
 
 from my_chat_gpt_utils.logger import logger
 
@@ -150,6 +149,7 @@ class GithubClientFactory:
     """
     Factory class for creating GitHub API clients and retrieving repository context.
     """
+
     @classmethod
     def get_github_token(cls) -> str:
         """
@@ -174,7 +174,6 @@ class GithubClientFactory:
             raise ValueError("GITHUB_TOKEN not found in environment variables")
         return github_token
 
-
     @classmethod
     def create_client(cls, github_token: Optional[str] = None) -> Github:
         """
@@ -182,7 +181,7 @@ class GithubClientFactory:
 
         Args:
             github_token (Optional[str]): GitHub token for authentication.
-            Defaults to None, that wiil be read from environment.
+            Defaults to None, then it will be read from environment.
 
         Returns:
             Github: Authenticated GitHub client instance.
@@ -202,7 +201,6 @@ class GithubClientFactory:
             logger.error(f"Failed to create GitHub client with provided token: {e}")
             raise ValueError("Invalid or expired GITHUB_TOKEN or unable to connect to GitHub") from e
 
-        
     def get_repository(cls, client: Github) -> Repository.Repository:
         """
         Retrieves the GitHub repository from environment configuration.
@@ -383,3 +381,79 @@ class GitHubLabelManager:
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{issue_number}/labels"
         response = requests.post(url, headers=self.headers, json={"labels": labels})
         return response.status_code == 200
+
+
+class IssueDataProvider:
+    """
+    Provides flexible issue data retrieval from various sources.
+    """
+
+    @staticmethod
+    def from_github_event() -> Dict[str, Any]:
+        """
+        Get issue data from GitHub event.
+
+        Returns:
+            Dict[str, Any]: Issue data from GitHub event.
+
+        Raises:
+            ValueError: If event cannot be processed.
+        """
+        event = GitHubEventProcessor.parse_issue_event()
+        return {
+            "repo_owner": event.get("repository", {}).get("owner", {}).get("login"),
+            "repo_name": event.get("repository", {}).get("name"),
+            "issue_number": event.get("issue", {}).get("number"),
+            "issue_title": event.get("issue", {}).get("title"),
+            "issue_body": event.get("issue", {}).get("body") or "",
+        }
+
+    @staticmethod
+    def from_issue_number(client: Github, repo_name: str, issue_number: int) -> Dict[str, Any]:
+        """
+        Get issue data from issue number.
+
+        Args:
+            client (Github): GitHub client.
+            repo_name (str): Repository name.
+            issue_number (int): Issue number.
+
+        Returns:
+            Dict[str, Any]: Issue data.
+        """
+        repo = get_repository(client, repo_name)
+        issue = repo.get_issue(number=issue_number)
+        return {
+            "repo_owner": repo.owner.login,
+            "repo_name": repo_name,
+            "issue_number": issue_number,
+            "issue_title": issue.title,
+            "issue_body": issue.body or "",
+        }
+
+    @staticmethod
+    def from_latest_issue(client: Github, repo_name: str) -> Dict[str, Any]:
+        """
+        Get data from the latest issue in the repository.
+
+        Args:
+            client (Github): GitHub client.
+            repo_name (str): Repository name.
+
+        Returns:
+            Dict[str, Any]: Issue data.
+        """
+        repo = get_repository(client, repo_name)
+        issues = repo.get_issues(state="open", sort="created", direction="desc")
+        latest_issue = issues.get_page(0)[0] if issues.totalCount > 0 else None
+
+        if not latest_issue:
+            raise ValueError("No open issues found in the repository")
+
+        return {
+            "repo_owner": repo.owner.login,
+            "repo_name": repo_name,
+            "issue_number": latest_issue.number,
+            "issue_title": latest_issue.title,
+            "issue_body": latest_issue.body or "",
+        }

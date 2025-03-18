@@ -28,6 +28,22 @@
             "program": "${workspaceFolder}/.venv/Scripts/pylint.exe",
             "args": ["${file}"],
             "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Run Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": [
+                "tests/",
+                "-v",
+                "--tb=short"
+            ],
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
         }
     ]
 }

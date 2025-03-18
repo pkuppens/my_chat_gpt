@@ -7,17 +7,17 @@ and context management functionality.
 """
 
 import io
-import os
 import logging
+import os
 import re
 import sys
-from unittest.mock import patch, MagicMock
-from typing import List, Tuple, Dict, Any, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 # Import the module to test - adjust the import path as needed
-from my_chat_gpt_utils.logger import configure_logger, LoggerContext
+from my_chat_gpt_utils.logger import LoggerContext, configure_logger
 
 
 class TestLogger:
@@ -28,6 +28,10 @@ class TestLogger:
         # Reset the root logger to avoid interference between tests
         root = logging.getLogger()
         root.handlers = []
+        # Reset the module logger
+        module_logger = logging.getLogger("my_chat_gpt_utils.logger")
+        module_logger.handlers = []
+        module_logger.setLevel(logging.INFO)  # Reset to default level
         # Store original environment for restoration
         self.original_env = os.environ.copy()
 
@@ -49,8 +53,8 @@ class TestLogger:
         """
         log_capture = io.StringIO()
         handler = logging.StreamHandler(log_capture)
-        formatter = logging.Formatter('%(levelname)s - %(message)s')
-        if logger.handlers and hasattr(logger.handlers[0], 'formatter'):
+        formatter = logging.Formatter("%(levelname)s - %(message)s")
+        if logger.handlers and hasattr(logger.handlers[0], "formatter"):
             formatter = logger.handlers[0].formatter
         handler.setFormatter(formatter)
         logger.addHandler(handler)
@@ -84,7 +88,7 @@ class TestLogger:
             (logging.INFO, logging.WARNING, True),
             (logging.DEBUG, logging.DEBUG, True),
             (logging.WARNING, logging.INFO, False),
-        ]
+        ],
     )
     def test_level_filtering(self, log_level: int, message_level: int, should_log: bool) -> None:
         """
@@ -122,7 +126,7 @@ class TestLogger:
 
         # Check for filename and line number pattern
         # The pattern should match something like [test_logger.py:123]
-        filename_pattern = r'\[([^:]+):(\d+)\]'
+        filename_pattern = r"\[([^:]+):(\d+)\]"
         assert re.search(filename_pattern, log_output) is not None
 
     def test_no_file_info(self) -> None:
@@ -135,7 +139,7 @@ class TestLogger:
         logger.removeHandler(handler)
 
         # The standard bracket pattern for file info should not be present
-        filename_pattern = r'\[[^:]+:\d+\]'
+        filename_pattern = r"\[[^:]+:\d+\]"
         assert re.search(filename_pattern, log_output) is None
 
     def test_custom_format(self) -> None:
@@ -250,11 +254,7 @@ class TestLogger:
         def run_demo() -> None:
             """Run a demonstration of logger functionality."""
             # Configure a demo logger
-            demo_logger = configure_logger(
-                name="demo_logger",
-                level="INFO",
-                include_file_info=True
-            )
+            demo_logger = configure_logger(name="demo_logger", level="INFO", include_file_info=True)
 
             # Show normal logging
             demo_logger.info("This is an INFO message with file info")
@@ -276,30 +276,39 @@ class TestLogger:
 
             # Show custom logger with different settings
             print("\n--- Custom logger without file info ---")
-            custom_logger = configure_logger(
-                name="custom_logger",
-                level="WARNING",
-                include_file_info=False
-            )
+            custom_logger = configure_logger(name="custom_logger", level="WARNING", include_file_info=False)
 
             custom_logger.info("This INFO message should NOT appear")
             custom_logger.warning("This WARNING message should appear without file info")
 
-        # Capture stdout for verification
-        with patch('sys.stdout', new_callable=io.StringIO) as mock_stdout:
-            run_demo()
-            output = mock_stdout.getvalue()
+        # Capture stdout and log output for verification
+        log_capture = io.StringIO()
+        handler = logging.StreamHandler(log_capture)
+        formatter = logging.Formatter("%(levelname)s - %(message)s")
+        handler.setFormatter(formatter)
 
-        # Verify key elements in the output
-        assert "This is an INFO message with file info" in output
-        assert "This is a WARNING message" in output
-        assert "This is an ERROR message" in output
-        assert "This DEBUG message should NOT appear" not in output
-        assert "This DEBUG message SHOULD appear" in output
-        assert "This INFO message SHOULD appear" in output
-        assert "This DEBUG message should NOT appear again" not in output
-        assert "This INFO message SHOULD appear again" in output
-        assert "This WARNING message should appear without file info" in output
+        with patch("sys.stdout", new_callable=io.StringIO) as mock_stdout:
+            # Add temporary handler to capture log output
+            root_logger = logging.getLogger()
+            root_logger.addHandler(handler)
+            try:
+                run_demo()
+                output = mock_stdout.getvalue()
+                log_output = log_capture.getvalue()
+            finally:
+                root_logger.removeHandler(handler)
+
+        # Verify key elements in both stdout and log output
+        combined_output = output + log_output
+        assert "This is an INFO message with file info" in combined_output
+        assert "This is a WARNING message" in combined_output
+        assert "This is an ERROR message" in combined_output
+        assert "This DEBUG message should NOT appear" not in combined_output
+        assert "This DEBUG message SHOULD appear" in combined_output
+        assert "This INFO message SHOULD appear" in combined_output
+        assert "This DEBUG message should NOT appear again" not in combined_output
+        assert "This INFO message SHOULD appear again" in combined_output
+        assert "This WARNING message should appear without file info" in combined_output
 
 
 if __name__ == "__main__":
@@ -309,14 +318,10 @@ if __name__ == "__main__":
     This serves as both a test and an example of how to use the logger module.
     """
     # Configure logger for demonstration
-    from my_chat_gpt_utils.logger import configure_logger, LoggerContext
+    from my_chat_gpt_utils.logger import LoggerContext, configure_logger
 
     # Create a logger that shows file info
-    logger = configure_logger(
-        name="demo",
-        level="INFO",
-        include_file_info=True
-    )
+    logger = configure_logger(name="demo", level="INFO", include_file_info=True)
 
     # Show basic logging functionality
     print("=== Basic logging demonstration ===")
@@ -338,12 +343,7 @@ if __name__ == "__main__":
 
     # Show file handler functionality
     print("\n=== File logging demonstration ===")
-    file_logger = configure_logger(
-        name="file_demo",
-        level="INFO",
-        add_file_handler=True,
-        log_file_path="demo.log"
-    )
+    file_logger = configure_logger(name="file_demo", level="INFO", add_file_handler=True, log_file_path="demo.log")
     file_logger.info("This message goes to both console and file")
     print(f"Check demo.log for file output")
 

@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "A collection of LLM documents and experiments, including ChatGPT and local Ollama."
 authors = [{name = "Pieter Kuppens <pieter.kuppens@gmail.com>"}]
 license = {text = "MIT"}
+dynamic = ["requires-python", "optional-dependencies"]
 
 dependencies = [
     "aiofiles==24.1.0",
