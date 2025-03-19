@@ -27,11 +27,19 @@ jobs:
         pip install -e ".[dev]"
 
     - name: Run tests with coverage
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pytest tests/ --cov=my_chat_gpt_utils --cov-report=xml
+        # Generate both XML (for CI) and HTML (for human reading) coverage reports
+        # See docs/testing/CODECOV.md for more information about coverage reporting strategy
+        pytest tests/ --cov=my_chat_gpt_utils --cov-report=xml --cov-report=html
 
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v4
+    - name: Archive coverage results
+      uses: actions/upload-artifact@v4
+      if: always()  # Upload even if tests fail
       with:
-        file: ./coverage.xml
-        fail_ci_if_error: true
+        name: coverage-reports
+        path: |
+          coverage.xml
+          htmlcov/
+        retention-days: 14  # Keep reports for 2 weeks
