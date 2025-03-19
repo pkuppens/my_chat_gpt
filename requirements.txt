@@ -259,7 +259,7 @@ pytest
 python-dateutil
 python-dotenv
 python-json-logger
-python-multipart
+python-multipart==0.0.9
 pytz
 PyYAML
 pyzmq
