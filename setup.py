@@ -1,21 +1,19 @@
 from setuptools import find_packages, setup
 
+
+def read_requirements(filename):
+    with open(filename) as f:
+        return [line.strip() for line in f if line.strip() and not line.startswith("#")]
+
+
 setup(
     name="my_chat_gpt",
     version="0.1.1",
     packages=find_packages(),
-    install_requires=[
-        "openai>=1.0.0",
-        "PyGithub>=2.0.0",
-        "python-dotenv>=1.0.0",
-        "requests>=2.0.0",
-    ],
+    install_requires=read_requirements("requirements-base.txt"),
     extras_require={
-        "dev": [
-            "pytest>=8.0.0",
-            "pytest-mock>=3.0.0",
-            "pytest-cov>=4.0.0",
-        ],
+        "dev": read_requirements("requirements-dev.txt"),
+        "proxy": read_requirements("requirements-proxy.txt"),
     },
     python_requires=">=3.11",
 )
