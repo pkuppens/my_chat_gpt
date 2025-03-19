@@ -338,3 +338,4 @@ y-py
 yarl
 ypy-websocket
 my_chat_gpt_utils
+setuptools==65.5.1
