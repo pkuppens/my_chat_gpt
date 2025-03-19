@@ -259,7 +259,7 @@ pytest
 python-dateutil
 python-dotenv
 python-json-logger
-python-multipart==0.0.9
+python-multipart==0.0.18
 pytz
 PyYAML
 pyzmq
@@ -338,3 +338,4 @@ y-py
 yarl
 ypy-websocket
 my_chat_gpt_utils
+setuptools==65.5.1
