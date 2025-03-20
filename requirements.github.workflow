@@ -1,6 +1,6 @@
+-r requirements-dev.txt
 PyGithub
 openai
-pytest
 pyyaml
 requests
 scikit-learn

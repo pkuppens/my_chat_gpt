@@ -1,3 +1,0 @@
--r requirements-base.txt
-# Proxy functionality
-litellm[proxy]>=1.53.0,<2.0.0

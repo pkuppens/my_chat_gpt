@@ -1,3 +1,13 @@
+"""
+setup.py is used to install the package.
+
+It is also used to define the dependencies for the package.
+
+The dependencies are defined in the requirements-base.txt file.
+Additional dev dependencies are defined in the requirements-dev.txt file.
+Additional test dependencies are defined in the requirements-test.txt file.
+"""
+
 import os
 from typing import List, Set
 
@@ -99,9 +109,8 @@ setup(
     install_requires=read_requirements("requirements-base.txt"),
     extras_require={
         "dev": [req for req in read_requirements("requirements-dev.txt") if req not in read_requirements("requirements-base.txt")],
-        "proxy": [
-            req for req in read_requirements("requirements-proxy.txt") if req not in read_requirements("requirements-base.txt")
-        ],
+        # dev includes test, otherwise, create a new test extras_require with requirements-test.txt:
+        # "test": [req for req in read_requirements("requirements-test.txt") if req not in read_requirements("requirements-dev.txt")],
     },
     python_requires=">=3.11",
     description="A ChatGPT/LLM Agent Building Utility Package",
