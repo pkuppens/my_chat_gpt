@@ -1,7 +1,6 @@
 # Testing Strategy
 
-## Overview
-This document outlines the testing strategy for the MyChatGPT project, including core principles, test levels, implementation guidelines, and practical setup instructions.
+This document outlines the testing strategy for the MyChatGPT project, including core principles, test levels, and implementation guidelines.
 
 ## Core Principles
 
@@ -23,51 +22,10 @@ This document outlines the testing strategy for the MyChatGPT project, including
    - Maintain clear separation between test setup and test logic
    - Handle environment variables and file loading consistently
 
-## Test Environment Setup
-
-### Prerequisites
-1. Python 3.11 or later installed
-2. Git for version control
-3. Access to GitHub repository
-
-### Local Development Setup
-1. Create a new virtual environment for testing:
-   ```bash
-   python -m venv .venv_test
-   ```
-
-2. Activate the virtual environment:
-   - Windows:
-     ```bash
-     .venv_test\Scripts\activate
-     ```
-   - Unix/MacOS:
-     ```bash
-     source .venv_test/bin/activate
-     ```
-
-3. Install test dependencies:
-   ```bash
-   pip install pytest pytest-cov pytest-mock
-   ```
-
-4. Install the project package in development mode:
-   ```bash
-   pip install -e .
-   ```
-
-### Configuration Files
-1. `pytest.ini`: Contains pytest configuration
-2. `.vscode/settings.json`: VS Code settings for test discovery
-3. `.env.test`: Test environment variables (create from `.env.test.example`)
-
 ## Test Levels
 
 ### 1. Unit Tests
-Located in `tests/unit/`:
-- `github_utils/`: GitHub API interaction tests
-- `openai_utils/`: OpenAI API interaction tests
-- `prompts/`: Prompt generation tests
+Located in `tests/my_chat_gpt_utils/`
 
 **Purpose**:
 - Test individual components in isolation
@@ -81,10 +39,14 @@ Located in `tests/unit/`:
 - Test edge cases and error conditions
 - Should be deterministic and fast
 
+**Example Components**:
+- GitHub client configuration
+- Issue analysis logic
+- Label management
+- Response formatting
+
 ### 2. Integration Tests
-Located in `tests/integration/`:
-- `github_workflow/`: GitHub Actions workflow tests
-- `openai_integration/`: OpenAI API integration tests
+Located in `tests/integration/`
 
 **Purpose**:
 - Verify components work together correctly
@@ -98,138 +60,136 @@ Located in `tests/integration/`:
 - Verify data flow between components
 - Should reflect real-world usage patterns
 
-### 3. End-to-End Tests
-Located in `tests/e2e/`:
-- `issue_analysis/`: Complete issue analysis workflow tests
+**Example Flows**:
+- Issue analysis workflow:
+  1. Get GitHub issue
+  2. Analyze with OpenAI
+  3. Update GitHub with tags and comments
+- Label management workflow
+- Response formatting and posting
 
-## Known Issues and Solutions
+## Environment Handling
 
-### GitHub Utils Tests
-1. `GithubClientFactory.create_client()` issues:
-   - Error: Method takes no arguments but token is provided
-   - Solution: Update the factory method to accept token parameter
-   ```python
-   @staticmethod
-   def create_client(token: str, test_mode: bool = False) -> Github:
-   ```
-
-2. `IssueRetriever.get_recent_issues()` issues:
-   - Error: Unexpected keyword argument 'days_back'
-   - Solution: Update method signature to include the parameter
-   ```python
-   def get_recent_issues(self, days_back: int = 30, state: str = "open") -> List[Issue]:
-   ```
-
-3. `IssueSimilarityAnalyzer.compute_similarities()` issues:
-   - Error: Unexpected keyword argument 'threshold'
-   - Solution: Update method signature to include the parameter
-   ```python
-   def compute_similarities(self, target_issue: Issue, existing_issues: List[Issue], threshold: float = 0.8) -> List[Tuple[Issue, float]]:
-   ```
-
-### Test Coverage
-Current coverage: 59%
-Areas needing improvement:
-1. `ai_doc_writer.py`: 0% coverage
-2. `openai_utils.py`: 41% coverage
-3. `prompts.py`: 42% coverage
-4. `github_utils.py`: 66% coverage
-
-## Running Tests
-
-### Command Line
-```bash
-# Run all tests
-pytest
-
-# Run with coverage report
-pytest --cov=my_chat_gpt_utils
-
-# Run specific test file
-pytest tests/unit/github_utils/test_github_client.py
-
-# Run tests with verbose output
-pytest -v
-```
-
-### VS Code Test Explorer
-1. Open Command Palette (Ctrl+Shift+P)
-2. Type "Python: Configure Tests"
-3. Select "pytest" as test framework
-4. Select "tests" directory as test location
-5. Reload window if tests are not discovered
-
-## Test Data Management
-
-### Mock Data
-- Located in `tests/fixtures/`
-- Used for consistent test data across test runs
-- Includes sample issues, responses, and configurations
+### Environment Detection
+- Detect environment type (local, CI/CD, GitHub integration)
+- Use appropriate configuration based on environment
+- Avoid hardcoding environment-specific values
+- Provide clear fallbacks for missing environment variables
 
 ### Environment Variables
-Required for tests:
-- `GITHUB_TOKEN`: GitHub API token
-- `OPENAI_API_KEY`: OpenAI API key
-- `TEST_MODE`: Set to "true" for test environment
+- Use `.env` files for local development
+- Use GitHub Actions secrets for CI/CD
+- Use environment variables for runtime configuration
+- Mock environment variables consistently in tests
+
+## Test Validation
+
+### What to Test
+- Required functionality and interfaces
+- Business logic and behavior
+- Error handling and edge cases
+- Integration points between components
+- Environment-specific behavior
+
+### What Not to Test
+- Implementation details
+- Internal state unless critical
+- Framework-specific behavior
+- Mock object comparisons
+- Environment setup mechanics
+
+## Test Structure
+
+### Setup
+```python
+@pytest.fixture(scope="session")
+def test_environment():
+    """Configure test environment based on context."""
+    env_type = detect_environment_type()
+    return configure_test_environment(env_type)
+
+@pytest.fixture
+def github_client(test_environment):
+    """Create GitHub client with appropriate configuration."""
+    return create_github_client(test_environment)
+```
+
+### Test Cases
+```python
+def test_github_client_functionality(github_client):
+    """Test required GitHub client functionality."""
+    # Test business logic
+    assert github_client.can_access_repository("owner/repo")
+    assert github_client.can_create_issue()
+
+    # Test error handling
+    with pytest.raises(ValueError):
+        github_client.create_issue("invalid/repo", "title", "body")
+```
 
 ## Best Practices
 
-1. **Test Naming**
-   - Use descriptive names
-   - Follow pattern: `test_<functionality>_<scenario>`
-   - Example: `test_analyze_issue_with_invalid_data`
+1. **Environment Configuration**
+   - Use environment-specific configuration files
+   - Centralize environment setup
+   - Avoid environment-specific code in tests
+   - Handle missing environment variables gracefully
 
-2. **Test Organization**
-   - Group related tests in classes
+2. **Test Validation**
+   - Focus on behavior and functionality
+   - Use appropriate assertions
+   - Avoid implementation-specific checks
+   - Test error handling comprehensively
+   - One concept per test
+   - Clear, descriptive assertions
+
+3. **Mock Usage**
+   - Mock external dependencies only
+   - Avoid mocking internal functionality
+   - Use appropriate mock levels (function, class, module)
+   - Mock environment consistently
+
+4. **Test Organization**
+   - Group related tests
+   - Use descriptive test names
+   - Maintain clear test structure
+   - Separate environment setup from test logic
+   - Follow AAA pattern (Arrange, Act, Assert)
+
+5. **Test Independence**
+   - Each test should be independent
+   - No test should depend on another test's state
    - Use fixtures for common setup
-   - Keep tests independent
 
-3. **Mocking**
-   - Mock external API calls
-   - Use `unittest.mock` or `pytest-mock`
-   - Document mock behavior
+6. **Performance**
+   - Keep tests fast
+   - Minimize external dependencies
+   - Use appropriate mocking levels
+   - Consider test parallelization
 
-4. **Assertions**
-   - Use specific assertions
-   - Include meaningful error messages
-   - Test edge cases
+## Running Tests
 
-## Continuous Integration
+### 1. Running All Tests
+```bash
+pytest -v
+```
 
-### GitHub Actions
-Tests run on:
-- Pull requests
-- Push to main branch
-- Manual workflow dispatch
+### 2. Running Specific Test Levels
+```bash
+# Unit tests only
+pytest tests/my_chat_gpt_utils/ -v
 
-### Coverage Requirements
-- Minimum coverage: 80%
-- Coverage reports uploaded as artifacts
-- Coverage badge updated on README.md
+# Integration tests only
+pytest tests/integration/ -v
 
-## Troubleshooting
+# Specific test file
+pytest tests/integration/test_analyze_issue_integration.py -v
+```
 
-### Common Issues
-1. Test Discovery Failures
-   - Ensure virtual environment is activated
-   - Check Python interpreter path in VS Code
-   - Verify pytest installation
-
-2. Import Errors
-   - Check PYTHONPATH
-   - Verify package installation
-   - Check for circular imports
-
-3. Mock Issues
-   - Verify mock setup
-   - Check mock call counts
-   - Ensure correct mock scope
-
-### Debugging Tips
-1. Use `pytest -v` for verbose output
-2. Add `breakpoint()` in test code
-3. Use VS Code debugger with pytest
-4. Check test logs in `.pytest_cache/`
+### 3. Test Coverage Report
+```bash
+pytest --cov=my_chat_gpt_utils tests/
+```
 
 ## Continuous Improvement
 
@@ -249,4 +209,24 @@ Tests run on:
    - Gather feedback from developers
    - Update strategy based on team input
    - Regular strategy review meetings
-   - Monitor environment-related issues 
+   - Monitor environment-related issues
+
+## Troubleshooting
+
+1. **Failing Tests**
+   - Check test isolation
+   - Verify mock setup
+   - Review test data
+   - Check for race conditions
+
+2. **Slow Tests**
+   - Review mocking strategy
+   - Check for unnecessary setup
+   - Optimize test data
+   - Consider test parallelization
+
+3. **Flaky Tests**
+   - Review timing dependencies
+   - Check for state leakage
+   - Verify cleanup procedures
+   - Consider test stability improvements
