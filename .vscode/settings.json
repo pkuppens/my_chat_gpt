@@ -115,35 +115,11 @@
     "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
     "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
     "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
-    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
-    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
+    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
     "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeAction": "warn",
-    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeAction": "warn",
-    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeAction": "warn",
-    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeAction": "warn",
-    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeAction": "warn",
-    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeAction": "warn",
-    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
-    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
-    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionMessage": "File size exceeds the maximum limit for linting.",
-    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
-    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
-    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionMessage": "File count exceeds the maximum limit for linting.",
-    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionType": "warn",
-    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionType": "warn",
-    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionType": "warn",
-    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionType": "warn",
-    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionType": "warn",
-    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionType": "warn",
-    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
-    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
-    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionTypeMessage": "File size exceeds the maximum limit for linting.",
-    "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
-    "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
-    "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionTypeActionTypeMessage": "File count exceeds the maximum limit for linting.",
-    "python.linting.lintOnSaveMaxFileSizeLimitExceededActionTypeActionTypeActionTypeAction": "warn",
-    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionTypeActionTypeAction": "warn",
-    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnTextChangeMaxFileSizeLimitExceededActionTypeActionTypeActionTypeAction": "warn",
+    "python.linting.lintOnOpenMaxFileSizeLimitExceededActionTypeActionTypeActionTypeAction": "warn",
     "python.linting.lintOnSaveMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionTypeActionTypeActionTypeActionTypeAction": "warn",
     "python.linting.lintOnTextChangeMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionTypeActionTypeActionTypeActionTypeActionTypeAction": "warn",
     "python.linting.lintOnOpenMaxFileCountLimitExceededActionTypeActionTypeActionTypeActionTypeActionTypeActionTypeActionTypeActionTypeAction": "warn",
@@ -158,6 +134,20 @@
     "python.testing.pytestArgs": [
         "tests"
     ],
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
+    "python.testing.cwd": "${workspaceFolder}",
     "python.envFile": "${workspaceFolder}/.env",
-    "python.testing.envFile": "${workspaceFolder}/.test.env"
+    "python.testing.envFile": "${workspaceFolder}/.test.env",
+    "python.analysis.extraPaths": [
+        "${workspaceFolder}"
+    ],
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.indexing": true,
+    "python.analysis.packageIndexDepths": [
+        {
+            "name": "my_chat_gpt_utils",
+            "depth": 2
+        }
+    ]
 }
