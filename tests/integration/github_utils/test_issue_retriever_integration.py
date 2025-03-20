@@ -13,9 +13,9 @@ The tests focus on successful function calls rather than specific results, since
 number of issues and their content will vary over time.
 """
 
-import os
-import pytest
 from datetime import datetime, timedelta, timezone
+
+import pytest
 
 from my_chat_gpt_utils.github_utils import IssueRetriever, get_github_client
 
@@ -40,7 +40,7 @@ def test_get_recent_issues_basic(github_repository):
 def test_get_recent_issues_with_state(github_repository):
     """Test issue retrieval with different state filters."""
     retriever = IssueRetriever(github_repository)
-    
+
     # Test with different states
     for state in ["open", "closed", "all"]:
         issues = retriever.get_recent_issues(state=state)
@@ -51,12 +51,12 @@ def test_get_recent_issues_with_state(github_repository):
 def test_get_recent_issues_with_time_window(github_repository):
     """Test issue retrieval with different time windows."""
     retriever = IssueRetriever(github_repository)
-    
+
     # Test with different time windows
     for days in [7, 30, 90, 365]:
         issues = retriever.get_recent_issues(days=days)
         assert isinstance(issues, list)
-        
+
         # Verify issues are within the time window
         cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
         for issue in issues:
@@ -67,7 +67,7 @@ def test_get_recent_issues_with_time_window(github_repository):
 def test_get_recent_issues_empty_repository(github_repository):
     """Test issue retrieval from a repository with no recent issues."""
     retriever = IssueRetriever(github_repository)
-    
+
     # Use a very short time window to likely get no issues
     issues = retriever.get_recent_issues(days=1)
     assert isinstance(issues, list)
@@ -78,8 +78,8 @@ def test_get_recent_issues_empty_repository(github_repository):
 def test_get_recent_issues_large_time_window(github_repository):
     """Test issue retrieval with a large time window."""
     retriever = IssueRetriever(github_repository)
-    
+
     # Test with a large time window (1 year)
     issues = retriever.get_recent_issues(days=365)
     assert isinstance(issues, list)
-    # Don't assert on length since it depends on repository activity 
+    # Don't assert on length since it depends on repository activity

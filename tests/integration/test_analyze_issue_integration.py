@@ -16,7 +16,6 @@ They are marked with @pytest.mark.integration and are skipped by default in regu
 """
 
 import os
-from unittest.mock import patch
 
 import pytest
 

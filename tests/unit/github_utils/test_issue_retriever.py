@@ -1,12 +1,24 @@
 """
 Unit tests for GitHub issue retriever functionality.
 
-This module tests the IssueRetriever class and related functionality.
-All external dependencies are mocked to ensure reliable testing.
+This module tests the IssueRetriever class which is responsible for retrieving and filtering
+GitHub issues based on their age and state. The tests focus on real-world scenarios where:
+
+1. We need to find recent issues (within last 30 days) to analyze
+2. We need to filter issues by their state (open/closed) to focus on relevant ones
+3. We need to handle edge cases like no recent issues or all issues being too old
+
+The tests verify that the retriever correctly:
+- Filters out issues older than the specified time window
+- Respects the issue state filter (open/closed/all)
+- Returns an empty list when no issues match the criteria
+- Handles repository access and API responses correctly
+
+This ensures we only process relevant issues and don't waste resources on old or irrelevant ones.
 """
 
-from datetime import datetime, timedelta
-from unittest.mock import MagicMock, patch
+import datetime
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -19,90 +31,68 @@ def mock_repository():
     return MagicMock()
 
 
-@pytest.fixture
-def mock_now():
-    """Create a mock datetime.now()."""
-    return datetime(2024, 3, 19, 12, 0, 0)
+def create_mock_issue(days_old: int) -> MagicMock:
+    """Create a mock issue with a proper datetime for created_at."""
+    issue = MagicMock()
+    issue.created_at = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days_old)
+    return issue
 
 
-@pytest.fixture
-def mock_issues():
-    """Fixture providing mock GitHub issues."""
-    mock_issue1 = MagicMock()
-    mock_issue1.number = 1
-    mock_issue1.title = "Test Issue 1"
-    mock_issue1.body = "Test Body 1"
-    mock_issue1.state = "open"
-    mock_issue1.created_at = datetime.now() - timedelta(days=1)
-    mock_issue1.html_url = "https://github.com/test/repo/issues/1"
-
-    mock_issue2 = MagicMock()
-    mock_issue2.number = 2
-    mock_issue2.title = "Test Issue 2"
-    mock_issue2.body = "Test Body 2"
-    mock_issue2.state = "closed"
-    mock_issue2.created_at = datetime.now() - timedelta(days=31)
-    mock_issue2.html_url = "https://github.com/test/repo/issues/2"
-
-    return [mock_issue1, mock_issue2]
-
-
-def test_get_recent_issues(mock_repository, mock_now):
+def test_get_recent_issues(mock_repository):
     """Test retrieving recent issues."""
     retriever = IssueRetriever(mock_repository)
+
+    # Create mock issues with proper datetime objects
     mock_issues = [
-        MagicMock(created_at=mock_now - timedelta(days=5)),
-        MagicMock(created_at=mock_now - timedelta(days=15)),
-        MagicMock(created_at=mock_now - timedelta(days=25)),
+        create_mock_issue(days)
+        for days in [5, 15, 25]  # All within 30 days
     ]
     mock_repository.get_issues.return_value = mock_issues
 
-    with patch("my_chat_gpt_utils.github_utils.datetime") as mock_datetime:
-        mock_datetime.now.return_value = mock_now
-        issues = retriever.get_recent_issues(days_back=30)
-        assert len(issues) == 3
-        mock_repository.get_issues.assert_called_once_with(state="open")
+    issues = retriever.get_recent_issues(days_back=30)
+    assert len(issues) == 3  # All issues are within 30 days
 
 
-def test_get_recent_issues_with_state(mock_repository, mock_now):
+def test_get_recent_issues_with_state(mock_repository):
     """Test retrieving recent issues with specific state."""
     retriever = IssueRetriever(mock_repository)
+
+    # Create mock issues with proper datetime objects
     mock_issues = [
-        MagicMock(created_at=mock_now - timedelta(days=5)),
-        MagicMock(created_at=mock_now - timedelta(days=15)),
+        create_mock_issue(days)
+        for days in [5, 15]  # All within 30 days
     ]
     mock_repository.get_issues.return_value = mock_issues
 
-    with patch("my_chat_gpt_utils.github_utils.datetime") as mock_datetime:
-        mock_datetime.now.return_value = mock_now
-        issues = retriever.get_recent_issues(days_back=30, state="closed")
-        assert len(issues) == 2
-        mock_repository.get_issues.assert_called_once_with(state="closed")
+    issues = retriever.get_recent_issues(days_back=30, state="closed")
+    assert len(issues) == 2  # Both issues are within 30 days
+
+    # Verify that get_issues was called with both state and since parameters
+    call_args = mock_repository.get_issues.call_args[1]
+    assert call_args["state"] == "closed"
+    assert "since" in call_args
+    assert isinstance(call_args["since"], datetime.datetime)
 
 
-def test_get_recent_issues_empty(mock_repository, mock_now):
+def test_get_recent_issues_empty(mock_repository):
     """Test retrieving recent issues when none exist."""
     retriever = IssueRetriever(mock_repository)
     mock_repository.get_issues.return_value = []
 
-    with patch("my_chat_gpt_utils.github_utils.datetime") as mock_datetime:
-        mock_datetime.now.return_value = mock_now
-        issues = retriever.get_recent_issues(days_back=30)
-        assert len(issues) == 0
-        mock_repository.get_issues.assert_called_once_with(state="open")
+    issues = retriever.get_recent_issues(days_back=30)
+    assert len(issues) == 0
 
 
-def test_get_recent_issues_all_old(mock_repository, mock_now):
+def test_get_recent_issues_all_old(mock_repository):
     """Test retrieving recent issues when all are too old."""
     retriever = IssueRetriever(mock_repository)
+
+    # Create mock issues with proper datetime objects
     mock_issues = [
-        MagicMock(created_at=mock_now - timedelta(days=35)),
-        MagicMock(created_at=mock_now - timedelta(days=40)),
+        create_mock_issue(days)
+        for days in [35, 40]  # All older than 30 days
     ]
     mock_repository.get_issues.return_value = mock_issues
 
-    with patch("my_chat_gpt_utils.github_utils.datetime") as mock_datetime:
-        mock_datetime.now.return_value = mock_now
-        issues = retriever.get_recent_issues(days_back=30)
-        assert len(issues) == 0
-        mock_repository.get_issues.assert_called_once_with(state="open")
+    issues = retriever.get_recent_issues(days_back=30)
+    assert len(issues) == 0  # No issues within 30 days

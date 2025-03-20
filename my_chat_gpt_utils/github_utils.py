@@ -4,11 +4,11 @@ import datetime
 import json
 import os
 from dataclasses import dataclass
-from datetime import timedelta
 from typing import Any, Dict, List, Optional, Tuple
 
 import requests
 from github import Github, Issue, Repository
+from github.GithubException import GithubException
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -79,7 +79,7 @@ class IssueContext:
     title: str
     body: Optional[str]
     state: str
-    created_at: datetime
+    created_at: datetime.datetime
     url: str
 
 
@@ -90,21 +90,61 @@ class IssueRetriever:
         """Initialize the issue retriever with a GitHub repository."""
         self.repository = repository
 
-    def get_recent_issues(self, state: str = "all", days: int = 30) -> List[Issue]:
-        """Retrieve recent issues from the repository."""
-        since = datetime.now() - timedelta(days=days)
-        return list(self.repository.get_issues(state=state, since=since))
+    def get_recent_issues(self, state: str = "all", days_back: int = 30) -> List[Issue]:
+        """
+        Retrieve recent issues from the repository.
+
+        Args:
+        ----
+            state (str): Issue state to filter by (open/closed/all)
+            days_back (int): Number of days to look back
+
+        Returns:
+        -------
+            List[Issue]: List of issues created within the specified time window
+
+        """
+        since = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days_back)
+        # Get issues from GitHub API with since parameter
+        issues = self.repository.get_issues(state=state, since=since)
+        # Double-check the date filter since GitHub API's since parameter isn't always reliable
+        cutoff_date = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days_back)
+        return [issue for issue in issues if issue.created_at >= cutoff_date]
 
 
 class IssueSimilarityAnalyzer:
     """Performs similarity analysis on GitHub issues using TF-IDF and cosine similarity."""
 
-    def __init__(self):
-        """Initialize the analyzer with TF-IDF vectorizer."""
-        self.vectorizer = TfidfVectorizer(stop_words="english")
+    def __init__(self, similarity_threshold: float = 0.8):
+        """
+        Initialize the analyzer with TF-IDF vectorizer.
 
-    def compute_similarities(self, current_issue: Issue, comparable_issues: List[Issue]) -> List[Tuple[Issue, float]]:
-        """Compute similarity scores between current issue and comparable issues."""
+        Args:
+        ----
+            similarity_threshold (float): Minimum similarity score to consider issues similar.
+                                       Defaults to 0.8 for longer issues, but can be lower for testing.
+
+        """
+        self.vectorizer = TfidfVectorizer(stop_words="english")
+        self.similarity_threshold = similarity_threshold
+
+    def compute_similarities(
+        self, current_issue: Issue, comparable_issues: List[Issue], threshold: Optional[float] = None
+    ) -> List[Tuple[Issue, float]]:
+        """
+        Compute similarity scores between current issue and comparable issues.
+
+        Args:
+        ----
+            current_issue (Issue): The issue to compare against.
+            comparable_issues (List[Issue]): List of issues to compare with.
+            threshold (Optional[float]): Override the default similarity threshold.
+
+        Returns:
+        -------
+            List[Tuple[Issue, float]]: List of (issue, similarity) tuples for issues above threshold.
+
+        """
         if not comparable_issues:
             return []
 
@@ -115,19 +155,48 @@ class IssueSimilarityAnalyzer:
         tfidf_matrix = self.vectorizer.fit_transform(all_texts)
         similarities = cosine_similarity(tfidf_matrix[-1:], tfidf_matrix[:-1])[0]
 
-        return list(zip(comparable_issues, similarities))
+        # Use provided threshold or fall back to default
+        threshold_to_use = threshold if threshold is not None else self.similarity_threshold
+        # Filter issues above threshold
+        return [(issue, score) for issue, score in zip(comparable_issues, similarities) if score >= threshold_to_use]
 
 
 class GithubClientFactory:
     """Factory class for creating GitHub API clients and retrieving repository context."""
 
     @staticmethod
-    def create_client() -> Github:
-        """Create a GitHub client using environment variables."""
-        token = os.getenv("GITHUB_TOKEN")
+    def create_client(token: Optional[str] = None, test_mode: bool = False) -> Github:
+        """
+        Create a GitHub client using environment variables.
+
+        Args:
+        ----
+            token (Optional[str]): GitHub API token. If not provided, will use GITHUB_TOKEN env var.
+            test_mode (bool): If True, skip repository validation.
+
+        Returns:
+        -------
+            Github: GitHub client instance
+
+        Raises:
+        ------
+            ValueError: If token is missing or invalid
+
+        """
         if not token:
+            token = os.getenv("GITHUB_TOKEN")
+        if not token and not test_mode:
             raise ValueError("GITHUB_TOKEN environment variable is required")
-        return Github(token)
+
+        client = Github(token or "test_token")
+        if not test_mode:
+            try:
+                client.get_user()  # Validate token by making an API call
+            except GithubException as e:
+                if e.status == 401:
+                    raise ValueError("Invalid or expired GITHUB_TOKEN")
+                raise
+        return client
 
     @staticmethod
     def get_repository(client: Github) -> Repository:
