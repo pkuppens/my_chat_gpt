@@ -1,7 +1,27 @@
-# Test Strategy
+# Testing Strategy
 
 ## Overview
-This document outlines the testing strategy for the MyChatGPT project, including unit tests, integration tests, and end-to-end tests.
+This document outlines the testing strategy for the MyChatGPT project, including core principles, test levels, implementation guidelines, and practical setup instructions.
+
+## Core Principles
+
+1. **Test Business Logic, Not Implementation Details**
+   - Focus on validating required functionality and behavior
+   - Avoid testing implementation specifics (e.g., class instance comparisons)
+   - Verify that components provide necessary interfaces and capabilities
+   - Test one behavior at a time
+
+2. **Smart Environment Handling**
+   - Detect and adapt to different environments (local development, CI/CD, GitHub integration)
+   - Use appropriate environment variables and configurations per context
+   - Avoid mocking environment-specific functionality unless absolutely necessary
+   - Handle environment setup in fixtures, not in individual tests
+
+3. **Test Setup and Configuration**
+   - Centralize environment setup in fixtures and configuration
+   - Use environment-specific test configurations
+   - Maintain clear separation between test setup and test logic
+   - Handle environment variables and file loading consistently
 
 ## Test Environment Setup
 
@@ -41,20 +61,44 @@ This document outlines the testing strategy for the MyChatGPT project, including
 2. `.vscode/settings.json`: VS Code settings for test discovery
 3. `.env.test`: Test environment variables (create from `.env.test.example`)
 
-## Test Structure
+## Test Levels
 
-### Unit Tests
+### 1. Unit Tests
 Located in `tests/unit/`:
 - `github_utils/`: GitHub API interaction tests
 - `openai_utils/`: OpenAI API interaction tests
 - `prompts/`: Prompt generation tests
 
-### Integration Tests
+**Purpose**:
+- Test individual components in isolation
+- Verify internal logic and edge cases
+- Ensure components work as expected without external dependencies
+- Fast execution for quick feedback during development
+
+**Characteristics**:
+- Mock all external dependencies (GitHub, OpenAI)
+- Focus on component-specific logic
+- Test edge cases and error conditions
+- Should be deterministic and fast
+
+### 2. Integration Tests
 Located in `tests/integration/`:
 - `github_workflow/`: GitHub Actions workflow tests
 - `openai_integration/`: OpenAI API integration tests
 
-### End-to-End Tests
+**Purpose**:
+- Verify components work together correctly
+- Test the complete flow of operations
+- Ensure external interfaces behave as expected
+- Validate business logic across components
+
+**Characteristics**:
+- Mock external services (GitHub, OpenAI) at the API level
+- Test complete workflows
+- Verify data flow between components
+- Should reflect real-world usage patterns
+
+### 3. End-to-End Tests
 Located in `tests/e2e/`:
 - `issue_analysis/`: Complete issue analysis workflow tests
 
@@ -128,6 +172,28 @@ Required for tests:
 - `OPENAI_API_KEY`: OpenAI API key
 - `TEST_MODE`: Set to "true" for test environment
 
+## Best Practices
+
+1. **Test Naming**
+   - Use descriptive names
+   - Follow pattern: `test_<functionality>_<scenario>`
+   - Example: `test_analyze_issue_with_invalid_data`
+
+2. **Test Organization**
+   - Group related tests in classes
+   - Use fixtures for common setup
+   - Keep tests independent
+
+3. **Mocking**
+   - Mock external API calls
+   - Use `unittest.mock` or `pytest-mock`
+   - Document mock behavior
+
+4. **Assertions**
+   - Use specific assertions
+   - Include meaningful error messages
+   - Test edge cases
+
 ## Continuous Integration
 
 ### GitHub Actions
@@ -140,28 +206,6 @@ Tests run on:
 - Minimum coverage: 80%
 - Coverage reports uploaded as artifacts
 - Coverage badge updated on README.md
-
-## Best Practices
-
-1. Test Naming
-   - Use descriptive names
-   - Follow pattern: `test_<functionality>_<scenario>`
-   - Example: `test_analyze_issue_with_invalid_data`
-
-2. Test Organization
-   - Group related tests in classes
-   - Use fixtures for common setup
-   - Keep tests independent
-
-3. Mocking
-   - Mock external API calls
-   - Use `unittest.mock` or `pytest-mock`
-   - Document mock behavior
-
-4. Assertions
-   - Use specific assertions
-   - Include meaningful error messages
-   - Test edge cases
 
 ## Troubleshooting
 
@@ -185,4 +229,24 @@ Tests run on:
 1. Use `pytest -v` for verbose output
 2. Add `breakpoint()` in test code
 3. Use VS Code debugger with pytest
-4. Check test logs in `.pytest_cache/` 
+4. Check test logs in `.pytest_cache/`
+
+## Continuous Improvement
+
+1. **Regular Review**
+   - Review test coverage
+   - Identify redundant tests
+   - Update test strategy based on findings
+   - Monitor environment-specific issues
+
+2. **Documentation**
+   - Keep test documentation up to date
+   - Document environment requirements
+   - Maintain clear setup instructions
+   - Document environment-specific considerations
+
+3. **Feedback Loop**
+   - Gather feedback from developers
+   - Update strategy based on team input
+   - Regular strategy review meetings
+   - Monitor environment-related issues 
