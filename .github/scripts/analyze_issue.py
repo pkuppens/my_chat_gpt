@@ -8,11 +8,7 @@ with labels and comments.
 
 import logging
 
-from my_chat_gpt_utils.analyze_issue import (
-    get_issue_data,
-    process_issue_analysis,
-    setup_openai_config,
-)
+from my_chat_gpt_utils.analyze_issue import get_issue_data, process_issue_analysis, setup_openai_config
 from my_chat_gpt_utils.logger import logger
 
 # Needs the PYTHONUNBUFFERED option on to log in the github actions

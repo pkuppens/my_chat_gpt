@@ -13,9 +13,10 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import openai
+from github import Github
 
 from my_chat_gpt_utils.github_utils import (
     ISSUE_TYPES,
@@ -237,38 +238,42 @@ def create_analysis_comment(analysis: IssueAnalysis) -> str:
 """
 
 
-def process_issue_analysis(issue_data: Dict[str, Any], openai_config: Dict[str, Any]) -> IssueAnalysis:
-    """
-    Process a GitHub issue by analyzing it and adding appropriate labels and comments.
+def process_issue_analysis(
+    issue_data: Dict[str, Any], openai_config: Union[Dict[str, Any], OpenAIConfig], test_mode: bool = False
+) -> Dict[str, Any]:
+    """Process issue analysis with OpenAI and GitHub integration.
 
     Args:
-        issue_data (Dict[str, Any]): Issue data including repository and issue details.
-        openai_config (Dict[str, Any]): OpenAI configuration.
+        issue_data (Dict[str, Any]): Issue data dictionary
+        openai_config (Union[Dict[str, Any], OpenAIConfig]): OpenAI configuration
+        test_mode (bool): If True, run in test mode
 
     Returns:
-        IssueAnalysis: The analysis result.
+        Dict[str, Any]: Analysis results
     """
-    llm_analyzer = LLMIssueAnalyzer(openai_config)
-    analysis = llm_analyzer.analyze_issue(issue_data)
+    if isinstance(openai_config, dict):
+        openai_config = OpenAIConfig(**openai_config)
 
-    # Prepare labels
-    label_manager = GitHubLabelManager(os.environ.get("GITHUB_TOKEN", ""))
+    github_client = get_github_client(test_mode=test_mode)
+    label_manager = GitHubLabelManager(
+        github_client.get_user().login if github_client else get_github_client(test_mode=test_mode).get_user().login
+    )
 
-    # Ensure all potential labels exist
+    # Create analyzer and analyze issue
+    analyzer = LLMIssueAnalyzer(openai_config)
+    analysis = analyzer.analyze_issue(issue_data)
+
+    # Create label manager and ensure required labels exist
     label_manager.ensure_labels_exist(issue_data["repo_owner"], issue_data["repo_name"], get_required_labels())
 
     # Add specific labels for this issue
-    label_manager.add_labels_to_issue(
-        issue_data["repo_owner"], issue_data["repo_name"], issue_data["issue_number"], get_issue_specific_labels(analysis)
-    )
+    issue_labels = get_issue_specific_labels(analysis)
+    label_manager.add_labels_to_issue(issue_data["repo_owner"], issue_data["repo_name"], issue_data["issue_number"], issue_labels)
 
-    # Add comment with analysis details
+    # Create and post comment
     comment = create_analysis_comment(analysis)
-    append_response_to_issue(get_github_client(), issue_data["repo_name"], issue_data, comment)
-
-    logger.info(f"Analysis complete for issue #{issue_data['issue_number']}")
-    logger.info(f"Analysis result: {analysis}")
-    logger.info(f"Comment added to issue: {comment}")
+    full_repo_name = f"{issue_data['repo_owner']}/{issue_data['repo_name']}"
+    append_response_to_issue(github_client or get_github_client(), full_repo_name, issue_data, comment)
 
     return analysis
 

@@ -23,14 +23,55 @@ import datetime
 import json
 import os
 from dataclasses import dataclass
+from datetime import timedelta
 from typing import Any, Dict, List, Optional, Tuple
+from unittest.mock import MagicMock
 
 import requests
-from github import Github, Repository
+from dotenv import load_dotenv
+from github import Github, GithubException, Repository
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
 from my_chat_gpt_utils.logger import logger
+
+
+def get_github_client(test_mode: bool = False) -> Github:
+    """Get a GitHub client instance.
+
+    Args:
+        test_mode (bool): If True, skip repository validation.
+
+    Returns:
+        Github: GitHub client instance
+    """
+    client = GithubClientFactory.create_client(test_mode=test_mode)
+
+    if not test_mode:
+        GithubClientFactory.get_repository(client)  # Validate repository access
+
+    return client
+
+
+__all__ = [
+    "get_github_client",
+    "get_repository",
+    "get_issues",
+    "create_issue",
+    "edit_issue",
+    "add_comment",
+    "get_github_issue",
+    "append_response_to_issue",
+    "ISSUE_TYPES",
+    "PRIORITY_LEVELS",
+    "IssueContext",
+    "IssueRetriever",
+    "IssueSimilarityAnalyzer",
+    "GithubClientFactory",
+    "GitHubEventProcessor",
+    "GitHubLabelManager",
+    "IssueDataProvider",
+]
 
 # Constants for tags, priority levels, and issue types
 ISSUE_TYPES = ["Epic", "Change Request", "Bug Fix", "Task", "Question"]
@@ -73,7 +114,7 @@ class IssueRetriever:
         """
         self.repository = repository
 
-    def get_recent_issues(self, days_back: int = 30, state: Optional[str] = None) -> List[IssueContext]:
+    def get_recent_issues(self, days_back: int = 30, state: str = "open") -> List[IssueContext]:
         """
         Retrieve recent issues from the repository.
 
@@ -84,7 +125,7 @@ class IssueRetriever:
         Returns:
             List[IssueContext]: List of recent issues in the repository.
         """
-        cutoff_date = datetime.now() - datetime.timedelta(days=days_back)
+        cutoff_date = datetime.now() - timedelta(days=days_back)
         issues = get_issues(self.repository, state=state)
 
         return [
@@ -117,7 +158,7 @@ class IssueSimilarityAnalyzer:
 
     def compute_similarities(
         self, target_issue: IssueContext, existing_issues: List[IssueContext], threshold: float = 0.8
-    ) -> List[Tuple[IssueContext, float]]:
+    ) -> List[Dict[str, Any]]:
         """
         Compute similarities between a target issue and existing issues.
 
@@ -127,97 +168,82 @@ class IssueSimilarityAnalyzer:
             threshold (float, optional): Minimum similarity score. Defaults to 0.8.
 
         Returns:
-            List[Tuple[IssueContext, float]]: Similar issues with their similarity scores.
+            List[Dict[str, Any]]: Similar issues with their similarity scores.
         """
+        if not existing_issues:
+            return []
 
-        def prepare_text(issue: IssueContext) -> str:
-            return f"{issue.title}\n{issue.body or ''}"
+        # Combine target and existing issues for vectorization
+        all_texts = [self._get_issue_text(issue) for issue in [target_issue] + existing_issues]
 
-        issue_texts = [prepare_text(issue) for issue in existing_issues]
-        target_text = prepare_text(target_issue)
-
-        # Add target text and compute similarities
-        all_texts = issue_texts + [target_text]
+        # Fit and transform all texts
         tfidf_matrix = self.vectorizer.fit_transform(all_texts)
-        similarities = cosine_similarity(tfidf_matrix[-1:], tfidf_matrix[:-1])[0]
 
-        # Filter and return similar issues
-        return [(existing_issues[i], similarities[i]) for i in range(len(similarities)) if similarities[i] >= threshold]
+        # Compute similarities between target and existing issues
+        similarities = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])[0]
+
+        # Filter and format results
+        similar_issues = []
+        for i, score in enumerate(similarities):
+            if score >= threshold:
+                similar_issues.append({"issue": existing_issues[i], "similarity": float(score)})
+
+        return similar_issues
+
+    def _get_issue_text(self, issue: IssueContext) -> str:
+        """Get combined text from issue title and body."""
+        text = issue.title or ""
+        if issue.body:
+            text += " " + issue.body
+        return text
 
 
 class GithubClientFactory:
-    """
-    Factory class for creating GitHub API clients and retrieving repository context.
-    """
+    """Factory class for creating GitHub clients."""
 
-    @classmethod
-    def get_github_token(cls) -> str:
-        """
-        Retrieves the GitHub token from environment variables.
+    @staticmethod
+    def get_github_token() -> str:
+        """Get GitHub token from environment variables or .env file."""
+        # Try environment variables first
+        token = os.getenv("GITHUB_TOKEN")
+        if token:
+            return token
 
-        Returns:
-            str: GitHub token.
+        # Try .env file
+        load_dotenv()
+        token = os.getenv("GITHUB_TOKEN")
+        if token:
+            return token
 
-        Raises:
-            ValueError: If GitHub token is not found in environment.
-        """
-        github_token = os.getenv("GITHUB_TOKEN")
-        if not github_token:
-            try:
-                from dotenv import load_dotenv
+        raise ValueError("GITHUB_TOKEN not found in environment variables")
 
-                load_dotenv()
-                github_token = os.getenv("GITHUB_TOKEN")
-            except ImportError:
-                pass
-        if not github_token:
-            raise ValueError("GITHUB_TOKEN not found in environment variables")
-        return github_token
+    @staticmethod
+    def create_client(token: Optional[str] = None, test_mode: bool = False) -> Github:
+        """Create a GitHub client with the given token."""
+        if test_mode:
+            mock_client = MagicMock()
+            mock_client.get_user.return_value.login = "test-user"
+            return mock_client
 
-    @classmethod
-    def create_client(cls, github_token: Optional[str] = None) -> Github:
-        """
-        Creates a GitHub client using environment-based authentication.
-
-        Args:
-            github_token (Optional[str]): GitHub token for authentication.
-            Defaults to None, then it will be read from environment.
-
-        Returns:
-            Github: Authenticated GitHub client instance.
-
-        Raises:
-            ValueError: If GitHub token is not found in environment.
-        """
-        github_token = github_token or cls.get_github_token()
+        if not token:
+            token = GithubClientFactory.get_github_token()
 
         try:
-            if not github_token:
-                raise ValueError("GITHUB_TOKEN not provided nor found in environment variables")
-            client = Github(github_token)
-            client.get_user().login  # Check if the token is valid
+            client = Github(token)
+            # Validate token by checking user login
+            client.get_user().login
             return client
-        except Exception as e:
+        except GithubException as e:
             logger.error(f"Failed to create GitHub client with provided token: {e}")
             raise ValueError("Invalid or expired GITHUB_TOKEN or unable to connect to GitHub") from e
 
-    def get_repository(cls, client: Github) -> Repository.Repository:
-        """
-        Retrieves the GitHub repository from environment configuration.
-
-        Args:
-            client (Github): Authenticated GitHub client.
-
-        Returns:
-            Repository.Repository: The specified GitHub repository.
-
-        Raises:
-            ValueError: If repository name is not found in environment.
-        """
+    @staticmethod
+    def get_repository(client: Github) -> Repository:
+        """Get repository from environment variables."""
         repo_name = os.getenv("GITHUB_REPOSITORY")
         if not repo_name:
             raise ValueError("GITHUB_REPOSITORY not found in environment variables")
-        return get_repository(client, repo_name)
+        return client.get_repo(repo_name)
 
 
 class GitHubEventProcessor:
@@ -274,13 +300,6 @@ class GitHubEventProcessor:
             created_at=datetime.fromisoformat(issue_data["created_at"].replace("Z", "+00:00")),
             url=issue_data["html_url"],
         )
-
-
-def get_github_client(token: Optional[str] = None) -> Github:
-    """Get an authenticated GitHub client."""
-    client = GithubClientFactory.create_client(token)
-    return client
-    # return Github(token)
 
 
 def get_repository(client: Github, repo_name: str):

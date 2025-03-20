@@ -1,14 +1,12 @@
 """
 Test module for analyze_issue module from my_chat_gpt_utils package.
 
-This module tests the functionality for analyzing GitHub issues using LLMs. The analysis includes:
-1. Classifying issues by type (Bug, Feature, etc.)
-2. Assessing issue complexity
-3. Determining priority levels
-4. Generating review feedback and next steps
-5. Managing GitHub labels and comments
+This module contains unit tests for the analyze_issue functionality. These tests:
+1. Mock all external dependencies (GitHub, OpenAI)
+2. Focus on testing the logic and behavior of the code
+3. Don't make any real API calls or GitHub operations
 
-The tests cover both direct API interactions and GitHub workflow integration.
+For integration tests that use real GitHub clients, see tests/integration/test_analyze_issue_integration.py
 """
 
 # Test comment for IDE pre-commit hooks
@@ -30,12 +28,8 @@ from my_chat_gpt_utils.analyze_issue import (
     process_issue_analysis,
     setup_openai_config,
 )
-from my_chat_gpt_utils.openai_utils import (
-    DEFAULT_LLM_MODEL,
-    DEFAULT_MAX_TOKENS,
-    DEFAULT_TEMPERATURE,
-    OpenAIConfig,
-)
+from my_chat_gpt_utils.github_utils import get_github_client
+from my_chat_gpt_utils.openai_utils import DEFAULT_LLM_MODEL, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, OpenAIConfig
 
 
 @pytest.fixture(autouse=True)
@@ -296,59 +290,78 @@ def test_create_analysis_comment(mock_issue_analysis):
     assert "Step 2" in comment
 
 
-def test_process_issue_analysis(mock_openai, mock_github, mock_issue_data, mock_openai_config):
+def test_process_issue_analysis():
+    """Test process_issue_analysis function.
+
+    This test verifies the complete workflow of issue analysis:
+    1. OpenAI analysis
+    2. Label management
+    3. Comment posting
+
+    Each step is verified independently to make debugging easier.
     """
-    Test the complete issue analysis process including GitHub interactions.
+    # Setup test data
+    mock_issue_data = {
+        "repo_owner": "test_owner",
+        "repo_name": "test_repo",
+        "issue_number": 1,
+        "issue_title": "Test Issue",
+        "issue_body": "This is a test issue",
+    }
+    mock_openai_config = {"api_key": "test_key", "model": "gpt-4", "temperature": 0.7, "max_tokens": 1000}
 
-    This test will use a real GitHub token if available (from environment), falling back to mocks if not.
-    No actual modifications are made to any GitHub issues during the test.
+    # Create mock objects
+    mock_client = MagicMock()
+    mock_repo = MagicMock()
+    mock_issue = MagicMock()
+    mock_user = MagicMock()
+    mock_user.login = "test_user"
 
-    The test verifies:
-    1. The right labels would be created (but aren't actually created)
-    2. The right comment would be posted (but isn't actually posted)
-    3. The analysis results are correct
-    """
-    # Create analyzer with mock OpenAI client
-    analyzer = LLMIssueAnalyzer(mock_openai_config)
-    analyzer.client = mock_openai
+    # Set up the mock chain
+    mock_client.get_user.return_value = mock_user
+    mock_client.get_repo.return_value = mock_repo
+    mock_repo.get_issue.return_value = mock_issue
+    mock_issue.create_comment.return_value = MagicMock()
 
-    # Try to get actual GitHub token from environment
-    github_token = os.getenv("GITHUB_TOKEN")
+    # Mock the GitHub client
+    with patch("my_chat_gpt_utils.analyze_issue.get_github_client", return_value=mock_client):
+        # Mock the label manager
+        mock_label_manager = MagicMock()
+        mock_label_manager.ensure_labels_exist.return_value = True
+        mock_label_manager.add_labels_to_issue.return_value = True
+        with patch("my_chat_gpt_utils.analyze_issue.GitHubLabelManager", return_value=mock_label_manager):
+            # Mock the analyzer response
+            mock_analyzer = MagicMock()
+            mock_analyzer.analyze_issue.return_value = IssueAnalysis(
+                issue_type="Bug Fix",
+                priority="High",
+                complexity="Moderate",
+                review_feedback="Test feedback",
+                next_steps=["Step 1", "Step 2"],
+            )
+            with patch("my_chat_gpt_utils.analyze_issue.LLMIssueAnalyzer", return_value=mock_analyzer):
+                # Run the analysis
+                result = process_issue_analysis(mock_issue_data, mock_openai_config, test_mode=True)
 
-    if github_token:
-        # Use real GitHub client for validation, but mock the actual operations
-        with patch("my_chat_gpt_utils.analyze_issue.GitHubLabelManager", return_value=mock_github), patch(
-            "my_chat_gpt_utils.analyze_issue.append_response_to_issue", side_effect=mock_github.append_response_to_issue
-        ), patch("my_chat_gpt_utils.analyze_issue.LLMIssueAnalyzer", return_value=analyzer):
+                # Verify the result
+                assert isinstance(result, IssueAnalysis)
+                assert result.issue_type == "Bug Fix"
+                assert result.priority == "High"
+                assert result.complexity == "Moderate"
+                assert result.review_feedback == "Test feedback"
+                assert result.next_steps == ["Step 1", "Step 2"]
 
-            result = process_issue_analysis(mock_issue_data, mock_openai_config)
-    else:
-        # Fallback to complete mocking if no token available
-        mock_github_client = MagicMock()
-        mock_user = MagicMock()
-        mock_user.login = "test-user"
-        mock_github_client.get_user.return_value = mock_user
-        # Mock the login property to avoid authentication check
-        mock_user.login = "test-user"
+                # Verify GitHub client interactions
+                mock_client.get_repo.assert_called_once_with("test_owner/test_repo")
+                mock_repo.get_issue.assert_called_once_with(number=1)
+                mock_issue.create_comment.assert_called_once()
 
-        with patch("my_chat_gpt_utils.analyze_issue.GitHubLabelManager", return_value=mock_github), patch(
-            "my_chat_gpt_utils.analyze_issue.append_response_to_issue", side_effect=mock_github.append_response_to_issue
-        ), patch("my_chat_gpt_utils.github_utils.GithubClientFactory.get_github_token", return_value="mock-token"), patch(
-            "my_chat_gpt_utils.analyze_issue.LLMIssueAnalyzer", return_value=analyzer
-        ), patch(
-            "github.Github", return_value=mock_github_client
-        ):
+                # Verify label manager interactions
+                mock_label_manager.ensure_labels_exist.assert_called_once()
+                mock_label_manager.add_labels_to_issue.assert_called_once()
 
-            result = process_issue_analysis(mock_issue_data, mock_openai_config)
-
-    # Verify analysis results
-    assert result.issue_type == "Bug Fix"
-    assert result.priority == "High"
-    assert result.complexity == "Moderate"
-
-    # Verify GitHub interactions (these operations are always mocked)
-    assert len(mock_github.labels) > 0  # Labels were created
-    assert len(mock_github.comments) == 1  # Comment was posted
+                # Verify analyzer interactions
+                mock_analyzer.analyze_issue.assert_called_once()
 
 
 def test_get_issue_data_with_provided_data(mock_issue_data):
@@ -464,3 +477,52 @@ def test_analyze_issue_error_handling(mock_issue_data, mock_openai_config):
     with pytest.raises(Exception) as exc_info:
         analyzer.analyze_issue(mock_issue_data)
     assert "API Error" in str(exc_info.value)
+
+
+def test_get_github_client():
+    """Test GitHub client creation and configuration.
+
+    This test verifies that:
+    1. The correct GitHub client class is used
+    2. The client is configured with the right parameters
+    3. Error handling works as expected
+    """
+    # Test with test mode
+    with patch("my_chat_gpt_utils.github_utils.GithubClientFactory") as mock_factory:
+        mock_client = MagicMock()
+        mock_factory.create_client.return_value = mock_client
+
+        client = get_github_client(test_mode=True)
+        # Verify the factory was called with correct parameters
+        mock_factory.create_client.assert_called_once_with(test_mode=True)
+        # Verify the client is properly configured
+        assert client is not None
+        assert isinstance(client, MagicMock)
+        # Verify the client has the expected methods
+        assert hasattr(client, "get_repo")
+        assert hasattr(client, "get_user")
+
+    # Test with real mode and token
+    with patch("my_chat_gpt_utils.github_utils.GithubClientFactory") as mock_factory:
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}):
+            mock_client = MagicMock()
+            mock_factory.create_client.return_value = mock_client
+
+            client = get_github_client(test_mode=False)
+            # Verify the factory was called with correct parameters
+            mock_factory.create_client.assert_called_once_with(test_mode=False)
+            # Verify the client is properly configured
+            assert client is not None
+            assert isinstance(client, MagicMock)
+            # Verify the client has the expected methods
+            assert hasattr(client, "get_repo")
+            assert hasattr(client, "get_user")
+
+    # Test with real mode but no token
+    with patch("my_chat_gpt_utils.github_utils.GithubClientFactory") as mock_factory:
+        with patch.dict(os.environ, {}, clear=True):
+            mock_factory.create_client.side_effect = ValueError("GITHUB_TOKEN not found in environment variables")
+            with pytest.raises(ValueError, match="GITHUB_TOKEN not found in environment variables"):
+                get_github_client(test_mode=False)
+            # Verify the factory was called
+            mock_factory.create_client.assert_called_once_with(test_mode=False)

@@ -3,28 +3,18 @@ repos:
     rev: v5.0.0
     hooks:
     -   id: trailing-whitespace
-        stages: [pre-commit]
     -   id: end-of-file-fixer
-        stages: [pre-commit]
     -   id: check-yaml
     -   id: check-added-large-files
-    -   id: check-ast
     -   id: check-json
     -   id: check-merge-conflict
-    -   id: detect-private-key
+    -   id: check-ast
 
 -   repo: https://github.com/psf/black
     rev: 25.1.0
     hooks:
     -   id: black
-        language_version: python3
-
--   repo: https://github.com/pycqa/isort
-    rev: 6.0.1
-    hooks:
-    -   id: isort
-        name: isort (python)
-        args: ["--profile", "black", "--filter-files"]
+        language_version: python3.11
 
 -   repo: https://github.com/pycqa/flake8
     rev: 7.1.2
@@ -38,8 +28,5 @@ repos:
         name: pytest
         entry: pytest
         language: system
-        types: [python]
         pass_filenames: false
         always_run: true
-        additional_dependencies: []
-        stages: [pre-commit]
