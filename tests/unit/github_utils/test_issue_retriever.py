@@ -10,7 +10,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from my_chat_gpt_utils.github_utils import IssueContext, IssueRetriever
+from my_chat_gpt_utils.github_utils import IssueRetriever
 
 
 @pytest.fixture
@@ -67,7 +67,10 @@ def test_get_recent_issues(mock_repository, mock_now):
 def test_get_recent_issues_with_state(mock_repository, mock_now):
     """Test retrieving recent issues with specific state."""
     retriever = IssueRetriever(mock_repository)
-    mock_issues = [MagicMock(created_at=mock_now - timedelta(days=5)), MagicMock(created_at=mock_now - timedelta(days=15))]
+    mock_issues = [
+        MagicMock(created_at=mock_now - timedelta(days=5)),
+        MagicMock(created_at=mock_now - timedelta(days=15)),
+    ]
     mock_repository.get_issues.return_value = mock_issues
 
     with patch("my_chat_gpt_utils.github_utils.datetime") as mock_datetime:
@@ -92,7 +95,10 @@ def test_get_recent_issues_empty(mock_repository, mock_now):
 def test_get_recent_issues_all_old(mock_repository, mock_now):
     """Test retrieving recent issues when all are too old."""
     retriever = IssueRetriever(mock_repository)
-    mock_issues = [MagicMock(created_at=mock_now - timedelta(days=35)), MagicMock(created_at=mock_now - timedelta(days=40))]
+    mock_issues = [
+        MagicMock(created_at=mock_now - timedelta(days=35)),
+        MagicMock(created_at=mock_now - timedelta(days=40)),
+    ]
     mock_repository.get_issues.return_value = mock_issues
 
     with patch("my_chat_gpt_utils.github_utils.datetime") as mock_datetime:

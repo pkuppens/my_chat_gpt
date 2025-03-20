@@ -1,5 +1,4 @@
 import json
-import os
 
 import requests
 from bs4 import BeautifulSoup
@@ -12,7 +11,11 @@ SOURCES = [
         "url": "https://www.linkedin.com/feed/hashtag/langchain",
         "article_selector": "div.feed-shared-update-v2__description-wrapper",
     },
-    {"name": "Medium", "url": "https://medium.com/tag/langchain", "article_selector": "div.postArticle-content"},
+    {
+        "name": "Medium",
+        "url": "https://medium.com/tag/langchain",
+        "article_selector": "div.postArticle-content",
+    },
 ]
 
 

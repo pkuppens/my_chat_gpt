@@ -1,8 +1,12 @@
+"""Utilities for interacting with OpenAI's API and managing API configurations."""
+
+import os
 from dataclasses import dataclass
 
 import openai
 import requests
 import yaml
+from openai import OpenAI
 from packaging import version
 
 from my_chat_gpt_utils.logger import logger
@@ -19,11 +23,13 @@ class OpenAIConfig:
     """
     Configuration for OpenAI API interactions.
 
-    Attributes:
+    Attributes
+    ----------
         api_key (str): OpenAI API key.
         model (str): LLM model to use.
         max_tokens (int): Maximum tokens for completion.
         temperature (float): Sampling temperature for generation.
+
     """
 
     api_key: str
@@ -40,8 +46,10 @@ class OpenAIVersionChecker:
         """
         Validate the installed OpenAI library version.
 
-        Returns:
+        Returns
+        -------
             bool: True if version is compatible, False otherwise.
+
         """
         try:
             current_version = version.parse(openai.__version__)
@@ -69,10 +77,13 @@ class OpenAIValidator:
         Validate the OpenAI API key's permissions.
 
         Args:
+        ----
             api_key (str): OpenAI API key to validate.
 
         Returns:
+        -------
             bool: True if key is valid, False otherwise.
+
         """
         try:
             headers = {"Authorization": f"Bearer {api_key}"}
@@ -88,11 +99,14 @@ def parse_openai_response(response_content: str):
     Parse the OpenAI API response content as YAML.
 
     Args:
+    ----
         response_content (str): The response content from OpenAI API.
 
     Returns:
+    -------
         dict: Parsed YAML content as a dictionary.
         text: The response content if parsing fails.
+
     """
     try:
         response_content = response_content.strip("`")  # remove markdown open/close tags
@@ -107,6 +121,7 @@ def make_openai_api_call(api_key: str, model: str, messages: list, temperature: 
     Make an OpenAI API call to generate a response.
 
     Args:
+    ----
         api_key (str): OpenAI API key.
         model (str): LLM model to use.
         messages (list): List of messages for the chat completion.
@@ -114,57 +129,47 @@ def make_openai_api_call(api_key: str, model: str, messages: list, temperature: 
         max_tokens (int): Maximum tokens for completion.
 
     Returns:
+    -------
         str: The response content from OpenAI API.
+
     """
     openai.api_key = api_key
     try:
-        response = openai.ChatCompletion.create(model=model, messages=messages, temperature=temperature, max_tokens=max_tokens)
+        response = openai.ChatCompletion.create(
+            model=model,
+            messages=messages,
+            temperature=temperature,
+            max_tokens=max_tokens,
+        )
         return response.choices[0].message.content.strip()
     except Exception as e:
         logger.error(f"OpenAI API call failed: {e}")
         raise
 
 
-def main():
-    """
-    Main function to validate OpenAI API key and library version.
-    """
-    logger.info("Starting OpenAI API key and library version validation...")
-
-    # Check OpenAI library version
-    if not OpenAIVersionChecker.check_library_version():
-        logger.error("OpenAI library version check failed. Exiting.")
-        return
-
-    # Load API key from environment variable
-    import os
-
-    from dotenv import load_dotenv
-
-    load_dotenv()
+def get_openai_client() -> OpenAI:
+    """Create and return an OpenAI client with API key from environment."""
     api_key = os.getenv("OPENAI_API_KEY")
-
     if not api_key:
-        logger.error("OpenAI API key not found in environment variables. Exiting.")
-        return
+        raise ValueError("OPENAI_API_KEY environment variable is required")
+    return OpenAI(api_key=api_key)
 
-    # Validate API key
-    if not OpenAIValidator.validate_api_key(api_key):
-        logger.error("OpenAI API key validation failed. Exiting.")
-        return
 
-    logger.info("OpenAI API key and library version validation successful.")
-
-    # Validate API key by fetching models
+def validate_openai_config() -> None:
+    """Validate OpenAI API key and library version."""
     try:
-        openai.api_key = api_key
-        models = openai.Model.list()
-        logger.info("API key is valid. Available models:")
-        for model in models["data"]:
-            logger.info(model["id"])
+        client = get_openai_client()
+        # Test the API key by making a simple request
+        client.models.list()
+        logger.info("OpenAI configuration validated successfully")
     except Exception as e:
-        logger.error(f"API key validation by fetching models failed: {e}")
-        return
+        logger.error(f"OpenAI configuration validation failed: {e}")
+        raise
+
+
+def main() -> None:
+    """Validate OpenAI configuration and API key."""
+    validate_openai_config()
 
 
 if __name__ == "__main__":

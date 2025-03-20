@@ -36,17 +36,21 @@ def read_requirements(filename: str, processed_files: Set[str] = None) -> List[s
     Read requirements from a file and handle -r references safely.
 
     Args:
+    ----
         filename: The requirements file to process
         processed_files: Set of already processed files to prevent infinite recursion
 
     Returns:
+    -------
         List of requirements with duplicates removed
 
     Note:
+    ----
         - Prevents infinite recursion by tracking processed files
         - Handles relative paths correctly
         - Removes duplicates while preserving order
         - setuptools will handle merging of version specifiers
+
     """
     if processed_files is None:
         processed_files = set()

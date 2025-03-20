@@ -16,14 +16,11 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import openai
-from github import Github
 
 from my_chat_gpt_utils.github_utils import (
     ISSUE_TYPES,
     PRIORITY_LEVELS,
-    GitHubEventProcessor,
     GitHubLabelManager,
-    IssueDataProvider,
     append_response_to_issue,
     get_github_client,
 )
@@ -44,12 +41,14 @@ class IssueAnalysis:
     """
     Represents the analysis results of a GitHub issue.
 
-    Attributes:
+    Attributes
+    ----------
         issue_type (str): Type of the issue (e.g., Bug, Feature).
         priority (str): Priority level of the issue.
         complexity (str): Complexity assessment of the issue.
         review_feedback (str): Detailed feedback from the review.
         next_steps (List[str]): Suggested next steps.
+
     """
 
     issue_type: str
@@ -60,16 +59,16 @@ class IssueAnalysis:
 
 
 class LLMIssueAnalyzer:
-    """
-    Analyzes GitHub issues using a Language Model.
-    """
+    """Analyzes GitHub issues using a Language Model."""
 
     def __init__(self, config: OpenAIConfig):
         """
         Initialize the analyzer with OpenAI configuration.
 
         Args:
+        ----
             config (OpenAIConfig): Configuration for OpenAI API.
+
         """
         self.config = config
         self.client = openai.OpenAI(api_key=config.api_key)
@@ -79,15 +78,19 @@ class LLMIssueAnalyzer:
         Analyze a GitHub issue using OpenAI's API.
 
         Args:
+        ----
             issue_data (Dict[str, Any]): Issue data to analyze.
 
         Returns:
+        -------
             IssueAnalysis: Analysis results.
 
         Raises:
+        ------
             ValueError: If the response format is invalid.
             json.JSONDecodeError: If the response content is not valid JSON.
             Exception: For other API or processing errors.
+
         """
         # Prepare the prompt
         system_prompt, user_prompt = load_analyze_issue_prompt(
@@ -127,7 +130,7 @@ class LLMIssueAnalyzer:
             # Parse response
             try:
                 analysis_dict = json.loads(content)
-            except json.JSONDecodeError as e:
+            except json.JSONDecodeError:
                 logger.error(f"Failed to parse OpenAI response as JSON: {content}")
                 raise
 
@@ -154,12 +157,15 @@ def setup_openai_config() -> OpenAIConfig:
     """
     Set up and validate OpenAI configuration.
 
-    Returns:
+    Returns
+    -------
         OpenAIConfig: Validated OpenAI configuration.
 
-    Raises:
+    Raises
+    ------
         RuntimeError: If OpenAI library version is incompatible.
         ValueError: If OpenAI API key is invalid.
+
     """
     if not OpenAIVersionChecker.check_library_version():
         raise RuntimeError("Incompatible OpenAI library version")
@@ -181,8 +187,10 @@ def get_required_labels() -> List[str]:
     """
     Get list of all required labels for issues.
 
-    Returns:
+    Returns
+    -------
         List[str]: List of required labels.
+
     """
     return [
         *[f"Type: {issue_type}" for issue_type in ISSUE_TYPES],
@@ -198,10 +206,13 @@ def get_issue_specific_labels(analysis: IssueAnalysis) -> List[str]:
     Get labels specific to an issue based on its analysis.
 
     Args:
+    ----
         analysis (IssueAnalysis): Issue analysis results.
 
     Returns:
+    -------
         List[str]: List of specific labels for the issue.
+
     """
     return [
         f"Type: {analysis.issue_type}",
@@ -215,10 +226,13 @@ def create_analysis_comment(analysis: IssueAnalysis) -> str:
     Create a formatted comment with analysis details.
 
     Args:
+    ----
         analysis (IssueAnalysis): Issue analysis results.
 
     Returns:
+    -------
         str: Formatted comment text.
+
     """
     return f"""
 ## Issue Analysis
@@ -239,17 +253,23 @@ def create_analysis_comment(analysis: IssueAnalysis) -> str:
 
 
 def process_issue_analysis(
-    issue_data: Dict[str, Any], openai_config: Union[Dict[str, Any], OpenAIConfig], test_mode: bool = False
+    issue_data: Dict[str, Any],
+    openai_config: Union[Dict[str, Any], OpenAIConfig],
+    test_mode: bool = False,
 ) -> Dict[str, Any]:
-    """Process issue analysis with OpenAI and GitHub integration.
+    """
+    Process issue analysis with OpenAI and GitHub integration.
 
     Args:
+    ----
         issue_data (Dict[str, Any]): Issue data dictionary
         openai_config (Union[Dict[str, Any], OpenAIConfig]): OpenAI configuration
         test_mode (bool): If True, run in test mode
 
     Returns:
+    -------
         Dict[str, Any]: Analysis results
+
     """
     if isinstance(openai_config, dict):
         openai_config = OpenAIConfig(**openai_config)
@@ -268,7 +288,12 @@ def process_issue_analysis(
 
     # Add specific labels for this issue
     issue_labels = get_issue_specific_labels(analysis)
-    label_manager.add_labels_to_issue(issue_data["repo_owner"], issue_data["repo_name"], issue_data["issue_number"], issue_labels)
+    label_manager.add_labels_to_issue(
+        issue_data["repo_owner"],
+        issue_data["repo_name"],
+        issue_data["issue_number"],
+        issue_labels,
+    )
 
     # Create and post comment
     comment = create_analysis_comment(analysis)

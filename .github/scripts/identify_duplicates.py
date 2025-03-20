@@ -1,17 +1,26 @@
+"""
+Identify duplicate issues in a GitHub repository.
+
+This script uses LLM-based analysis to find potential duplicate issues.
+It compares the current issue with existing ones and provides similarity scores.
+"""
+
 import json
 import logging
 import os
 import sys
 from datetime import datetime, timedelta
+from typing import Any, Dict
 
 from github import Github
+from openai import OpenAI
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from my_chat_gpt_utils.logger import logger
-
 
 class GithubDuplicateIssueDetector:
+    """Detector for finding similar GitHub issues using TF-IDF and cosine similarity."""
+
     def __init__(self):
         """
         Initialize the detector with GitHub credentials and repository info.
@@ -32,9 +41,7 @@ class GithubDuplicateIssueDetector:
         logging.info(f"Initialized detector for repository: {self.repo_name}")
 
     def find_similar_issues(self, current_issue_number, issue_title, issue_body, threshold=0.8):
-        """
-        Check for similar issues, including those closed in the last 30 days.
-        """
+        """Check for similar issues, including those closed in the last 30 days."""
         logging.info(f"Processing issue #{current_issue_number}: {issue_title}")
         logging.info(f"Using similarity threshold: {threshold:.1%}")
         thirty_days_ago = datetime.now() - timedelta(days=30)
@@ -53,7 +60,10 @@ class GithubDuplicateIssueDetector:
         logging.info(f"Found {len(recently_closed_issues)} recently closed issues (last 30 days)")
 
         # Process both sets of issues
-        for issue_set, set_type in [(open_issues, "open"), (recently_closed_issues, "closed")]:
+        for issue_set, set_type in [
+            (open_issues, "open"),
+            (recently_closed_issues, "closed"),
+        ]:
             for issue in issue_set:
                 if issue.number == current_issue_number:
                     logging.info(f"Skipping current issue #{issue.number} ({set_type})")
@@ -78,7 +88,11 @@ class GithubDuplicateIssueDetector:
 
         # Filter issues that exceed threshold
         similar_issues = [
-            (existing_issues[i], similarities[i], "closed" if existing_issues[i].state == "closed" else "open")
+            (
+                existing_issues[i],
+                similarities[i],
+                "closed" if existing_issues[i].state == "closed" else "open",
+            )
             for i in range(len(similarities))
             if similarities[i] >= threshold
         ]
@@ -94,9 +108,7 @@ class GithubDuplicateIssueDetector:
         return sorted(similar_issues, key=lambda x: x[1], reverse=True)
 
     def create_similarity_comment(self, issue_number, similar_issues):
-        """
-        Create a comment on the issue with similarity results.
-        """
+        """Create a comment on the issue with similarity results."""
         if not similar_issues:
             logging.info("No similar issues found, skipping comment creation")
             return
@@ -118,9 +130,7 @@ class GithubDuplicateIssueDetector:
 
 
 def validate_github_event():
-    """
-    Validate that the GitHub event is an issue event and return the event data.
-    """
+    """Validate that the GitHub event is an issue event and return the event data."""
     event_path = os.getenv("GITHUB_EVENT_PATH")
     if not event_path:
         raise ValueError("This script should be run within a GitHub Action")
@@ -142,6 +152,23 @@ def validate_github_event():
     return event
 
 
+def process_issue_data(issue_data: Dict[str, Any], client: OpenAI) -> Dict[str, Any]:
+    """
+    Process issue data to identify potential duplicates.
+
+    Args:
+    ----
+        issue_data: Dictionary containing issue information
+        client: OpenAI client instance
+
+    Returns:
+    -------
+        Dictionary containing analysis results and potential duplicates
+
+    """
+    # ... existing code ...
+
+
 def main():
     try:
         logging.info("Starting duplicate issue detection")
@@ -149,7 +176,9 @@ def main():
         detector = GithubDuplicateIssueDetector()
 
         similar_issues = detector.find_similar_issues(
-            event["issue"]["number"], event["issue"]["title"], event["issue"]["body"] or ""
+            event["issue"]["number"],
+            event["issue"]["title"],
+            event["issue"]["body"] or "",
         )
 
         detector.create_similarity_comment(event["issue"]["number"], similar_issues)

@@ -6,10 +6,10 @@ Tests focus on business logic and required functionality rather than implementat
 """
 
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-from github import Github, GithubException
+from github import GithubException
 
 from my_chat_gpt_utils.github_utils import GithubClientFactory
 
@@ -77,11 +77,17 @@ def test_github_client_error_handling():
     # Test invalid token
     with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
         mock_github.return_value.get_user.side_effect = GithubException(401, {"message": "Bad credentials"})
-        with pytest.raises(ValueError, match="Invalid or expired GITHUB_TOKEN or unable to connect to GitHub"):
+        with pytest.raises(
+            ValueError,
+            match="Invalid or expired GITHUB_TOKEN or unable to connect to GitHub",
+        ):
             GithubClientFactory.create_client("invalid-token")
 
     # Test missing token
-    with patch.dict(os.environ, {}, clear=True), patch("my_chat_gpt_utils.github_utils.load_dotenv", return_value=None):
+    with (
+        patch.dict(os.environ, {}, clear=True),
+        patch("my_chat_gpt_utils.github_utils.load_dotenv", return_value=None),
+    ):
         with pytest.raises(ValueError, match="GITHUB_TOKEN not found in environment variables"):
             GithubClientFactory.create_client()
 

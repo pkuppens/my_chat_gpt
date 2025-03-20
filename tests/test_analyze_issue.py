@@ -12,7 +12,6 @@ For integration tests that use real GitHub clients, see tests/integration/test_a
 # Test comment for IDE pre-commit hooks
 import json
 import os
-from datetime import datetime
 from typing import Any, Dict
 from unittest.mock import MagicMock, mock_open, patch
 
@@ -29,7 +28,12 @@ from my_chat_gpt_utils.analyze_issue import (
     setup_openai_config,
 )
 from my_chat_gpt_utils.github_utils import get_github_client
-from my_chat_gpt_utils.openai_utils import DEFAULT_LLM_MODEL, DEFAULT_MAX_TOKENS, DEFAULT_TEMPERATURE, OpenAIConfig
+from my_chat_gpt_utils.openai_utils import (
+    DEFAULT_LLM_MODEL,
+    DEFAULT_MAX_TOKENS,
+    DEFAULT_TEMPERATURE,
+    OpenAIConfig,
+)
 
 
 @pytest.fixture(autouse=True)
@@ -77,8 +81,10 @@ class MockOpenAI:
         Create a mock that will return the given response.
 
         Args:
+        ----
             expected_response: The data we want our mock to return.
                              This should match what our code expects.
+
         """
         self.expected_response = expected_response
 
@@ -147,12 +153,15 @@ class MockGitHub:
         Simulate creating labels in a GitHub repository.
 
         Args:
+        ----
             owner: Repository owner (not used in mock)
             repo: Repository name (not used in mock)
             labels: List of labels to create
 
         Returns:
+        -------
             list: The labels that were created
+
         """
         self.labels.extend(labels)  # Track the labels
         return labels
@@ -162,13 +171,16 @@ class MockGitHub:
         Simulate adding labels to a GitHub issue.
 
         Args:
+        ----
             owner: Repository owner (not used in mock)
             repo: Repository name (not used in mock)
             issue_number: Issue number (not used in mock)
             labels: List of labels to add
 
         Returns:
+        -------
             bool: Always True in mock
+
         """
         self.labels.extend(labels)  # Track the labels
         return True
@@ -178,13 +190,16 @@ class MockGitHub:
         Simulate posting a comment to a GitHub issue.
 
         Args:
+        ----
             client: GitHub client (not used in mock)
             repo_name: Repository name (not used in mock)
             issue_data: Issue data (not used in mock)
             comment: The comment text to post
 
         Returns:
+        -------
             bool: Always True in mock
+
         """
         self.comments.append(comment)  # Track the comment
         return True
@@ -225,7 +240,13 @@ def mock_issue_analysis():
 @pytest.fixture
 def mock_issue_data():
     """Fixture providing sample issue data."""
-    return {"repo_owner": "test-owner", "repo_name": "test-repo", "issue_number": 123, "title": "Test Issue", "body": "Test body"}
+    return {
+        "repo_owner": "test-owner",
+        "repo_name": "test-repo",
+        "issue_number": 123,
+        "title": "Test Issue",
+        "body": "Test body",
+    }
 
 
 @pytest.fixture
@@ -291,7 +312,8 @@ def test_create_analysis_comment(mock_issue_analysis):
 
 
 def test_process_issue_analysis():
-    """Test process_issue_analysis function.
+    """
+    Test process_issue_analysis function.
 
     This test verifies the complete workflow of issue analysis:
     1. OpenAI analysis
@@ -308,7 +330,12 @@ def test_process_issue_analysis():
         "issue_title": "Test Issue",
         "issue_body": "This is a test issue",
     }
-    mock_openai_config = {"api_key": "test_key", "model": "gpt-4", "temperature": 0.7, "max_tokens": 1000}
+    mock_openai_config = {
+        "api_key": "test_key",
+        "model": "gpt-4",
+        "temperature": 0.7,
+        "max_tokens": 1000,
+    }
 
     # Create mock objects
     mock_client = MagicMock()
@@ -329,7 +356,10 @@ def test_process_issue_analysis():
         mock_label_manager = MagicMock()
         mock_label_manager.ensure_labels_exist.return_value = True
         mock_label_manager.add_labels_to_issue.return_value = True
-        with patch("my_chat_gpt_utils.analyze_issue.GitHubLabelManager", return_value=mock_label_manager):
+        with patch(
+            "my_chat_gpt_utils.analyze_issue.GitHubLabelManager",
+            return_value=mock_label_manager,
+        ):
             # Mock the analyzer response
             mock_analyzer = MagicMock()
             mock_analyzer.analyze_issue.return_value = IssueAnalysis(
@@ -339,7 +369,10 @@ def test_process_issue_analysis():
                 review_feedback="Test feedback",
                 next_steps=["Step 1", "Step 2"],
             )
-            with patch("my_chat_gpt_utils.analyze_issue.LLMIssueAnalyzer", return_value=mock_analyzer):
+            with patch(
+                "my_chat_gpt_utils.analyze_issue.LLMIssueAnalyzer",
+                return_value=mock_analyzer,
+            ):
                 # Run the analysis
                 result = process_issue_analysis(mock_issue_data, mock_openai_config, test_mode=True)
 
@@ -381,7 +414,10 @@ def test_get_issue_data_from_env():
 def test_get_issue_data_from_event_file():
     """Test getting issue data from event file."""
     test_data = {"issue": {"title": "Test Issue", "body": "Test Body"}}
-    with patch("os.path.exists", return_value=True), patch("builtins.open", mock_open(read_data=json.dumps(test_data))):
+    with (
+        patch("os.path.exists", return_value=True),
+        patch("builtins.open", mock_open(read_data=json.dumps(test_data))),
+    ):
         with patch.dict("os.environ", {"GITHUB_EVENT_PATH": "test_path"}):
             result = get_issue_data()
             assert result == test_data["issue"]
@@ -389,7 +425,10 @@ def test_get_issue_data_from_event_file():
 
 def test_get_issue_data_event_file_error():
     """Test handling of event file reading error."""
-    with patch("os.path.exists", return_value=True), patch("builtins.open", side_effect=IOError("File error")):
+    with (
+        patch("os.path.exists", return_value=True),
+        patch("builtins.open", side_effect=IOError("File error")),
+    ):
         with patch.dict("os.environ", {"GITHUB_EVENT_PATH": "test_path"}):
             result = get_issue_data()
             assert result == {}
@@ -418,12 +457,25 @@ def test_get_issue_data_invalid_json():
 
 def test_setup_openai_config_success():
     """Test successful OpenAI configuration setup."""
-    with patch.dict(
-        "os.environ", {"OPENAI_API_KEY": "test-key", "LLM_MODEL": "test-model", "MAX_TOKENS": "100", "TEMPERATURE": "0.5"}
-    ), patch("my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version", return_value=True), patch(
-        "my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key", return_value=True
+    with (
+        patch.dict(
+            "os.environ",
+            {
+                "OPENAI_API_KEY": "test-key",
+                "LLM_MODEL": "test-model",
+                "MAX_TOKENS": "100",
+                "TEMPERATURE": "0.5",
+            },
+        ),
+        patch(
+            "my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version",
+            return_value=True,
+        ),
+        patch(
+            "my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key",
+            return_value=True,
+        ),
     ):
-
         config = setup_openai_config()
         assert config.api_key == "test-key"
         assert config.model == "test-model"
@@ -433,32 +485,63 @@ def test_setup_openai_config_success():
 
 def test_setup_openai_config_invalid_version():
     """Test OpenAI configuration setup with invalid library version."""
-    with patch.dict(
-        "os.environ", {"OPENAI_API_KEY": "test-key", "LLM_MODEL": "test-model", "MAX_TOKENS": "100", "TEMPERATURE": "0.5"}
-    ), patch("my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version", return_value=False):
-
+    with (
+        patch.dict(
+            "os.environ",
+            {
+                "OPENAI_API_KEY": "test-key",
+                "LLM_MODEL": "test-model",
+                "MAX_TOKENS": "100",
+                "TEMPERATURE": "0.5",
+            },
+        ),
+        patch(
+            "my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version",
+            return_value=False,
+        ),
+    ):
         with pytest.raises(RuntimeError, match="Incompatible OpenAI library version"):
             setup_openai_config()
 
 
 def test_setup_openai_config_invalid_api_key():
     """Test OpenAI configuration setup with invalid API key."""
-    with patch.dict(
-        "os.environ", {"OPENAI_API_KEY": "test-key", "LLM_MODEL": "test-model", "MAX_TOKENS": "100", "TEMPERATURE": "0.5"}
-    ), patch("my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version", return_value=True), patch(
-        "my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key", return_value=False
+    with (
+        patch.dict(
+            "os.environ",
+            {
+                "OPENAI_API_KEY": "test-key",
+                "LLM_MODEL": "test-model",
+                "MAX_TOKENS": "100",
+                "TEMPERATURE": "0.5",
+            },
+        ),
+        patch(
+            "my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version",
+            return_value=True,
+        ),
+        patch(
+            "my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key",
+            return_value=False,
+        ),
     ):
-
         with pytest.raises(ValueError, match="Invalid OpenAI API key"):
             setup_openai_config()
 
 
 def test_setup_openai_config_default_values():
     """Test OpenAI configuration setup with default values."""
-    with patch.dict("os.environ", {}, clear=True), patch(
-        "my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version", return_value=True
-    ), patch("my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key", return_value=True):
-
+    with (
+        patch.dict("os.environ", {}, clear=True),
+        patch(
+            "my_chat_gpt_utils.analyze_issue.OpenAIVersionChecker.check_library_version",
+            return_value=True,
+        ),
+        patch(
+            "my_chat_gpt_utils.analyze_issue.OpenAIValidator.validate_api_key",
+            return_value=True,
+        ),
+    ):
         config = setup_openai_config()
         assert config.api_key == ""
         assert config.model == DEFAULT_LLM_MODEL
@@ -480,7 +563,8 @@ def test_analyze_issue_error_handling(mock_issue_data, mock_openai_config):
 
 
 def test_get_github_client():
-    """Test GitHub client creation and configuration.
+    """
+    Test GitHub client creation and configuration.
 
     This test verifies that:
     1. The correct GitHub client class is used

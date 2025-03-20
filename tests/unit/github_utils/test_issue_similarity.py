@@ -5,14 +5,13 @@ This module tests the IssueSimilarityAnalyzer class and related functionality.
 All external dependencies are mocked to ensure reliable testing.
 """
 
-from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pytest
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from my_chat_gpt_utils.github_utils import IssueContext, IssueSimilarityAnalyzer
+from my_chat_gpt_utils.github_utils import IssueSimilarityAnalyzer
 
 
 @pytest.fixture
@@ -43,9 +42,13 @@ def test_compute_similarities(mock_issues, mock_vectorizer):
     target_issue = mock_issues[0]
     existing_issues = mock_issues[1:]
 
-    with patch("my_chat_gpt_utils.github_utils.TfidfVectorizer", return_value=mock_vectorizer), patch(
-        "my_chat_gpt_utils.github_utils.cosine_similarity"
-    ) as mock_cosine:
+    with (
+        patch(
+            "my_chat_gpt_utils.github_utils.TfidfVectorizer",
+            return_value=mock_vectorizer,
+        ),
+        patch("my_chat_gpt_utils.github_utils.cosine_similarity") as mock_cosine,
+    ):
         mock_cosine.return_value = np.array([[0.85, 0.75]])
         similarities = analyzer.compute_similarities(target_issue, existing_issues, threshold=0.8)
         assert len(similarities) == 1
@@ -59,9 +62,13 @@ def test_compute_similarities_below_threshold(mock_issues, mock_vectorizer):
     target_issue = mock_issues[0]
     existing_issues = mock_issues[1:]
 
-    with patch("my_chat_gpt_utils.github_utils.TfidfVectorizer", return_value=mock_vectorizer), patch(
-        "my_chat_gpt_utils.github_utils.cosine_similarity"
-    ) as mock_cosine:
+    with (
+        patch(
+            "my_chat_gpt_utils.github_utils.TfidfVectorizer",
+            return_value=mock_vectorizer,
+        ),
+        patch("my_chat_gpt_utils.github_utils.cosine_similarity") as mock_cosine,
+    ):
         mock_cosine.return_value = np.array([[0.75, 0.65]])
         similarities = analyzer.compute_similarities(target_issue, existing_issues, threshold=0.8)
         assert len(similarities) == 0
@@ -85,9 +92,13 @@ def test_compute_similarities_no_body(mock_issues, mock_vectorizer):
     target_issue.body = None
     existing_issues = mock_issues[1:]
 
-    with patch("my_chat_gpt_utils.github_utils.TfidfVectorizer", return_value=mock_vectorizer), patch(
-        "my_chat_gpt_utils.github_utils.cosine_similarity"
-    ) as mock_cosine:
+    with (
+        patch(
+            "my_chat_gpt_utils.github_utils.TfidfVectorizer",
+            return_value=mock_vectorizer,
+        ),
+        patch("my_chat_gpt_utils.github_utils.cosine_similarity") as mock_cosine,
+    ):
         mock_cosine.return_value = np.array([[0.85, 0.75]])
         similarities = analyzer.compute_similarities(target_issue, existing_issues)
         assert len(similarities) == 1

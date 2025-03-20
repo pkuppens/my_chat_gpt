@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
-"""
-AI Generated Document Writer
-
-This module reads JSON data from a file, where the JSON data contains a list of generated documents.
-It writes their content to individual files based on the specified file names in the JSON data.
-"""
+"""Module for AI-powered document writing and content generation."""
 
 import json
+import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
+
+from my_chat_gpt_utils.openai_utils import get_openai_client
+from my_chat_gpt_utils.prompts import get_documentation_prompt
 
 
 def read_json_file(file_path: str) -> List[Dict[str, Any]]:
@@ -21,13 +20,17 @@ def read_json_file(file_path: str) -> List[Dict[str, Any]]:
     On failure or empty file, returns an empty list.
 
     Args:
+    ----
         file_path: Path to the JSON file to read
 
     Returns:
+    -------
         List of dictionaries parsed from JSON
 
     Raises:
+    ------
         FileNotFoundError: If the specified file does not exist
+
     """
     try:
         # Check if file exists
@@ -56,74 +59,30 @@ def read_json_file(file_path: str) -> List[Dict[str, Any]]:
         return []
 
 
-def write_content_to_file(item: Dict[str, Any], current_directory: Path) -> bool:
-    """
-    Extract content from a JSON item and write it to a file with the name specified in the item.
-
-    Args:
-        item: Dictionary containing 'name' and 'content' keys
-
-    Returns:
-        True if writing was successful, False otherwise
-
-    Raises:
-        KeyError: If the required keys are missing from the item
-    """
-    try:
-        # Validate required keys exist
-        if "name" not in item or "content" not in item:
-            print(f"Error: Missing required keys in item: {item}")
-            return False
-
-        file_name: str = current_directory / item["name"]
-        content: str = item["content"]
-
-        # Write content to file
-        with open(file_name, "w", encoding="utf-8") as file:
-            file.write(content)
-
-        print(f"Successfully wrote content to '{file_name}'")
-        return True
-
-    except IOError as e:
-        print(f"Error writing to file '{item.get('name', 'unknown')}': {e}")
-        return False
-    except Exception as e:
-        print(f"Unexpected error processing item: {e}")
-        return False
+def write_content_to_file(content: str, file_path: str, current_directory: str) -> None:
+    """Write content to a file, creating directories if needed."""
+    full_path = os.path.join(current_directory, file_path)
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
+    with open(full_path, "w", encoding="utf-8") as f:
+        f.write(content)
+    logging.info(f"Wrote content to {file_path}")
 
 
-def process_items(items: List[Dict[str, Any]], current_directory: Path) -> int:
-    """
-    Process a list of items by writing their content to files.
-
-    Args:
-        items: List of dictionaries containing 'name' and 'content' keys
-
-    Returns:
-        Number of items successfully processed
-    """
-    successful_writes: int = 0
-
-    for i, item in enumerate(items):
-        print(f"Processing item {i+1}/{len(items)}...")
-
-        if write_content_to_file(item, current_directory):
-            successful_writes += 1
-
-    return successful_writes
+def process_items(items: List[Dict[str, Any]], current_directory: str) -> None:
+    """Process a list of items and generate documentation for each."""
+    client = get_openai_client()
+    for item in items:
+        prompt = get_documentation_prompt(item)
+        response = client.chat.completions.create(
+            model="gpt-4-turbo-preview",
+            messages=[{"role": "user", "content": prompt}],
+        )
+        content = response.choices[0].message.content
+        write_content_to_file(content, item["file_path"], current_directory)
 
 
 def main(file_path: Optional[str] = None, current_directory: Optional[Path] = None) -> int:
-    """
-    Main function to read JSON, process items, and write content to files.
-
-    Args:
-        file_path: Path to the JSON file (optional, defaults to command line arg)
-
-    Returns:
-        Exit code (0 for success, 1 for error)
-    """
+    """Main function to read JSON, process items, and write content to files."""
     # If no file path provided, get from command line args
     if file_path is None:
         if len(sys.argv) < 2:
@@ -139,12 +98,12 @@ def main(file_path: Optional[str] = None, current_directory: Optional[Path] = No
         return 1
 
     # Process items
-    successful_count = process_items(items, current_directory)
+    process_items(items, current_directory)
 
     # Print summary
-    print(f"\nProcessing complete: {successful_count}/{len(items)} items successfully processed")
+    print(f"\nProcessing complete: {len(items)} items successfully processed")
 
-    return 0 if successful_count == len(items) else 1
+    return 0
 
 
 if __name__ == "__main__":

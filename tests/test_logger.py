@@ -10,8 +10,7 @@ import io
 import logging
 import os
 import re
-import sys
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Tuple
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -46,10 +45,13 @@ class TestLogger:
         Capture log output for testing.
 
         Args:
+        ----
             logger: The logger instance to capture output from
 
         Returns:
+        -------
             Tuple containing the StringIO object capturing the output and the handler
+
         """
         log_capture = io.StringIO()
         handler = logging.StreamHandler(log_capture)
@@ -95,9 +97,11 @@ class TestLogger:
         Test that messages are filtered based on the configured log level.
 
         Args:
+        ----
             log_level: The level to configure the logger with
             message_level: The level to log a message at
             should_log: Whether the message should appear in the log
+
         """
         logger = configure_logger(level=log_level)
         log_capture, handler = self.capture_log_output(logger)
@@ -345,7 +349,7 @@ if __name__ == "__main__":
     print("\n=== File logging demonstration ===")
     file_logger = configure_logger(name="file_demo", level="INFO", add_file_handler=True, log_file_path="demo.log")
     file_logger.info("This message goes to both console and file")
-    print(f"Check demo.log for file output")
+    print("Check demo.log for file output")
 
     # Run some tests programmatically
     print("\n=== Running basic verification tests ===")

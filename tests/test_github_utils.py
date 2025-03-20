@@ -5,7 +5,6 @@ from my_chat_gpt_utils.github_utils import append_response_to_issue, get_github_
 
 
 class TestGitHubUtils(unittest.TestCase):
-
     @patch("my_chat_gpt_utils.github_utils.get_repository")
     @patch("my_chat_gpt_utils.github_utils.Github")
     def test_get_github_issue(self, MockGithub, mock_get_repository):
@@ -14,7 +13,11 @@ class TestGitHubUtils(unittest.TestCase):
         mock_issue = MagicMock()
         mock_repo.get_issue.return_value = mock_issue
 
-        issue_data = {"repo_owner": "test_owner", "repo_name": "test_repo", "issue_number": 1}
+        issue_data = {
+            "repo_owner": "test_owner",
+            "repo_name": "test_repo",
+            "issue_number": 1,
+        }
 
         issue = get_github_issue(mock_client, issue_data["repo_name"], issue_data)
         mock_get_repository.assert_called_once_with(mock_client, issue_data["repo_name"])
@@ -29,7 +32,11 @@ class TestGitHubUtils(unittest.TestCase):
 
         client = MagicMock()
         repo_name = "test_repo"
-        issue_data = {"repo_owner": "test_owner", "repo_name": repo_name, "issue_number": 1}
+        issue_data = {
+            "repo_owner": "test_owner",
+            "repo_name": repo_name,
+            "issue_number": 1,
+        }
         response = "Test response"
 
         append_response_to_issue(client, repo_name, issue_data, response)
