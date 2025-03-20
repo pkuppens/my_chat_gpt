@@ -13,9 +13,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from my_chat_gpt_utils.openai_utils import OpenAIConfig
-
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from my_chat_gpt_utils.openai_utils import OpenAIConfig
 
 
 class MockOpenAI:
@@ -73,7 +73,13 @@ def mock_github():
 @pytest.fixture
 def mock_issue_data():
     """Fixture providing sample issue data."""
-    return {"repo_owner": "test-owner", "repo_name": "test-repo", "issue_number": 123, "title": "Test Issue", "body": "Test body"}
+    return {
+        "repo_owner": "test-owner",
+        "repo_name": "test-repo",
+        "issue_number": 123,
+        "title": "Test Issue",
+        "body": "Test body",
+    }
 
 
 @pytest.fixture

@@ -23,11 +23,13 @@ A collection of utilities and tools for working with ChatGPT and related AI tech
 1. Install dependencies using UV package manager (see `docs/package_management/UV.md`)
 2. Configure linting (see `docs/development/LINTING.md`)
 3. Set up pre-commit hooks for code quality
+4. Set up testing environment (see `docs/testing/TEST-STRATEGY.md`)
 
 ## Documentation
 
 - Package Management: `docs/package_management/`
 - Development Guidelines: `docs/development/`
+- Testing Strategy: `docs/testing/`
 - AI Resources: `docs/ai_resources/`
 - Project-specific docs: See individual directory READMEs
 

@@ -16,6 +16,7 @@ Usage:
     with support for dynamic placeholder substitution.
 
 Example:
+-------
     system_prompt, user_prompt = load_analyze_issue_prompt({
         "issue_title": "Fix login screen",
         "issue_body": "Users cannot log in with correct credentials"
@@ -24,13 +25,12 @@ Example:
 TODO: Be explicit about the placeholders that can be used in the prompt templates.
 E.g. {issue_title}, {issue_body}, {issue_types}, {priority_levels}, etc.
 The current function could leave undefined placeholders in the prompt.
+
 """
 
 import os
 import tempfile
-from typing import Dict, Tuple
-
-import pytest
+from typing import Any, Dict, Tuple
 
 # Try to import from my_chat_gpt_utils package, but fallback to constants if running standalone
 try:
@@ -51,11 +51,14 @@ def load_analyze_issue_prompt(placeholders: Dict = None) -> Tuple[str, str]:
     Load the prompt for analyzing a GitHub issue with LLM.
 
     Args:
+    ----
         placeholders: Dictionary containing values to substitute in the prompt templates.
                       If None, an empty dictionary will be used.
 
     Returns:
+    -------
         Tuple containing (system_prompt, user_prompt) strings with placeholders substituted.
+
     """
     placeholders = placeholders or {}  # do not use mutable {} as default parameter!
 
@@ -103,7 +106,10 @@ def test_load_prompt_with_empty_placeholders():
 
 def test_load_prompt_with_placeholders():
     """Test loading prompts with placeholders."""
-    placeholders = {"issue_title": "Bug in login form", "issue_body": "Users cannot log in with correct credentials"}
+    placeholders = {
+        "issue_title": "Bug in login form",
+        "issue_body": "Users cannot log in with correct credentials",
+    }
     system, user = load_analyze_issue_prompt(placeholders)
     assert "Bug in login form" in user
 
@@ -114,10 +120,18 @@ def test_create_temp_prompt_files():
         os.makedirs(os.path.join(tmpdir, "SuperPrompt"), exist_ok=True)
 
         # Create temp prompt files
-        with open(os.path.join(tmpdir, "SuperPrompt", "analyze_issue_system_prompt.txt"), "w", encoding="utf-8") as f:
+        with open(
+            os.path.join(tmpdir, "SuperPrompt", "analyze_issue_system_prompt.txt"),
+            "w",
+            encoding="utf-8",
+        ) as f:
             f.write("Test system prompt with {issue_types}")
 
-        with open(os.path.join(tmpdir, "SuperPrompt", "analyze_issue_user_prompt.txt"), "w", encoding="utf-8") as f:
+        with open(
+            os.path.join(tmpdir, "SuperPrompt", "analyze_issue_user_prompt.txt"),
+            "w",
+            encoding="utf-8",
+        ) as f:
             f.write("Test user prompt for {issue_title}")
 
         # Save current directory
@@ -138,7 +152,11 @@ def test_create_temp_prompt_files():
 def run_tests():
     """Run all tests in this module."""
     # This is a simple test runner for standalone execution
-    test_functions = [test_load_prompt_with_empty_placeholders, test_load_prompt_with_placeholders, test_create_temp_prompt_files]
+    test_functions = [
+        test_load_prompt_with_empty_placeholders,
+        test_load_prompt_with_placeholders,
+        test_create_temp_prompt_files,
+    ]
 
     failures = 0
     for test_func in test_functions:
@@ -158,3 +176,25 @@ if __name__ == "__main__":
     print("Running standalone tests for Issue Analysis Prompt Manager")
     success = run_tests()
     exit(0 if success else 1)
+
+
+class DocumentationPrompt:
+    """Class for generating documentation-related prompts."""
+
+    def __init__(self):
+        """Initialize the documentation prompt generator."""
+
+    @staticmethod
+    def get_prompt(item: Dict[str, Any]) -> str:
+        """Generate a prompt for documentation generation."""
+        return f"""Generate documentation for the following item:
+Title: {item.get('title', 'N/A')}
+Description: {item.get('description', 'N/A')}
+Type: {item.get('type', 'N/A')}
+
+Please provide clear, concise documentation that follows best practices."""
+
+
+def get_documentation_prompt(item: Dict[str, Any]) -> str:
+    """Get a documentation prompt for the given item."""
+    return DocumentationPrompt.get_prompt(item)

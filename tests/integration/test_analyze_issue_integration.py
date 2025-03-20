@@ -10,6 +10,9 @@ These tests are separate from unit tests to:
 1. Allow running unit tests without GitHub access
 2. Prevent accidental modifications to real repositories
 3. Make it clear which tests require external services
+
+These tests interact with the actual GitHub API and require valid credentials.
+They are marked with @pytest.mark.integration and are skipped by default in regular test runs.
 """
 
 import os
@@ -55,6 +58,7 @@ def test_openai_config():
     )
 
 
+@pytest.mark.integration
 def test_process_issue_analysis_integration(test_issue_data, test_openai_config):
     """
     Integration test for the complete issue analysis process.

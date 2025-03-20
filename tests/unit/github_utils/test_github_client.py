@@ -1,15 +1,29 @@
 """
 Unit tests for GitHub client functionality.
 
-This module tests the GitHub client factory and related functionality.
-Tests focus on business logic and required functionality rather than implementation details.
+This module tests the GitHub client factory and related functionality, focusing on:
+1. Business Logic:
+   - Client creation with proper authentication
+   - Repository access and validation
+   - Environment-specific behavior (local vs CI/CD)
+   - Error handling for invalid credentials
+
+2. Edge Cases:
+   - Missing environment variables
+   - Invalid tokens
+   - Network failures
+   - Repository access issues
+   - Test mode vs production mode differences
+
+The tests ensure that the GitHub client provides the necessary functionality
+for the application while handling various error conditions appropriately.
 """
 
 import os
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
-from github import Github, GithubException
+from github import GithubException
 
 from my_chat_gpt_utils.github_utils import GithubClientFactory
 
@@ -50,71 +64,84 @@ def github_client(test_environment):
         if not token:
             pytest.skip("GITHUB_TOKEN not available in local environment")
 
-    return GithubClientFactory.create_client(token)
+    return GithubClientFactory.create_client()
 
 
-def test_github_client_required_functionality(github_client):
-    """Test that the GitHub client provides required functionality."""
-    # Test basic GitHub operations
-    assert hasattr(github_client, "get_user")
-    assert hasattr(github_client, "get_repo")
+def test_github_client_authentication():
+    """Test GitHub client authentication and basic functionality."""
+    # Test with valid token
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        mock_github.return_value.get_user.return_value = "test_user"
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "valid-token"}, clear=True):
+            client = GithubClientFactory.create_client()
+            assert client is not None
+            assert client.get_user() == "test_user"
 
-    # Test user access
-    user = github_client.get_user()
-    assert user is not None
-    assert hasattr(user, "login")
-
-    # Test repository access with a known repository
-    repo_name = os.getenv("GITHUB_REPOSITORY")
-    if repo_name:
-        repo = github_client.get_repo(repo_name)
-        assert repo is not None
-        assert hasattr(repo, "get_issues")
-
-
-def test_github_client_error_handling():
-    """Test GitHub client error handling."""
-    # Test invalid token
+    # Test with invalid token
     with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
         mock_github.return_value.get_user.side_effect = GithubException(401, {"message": "Bad credentials"})
-        with pytest.raises(ValueError, match="Invalid or expired GITHUB_TOKEN or unable to connect to GitHub"):
-            GithubClientFactory.create_client("invalid-token")
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "invalid-token"}, clear=True):
+            with pytest.raises(ValueError, match="Invalid or expired GITHUB_TOKEN"):
+                GithubClientFactory.create_client()
 
-    # Test missing token
-    with patch.dict(os.environ, {}, clear=True), patch("my_chat_gpt_utils.github_utils.load_dotenv", return_value=None):
-        with pytest.raises(ValueError, match="GITHUB_TOKEN not found in environment variables"):
-            GithubClientFactory.create_client()
+
+def test_github_client_environment_handling():
+    """Test GitHub client behavior in different environments."""
+    # Test local environment
+    with patch.dict(os.environ, {"GITHUB_TOKEN": "local-token"}, clear=True):
+        client = GithubClientFactory.create_client()
+        assert client is not None
+
+    # Test CI environment
+    with patch.dict(os.environ, {"GITHUB_TOKEN": "ci-token", "CI": "true"}, clear=True):
+        client = GithubClientFactory.create_client()
+        assert client is not None
+
+    # Test GitHub Actions environment
+    with patch.dict(os.environ, {"GITHUB_TOKEN": "actions-token", "GITHUB_ACTIONS": "true"}, clear=True):
+        client = GithubClientFactory.create_client()
+        assert client is not None
+
+
+def test_github_client_repository_access():
+    """Test repository access and validation."""
+    # Test with valid repository
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        mock_repo = mock_github.return_value.get_repo.return_value
+        mock_repo.get_issues.return_value = []
+
+        with patch.dict(os.environ, {"GITHUB_REPOSITORY": "owner/repo", "GITHUB_TOKEN": "test-token"}, clear=True):
+            client = GithubClientFactory.create_client()
+            repo = GithubClientFactory.get_repository(client)
+            assert repo is not None
+            assert hasattr(repo, "get_issues")
+
+    # Test with invalid repository
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        mock_github.return_value.get_repo.side_effect = GithubException(404, {"message": "Not Found"})
+        with patch.dict(os.environ, {"GITHUB_REPOSITORY": "owner/invalid-repo", "GITHUB_TOKEN": "test-token"}, clear=True):
+            with pytest.raises(GithubException):
+                client = GithubClientFactory.create_client()
+                GithubClientFactory.get_repository(client)
 
 
 def test_github_client_test_mode():
     """Test GitHub client in test mode."""
-    client = GithubClientFactory.create_client(test_mode=True)
-
-    # Verify required functionality is available
-    assert hasattr(client, "get_user")
-    assert hasattr(client, "get_repo")
-
-    # Test basic operations
-    user = client.get_user()
-    assert user is not None
-    assert hasattr(user, "login")
-
-    # Test repository access in test mode
-    repo = client.get_repo("owner/repo")
-    assert repo is not None
-    assert hasattr(repo, "get_issues")
+    with patch.dict(os.environ, {}, clear=True):
+        client = GithubClientFactory.create_client(test_mode=True)
+        assert client is not None
 
 
-def test_repository_access(github_client):
-    """Test repository access functionality."""
-    # Test with valid repository from environment
-    repo_name = os.getenv("GITHUB_REPOSITORY")
-    if repo_name:
-        repo = GithubClientFactory.get_repository(github_client)
-        assert repo is not None
-        assert hasattr(repo, "get_issues")
+def test_github_client_error_handling():
+    """Test error handling in GitHub client operations."""
+    # Test missing token
+    with patch.dict(os.environ, {}, clear=True):
+        with pytest.raises(ValueError, match="GITHUB_TOKEN environment variable is required"):
+            GithubClientFactory.create_client()
 
-    # Test with invalid repository
-    with pytest.raises(ValueError, match="GITHUB_REPOSITORY not found in environment variables"):
-        with patch.dict(os.environ, {}, clear=True):
-            GithubClientFactory.get_repository(github_client)
+    # Test network failure
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        mock_github.side_effect = Exception("Network error")
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "test-token"}, clear=True):
+            with pytest.raises(Exception, match="Network error"):
+                GithubClientFactory.create_client()

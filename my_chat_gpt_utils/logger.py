@@ -9,7 +9,7 @@ ensures proper context information (filename, line number) in logs.
 
 import logging
 import os
-from typing import Dict, List, Literal, Optional, Union
+from typing import Optional, Union
 
 
 def configure_logger(
@@ -26,6 +26,7 @@ def configure_logger(
     Configure and return a logger with specified settings.
 
     Args:
+    ----
         name: The logger name. If None, uses the caller's module name.
         level: The minimum logging level for the console handler.
             Can be a string ('DEBUG', 'INFO', etc.) or a logging constant.
@@ -39,12 +40,15 @@ def configure_logger(
             Can be a string ('DEBUG', 'INFO', etc.) or a logging constant.
 
     Returns:
+    -------
         A configured logging.Logger instance.
 
     Example:
+    -------
         >>> logger = configure_logger(level="DEBUG", include_file_info=True)
         >>> logger.info("Application started")
         2025-03-17 14:30:22,531 - INFO - [main.py:45] - Application started
+
     """
     # Check environment variables first
     env_level = os.environ.get("LOG_LEVEL")
@@ -56,7 +60,10 @@ def configure_logger(
             pass
 
     # Handle Python output buffering
-    if force_unbuffered or os.environ.get("PYTHONUNBUFFERED", "").lower() in ("1", "true"):
+    if force_unbuffered or os.environ.get("PYTHONUNBUFFERED", "").lower() in (
+        "1",
+        "true",
+    ):
         # Force stdout to be unbuffered
         import sys
 
@@ -129,8 +136,10 @@ class LoggerContext:
     automatically restoring the previous level when exiting the context.
 
     Example:
+    -------
         >>> with LoggerContext(logger, logging.DEBUG):
         ...     logger.debug("This will be logged only within this context")
+
     """
 
     def __init__(self, target_logger: logging.Logger, level: Union[int, str]):
@@ -138,8 +147,10 @@ class LoggerContext:
         Initialize a logger context with specified logger and temporary level.
 
         Args:
+        ----
             target_logger: The logger to modify.
             level: The logging level to temporarily apply.
+
         """
         self.logger = target_logger
         if isinstance(level, str):

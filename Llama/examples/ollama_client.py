@@ -33,7 +33,12 @@ class OllamaClient:
             return []
 
     def generate(
-        self, prompt: str, model: str = "llama3.1:8b", stream: bool = False, temperature: float = 0.1, top_p: float = 0.9
+        self,
+        prompt: str,
+        model: str = "llama3.1:8b",
+        stream: bool = False,
+        temperature: float = 0.1,
+        top_p: float = 0.9,
     ) -> Optional[str]:
         """Generate a response from the model."""
         if model not in self.available_models:
@@ -42,7 +47,12 @@ class OllamaClient:
 
         url = f"{self.base_url}/api/generate"
 
-        payload = {"model": model, "prompt": prompt, "stream": stream, "options": {"temperature": temperature, "top_p": top_p}}
+        payload = {
+            "model": model,
+            "prompt": prompt,
+            "stream": stream,
+            "options": {"temperature": temperature, "top_p": top_p},
+        }
 
         try:
             response = requests.post(url, json=payload)

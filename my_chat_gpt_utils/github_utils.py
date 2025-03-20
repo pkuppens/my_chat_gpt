@@ -1,49 +1,30 @@
-"""
-GitHub Issue Management Utility
-
-This module provides functionality for working with GitHub issues programmatically.
-It includes helper functions for connecting to GitHub, accessing repositories,
-and performing common issue operations such as creating, retrieving, editing,
-and commenting on issues.
-
-Dependencies:
-    - PyGithub
-
-Usage:
-    Import this module to interact with GitHub issues using the provided functions.
-    You will need a valid GitHub access token to authenticate requests.
-
-Example:
-    client = get_github_client("your-github-token")
-    repo = get_repository(client, "username/repository")
-    issues = get_issues(repo)
-"""
+"""Utilities for interacting with GitHub API and processing GitHub issues."""
 
 import datetime
 import json
 import os
 from dataclasses import dataclass
-from datetime import timedelta
 from typing import Any, Dict, List, Optional, Tuple
-from unittest.mock import MagicMock
 
 import requests
-from dotenv import load_dotenv
-from github import Github, GithubException, Repository
+from github import Github, Issue, Repository
+from github.GithubException import GithubException
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-from my_chat_gpt_utils.logger import logger
-
 
 def get_github_client(test_mode: bool = False) -> Github:
-    """Get a GitHub client instance.
+    """
+    Get a GitHub client instance.
 
     Args:
+    ----
         test_mode (bool): If True, skip repository validation.
 
     Returns:
+    -------
         Github: GitHub client instance
+
     """
     client = GithubClientFactory.create_client(test_mode=test_mode)
 
@@ -83,223 +64,177 @@ class IssueContext:
     """
     Represents the context and metadata of a GitHub issue.
 
-    Attributes:
+    Attributes
+    ----------
         number (int): The unique issue number.
         title (str): The title of the issue.
         body (str): The body/description of the issue.
         state (str): Current state of the issue (open/closed).
         created_at (datetime): Timestamp when the issue was created.
         url (str): HTML URL of the issue.
+
     """
 
     number: int
     title: str
     body: Optional[str]
     state: str
-    created_at: datetime
+    created_at: datetime.datetime
     url: str
 
 
 class IssueRetriever:
-    """
-    Service for retrieving and filtering GitHub issues.
-    """
+    """Service for retrieving and filtering GitHub issues."""
 
-    def __init__(self, repository: Repository.Repository):
-        """
-        Initialize the issue retriever with a specific repository.
-
-        Args:
-            repository (Repository.Repository): The GitHub repository to query.
-        """
+    def __init__(self, repository: Repository):
+        """Initialize the issue retriever with a GitHub repository."""
         self.repository = repository
 
-    def get_recent_issues(self, days_back: int = 30, state: str = "open") -> List[IssueContext]:
+    def get_recent_issues(self, state: str = "all", days_back: int = 30) -> List[Issue]:
         """
         Retrieve recent issues from the repository.
 
         Args:
-            days_back (int, optional): Number of days to look back. Defaults to 30.
-            state (str, optional): Filter by issue state (open/closed). Defaults to None.
+        ----
+            state (str): Issue state to filter by (open/closed/all)
+            days_back (int): Number of days to look back
 
         Returns:
-            List[IssueContext]: List of recent issues in the repository.
-        """
-        cutoff_date = datetime.now() - timedelta(days=days_back)
-        issues = get_issues(self.repository, state=state)
+        -------
+            List[Issue]: List of issues created within the specified time window
 
-        return [
-            IssueContext(
-                number=issue.number,
-                title=issue.title,
-                body=issue.body,
-                state=issue.state,
-                created_at=issue.created_at,
-                url=issue.html_url,
-            )
-            for issue in issues
-            if issue.created_at >= cutoff_date
-        ]
+        """
+        since = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days_back)
+        # Get issues from GitHub API with since parameter
+        issues = self.repository.get_issues(state=state, since=since)
+        # Double-check the date filter since GitHub API's since parameter isn't always reliable
+        cutoff_date = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days_back)
+        return [issue for issue in issues if issue.created_at >= cutoff_date]
 
 
 class IssueSimilarityAnalyzer:
-    """
-    Performs similarity analysis on GitHub issues using TF-IDF and cosine similarity.
-    """
+    """Performs similarity analysis on GitHub issues using TF-IDF and cosine similarity."""
 
-    def __init__(self, vectorizer: Optional[TfidfVectorizer] = None):
+    def __init__(self, similarity_threshold: float = 0.8):
         """
-        Initialize the similarity analyzer.
+        Initialize the analyzer with TF-IDF vectorizer.
 
         Args:
-            vectorizer (Optional[TfidfVectorizer]): Custom vectorizer. Uses default if not provided.
+        ----
+            similarity_threshold (float): Minimum similarity score to consider issues similar.
+                                       Defaults to 0.8 for longer issues, but can be lower for testing.
+
         """
-        self.vectorizer = vectorizer or TfidfVectorizer(stop_words="english")
+        self.vectorizer = TfidfVectorizer(stop_words="english")
+        self.similarity_threshold = similarity_threshold
 
     def compute_similarities(
-        self, target_issue: IssueContext, existing_issues: List[IssueContext], threshold: float = 0.8
-    ) -> List[Dict[str, Any]]:
+        self, current_issue: Issue, comparable_issues: List[Issue], threshold: Optional[float] = None
+    ) -> List[Tuple[Issue, float]]:
         """
-        Compute similarities between a target issue and existing issues.
+        Compute similarity scores between current issue and comparable issues.
 
         Args:
-            target_issue (IssueContext): The issue to compare against others.
-            existing_issues (List[IssueContext]): List of issues to compare.
-            threshold (float, optional): Minimum similarity score. Defaults to 0.8.
+        ----
+            current_issue (Issue): The issue to compare against.
+            comparable_issues (List[Issue]): List of issues to compare with.
+            threshold (Optional[float]): Override the default similarity threshold.
 
         Returns:
-            List[Dict[str, Any]]: Similar issues with their similarity scores.
+        -------
+            List[Tuple[Issue, float]]: List of (issue, similarity) tuples for issues above threshold.
+
         """
-        if not existing_issues:
+        if not comparable_issues:
             return []
 
-        # Combine target and existing issues for vectorization
-        all_texts = [self._get_issue_text(issue) for issue in [target_issue] + existing_issues]
+        current_text = f"{current_issue.title}\n{current_issue.body or ''}"
+        comparable_texts = [f"{issue.title}\n{issue.body or ''}" for issue in comparable_issues]
 
-        # Fit and transform all texts
+        all_texts = comparable_texts + [current_text]
         tfidf_matrix = self.vectorizer.fit_transform(all_texts)
+        similarities = cosine_similarity(tfidf_matrix[-1:], tfidf_matrix[:-1])[0]
 
-        # Compute similarities between target and existing issues
-        similarities = cosine_similarity(tfidf_matrix[0:1], tfidf_matrix[1:])[0]
-
-        # Filter and format results
-        similar_issues = []
-        for i, score in enumerate(similarities):
-            if score >= threshold:
-                similar_issues.append({"issue": existing_issues[i], "similarity": float(score)})
-
-        return similar_issues
-
-    def _get_issue_text(self, issue: IssueContext) -> str:
-        """Get combined text from issue title and body."""
-        text = issue.title or ""
-        if issue.body:
-            text += " " + issue.body
-        return text
+        # Use provided threshold or fall back to default
+        threshold_to_use = threshold if threshold is not None else self.similarity_threshold
+        # Filter issues above threshold
+        return [(issue, score) for issue, score in zip(comparable_issues, similarities) if score >= threshold_to_use]
 
 
 class GithubClientFactory:
-    """Factory class for creating GitHub clients."""
-
-    @staticmethod
-    def get_github_token() -> str:
-        """Get GitHub token from environment variables or .env file."""
-        # Try environment variables first
-        token = os.getenv("GITHUB_TOKEN")
-        if token:
-            return token
-
-        # Try .env file
-        load_dotenv()
-        token = os.getenv("GITHUB_TOKEN")
-        if token:
-            return token
-
-        raise ValueError("GITHUB_TOKEN not found in environment variables")
+    """Factory class for creating GitHub API clients and retrieving repository context."""
 
     @staticmethod
     def create_client(token: Optional[str] = None, test_mode: bool = False) -> Github:
-        """Create a GitHub client with the given token."""
-        if test_mode:
-            mock_client = MagicMock()
-            mock_client.get_user.return_value.login = "test-user"
-            return mock_client
+        """
+        Create a GitHub client using environment variables.
 
+        Args:
+        ----
+            token (Optional[str]): GitHub API token. If not provided, will use GITHUB_TOKEN env var.
+            test_mode (bool): If True, skip repository validation.
+
+        Returns:
+        -------
+            Github: GitHub client instance
+
+        Raises:
+        ------
+            ValueError: If token is missing or invalid
+
+        """
         if not token:
-            token = GithubClientFactory.get_github_token()
+            token = os.getenv("GITHUB_TOKEN")
+        if not token and not test_mode:
+            raise ValueError("GITHUB_TOKEN environment variable is required")
 
-        try:
-            client = Github(token)
-            # Validate token by checking user login
-            client.get_user().login
-            return client
-        except GithubException as e:
-            logger.error(f"Failed to create GitHub client with provided token: {e}")
-            raise ValueError("Invalid or expired GITHUB_TOKEN or unable to connect to GitHub") from e
+        client = Github(token or "test_token")
+        if not test_mode:
+            try:
+                client.get_user()  # Validate token by making an API call
+            except GithubException as e:
+                if e.status == 401:
+                    raise ValueError("Invalid or expired GITHUB_TOKEN")
+                raise
+        return client
 
     @staticmethod
     def get_repository(client: Github) -> Repository:
-        """Get repository from environment variables."""
+        """Get the repository context from environment variables."""
         repo_name = os.getenv("GITHUB_REPOSITORY")
         if not repo_name:
-            raise ValueError("GITHUB_REPOSITORY not found in environment variables")
+            raise ValueError("GITHUB_REPOSITORY environment variable is required")
         return client.get_repo(repo_name)
 
 
 class GitHubEventProcessor:
-    """
-    Processes GitHub webhook events for issue-related actions.
-
-    TODO: Move to GithubUtils module.
-    """
+    """Processes GitHub webhook events for issue-related actions."""
 
     @staticmethod
     def parse_issue_event() -> Dict[str, Any]:
-        """
-        Parse the GitHub Actions event file.
-
-        Returns:
-            Dict[str, Any]: Parsed GitHub event data.
-
-        Raises:
-            ValueError: If event cannot be processed.
-        """
+        """Parse and validate the GitHub issue event."""
         event_path = os.getenv("GITHUB_EVENT_PATH")
         if not event_path:
-            raise ValueError("Not running in GitHub Actions environment")
+            raise ValueError("GITHUB_EVENT_PATH environment variable is required")
 
-        try:
-            with open(event_path, "r", encoding="utf-8") as f:
-                event = json.load(f)
+        with open(event_path, "r") as f:
+            event = json.load(f)
 
-            if "issue" not in event:
-                raise ValueError("Event does not contain issue data")
+        if "issue" not in event:
+            raise ValueError("Event does not contain issue data")
 
-            return event
-        except Exception as e:
-            logger.error("Event processing error: %s", e)
-            raise
+        return event
 
-    @classmethod
-    def extract_issue_context(cls, event: Dict[str, Any]) -> IssueContext:
-        """
-        Extract IssueContext from a GitHub event.
-
-        Args:
-            event (Dict[str, Any]): Parsed GitHub event.
-
-        Returns:
-            IssueContext: Extracted issue context.
-        """
+    @staticmethod
+    def extract_issue_context(event: Dict[str, Any]) -> Issue:
+        """Extract issue context from the event data."""
         issue_data = event["issue"]
-        return IssueContext(
-            number=issue_data["number"],
-            title=issue_data["title"],
-            body=issue_data.get("body"),
-            state=issue_data["state"],
-            created_at=datetime.fromisoformat(issue_data["created_at"].replace("Z", "+00:00")),
-            url=issue_data["html_url"],
-        )
+        required_fields = ["number", "title", "body"]
+        missing_fields = [field for field in required_fields if field not in issue_data]
+        if missing_fields:
+            raise ValueError(f"Missing required issue fields: {', '.join(missing_fields)}")
+
+        return issue_data
 
 
 def get_repository(client: Github, repo_name: str):
@@ -348,29 +283,34 @@ def append_response_to_issue(client: Github, repo_name: str, issue_data: Dict[st
 
 
 class GitHubLabelManager:
-    """
-    Manages GitHub issue labels, ensuring required labels exist and are applied.
-    """
+    """Manages GitHub issue labels, ensuring required labels exist and are applied."""
 
     def __init__(self, github_token: str):
         """
         Initialize the label manager.
 
         Args:
+        ----
             github_token (str): GitHub authentication token.
+
         """
         self.github_token = github_token
-        self.headers = {"Authorization": f"token {github_token}", "Accept": "application/vnd.github.v3+json"}
+        self.headers = {
+            "Authorization": f"token {github_token}",
+            "Accept": "application/vnd.github.v3+json",
+        }
 
     def ensure_labels_exist(self, repo_owner: str, repo_name: str, labels: List[str], color: str = "6f42c1") -> None:
         """
         Ensure specified labels exist in the repository.
 
         Args:
+        ----
             repo_owner (str): GitHub repository owner.
             repo_name (str): GitHub repository name.
             labels (List[str]): Labels to ensure exist.
             color (str, optional): Default color for new labels.
+
         """
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/labels"
 
@@ -389,13 +329,16 @@ class GitHubLabelManager:
         Add labels to a specific GitHub issue.
 
         Args:
+        ----
             repo_owner (str): GitHub repository owner.
             repo_name (str): GitHub repository name.
             issue_number (int): Issue number to label.
             labels (List[str]): Labels to add.
 
         Returns:
+        -------
             bool: True if labels were successfully added, False otherwise.
+
         """
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{issue_number}/labels"
         response = requests.post(url, headers=self.headers, json={"labels": labels})
@@ -403,20 +346,21 @@ class GitHubLabelManager:
 
 
 class IssueDataProvider:
-    """
-    Provides flexible issue data retrieval from various sources.
-    """
+    """Provides flexible issue data retrieval from various sources."""
 
     @staticmethod
     def from_github_event() -> Dict[str, Any]:
         """
         Get issue data from GitHub event.
 
-        Returns:
+        Returns
+        -------
             Dict[str, Any]: Issue data from GitHub event.
 
-        Raises:
+        Raises
+        ------
             ValueError: If event cannot be processed.
+
         """
         event = GitHubEventProcessor.parse_issue_event()
         return {
@@ -433,12 +377,15 @@ class IssueDataProvider:
         Get issue data from issue number.
 
         Args:
+        ----
             client (Github): GitHub client.
             repo_name (str): Repository name.
             issue_number (int): Issue number.
 
         Returns:
+        -------
             Dict[str, Any]: Issue data.
+
         """
         repo = get_repository(client, repo_name)
         issue = repo.get_issue(number=issue_number)
@@ -456,11 +403,14 @@ class IssueDataProvider:
         Get data from the latest issue in the repository.
 
         Args:
+        ----
             client (Github): GitHub client.
             repo_name (str): Repository name.
 
         Returns:
+        -------
             Dict[str, Any]: Issue data.
+
         """
         repo = get_repository(client, repo_name)
         issues = repo.get_issues(state="open", sort="created", direction="desc")

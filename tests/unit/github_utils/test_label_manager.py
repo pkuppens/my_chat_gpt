@@ -30,7 +30,10 @@ def mock_response():
 def test_ensure_labels_exist_new_labels(label_manager, mock_response):
     """Test creating new labels when they don't exist."""
     mock_response.json.return_value = [{"name": "existing-label"}]
-    with patch("requests.get", return_value=mock_response), patch("requests.post", return_value=mock_response):
+    with (
+        patch("requests.get", return_value=mock_response),
+        patch("requests.post", return_value=mock_response),
+    ):
         labels = ["new-label-1", "new-label-2"]
         label_manager.ensure_labels_exist("owner", "repo", labels)
 
@@ -39,7 +42,10 @@ def test_ensure_labels_exist_new_labels(label_manager, mock_response):
         for label in labels:
             requests.post.assert_any_call(
                 "https://api.github.com/repos/owner/repo/labels",
-                headers={"Authorization": "token test-token", "Accept": "application/vnd.github.v3+json"},
+                headers={
+                    "Authorization": "token test-token",
+                    "Accept": "application/vnd.github.v3+json",
+                },
                 json={"name": label, "color": "6f42c1"},
             )
 
@@ -47,7 +53,10 @@ def test_ensure_labels_exist_new_labels(label_manager, mock_response):
 def test_ensure_labels_exist_existing_labels(label_manager, mock_response):
     """Test handling existing labels."""
     mock_response.json.return_value = [{"name": "existing-label"}]
-    with patch("requests.get", return_value=mock_response), patch("requests.post", return_value=mock_response):
+    with (
+        patch("requests.get", return_value=mock_response),
+        patch("requests.post", return_value=mock_response),
+    ):
         labels = ["existing-label", "new-label"]
         label_manager.ensure_labels_exist("owner", "repo", labels)
 
@@ -55,7 +64,10 @@ def test_ensure_labels_exist_existing_labels(label_manager, mock_response):
         assert requests.post.call_count == 1
         requests.post.assert_called_once_with(
             "https://api.github.com/repos/owner/repo/labels",
-            headers={"Authorization": "token test-token", "Accept": "application/vnd.github.v3+json"},
+            headers={
+                "Authorization": "token test-token",
+                "Accept": "application/vnd.github.v3+json",
+            },
             json={"name": "new-label", "color": "6f42c1"},
         )
 
@@ -63,13 +75,19 @@ def test_ensure_labels_exist_existing_labels(label_manager, mock_response):
 def test_ensure_labels_exist_custom_color(label_manager, mock_response):
     """Test creating labels with custom color."""
     mock_response.json.return_value = []
-    with patch("requests.get", return_value=mock_response), patch("requests.post", return_value=mock_response):
+    with (
+        patch("requests.get", return_value=mock_response),
+        patch("requests.post", return_value=mock_response),
+    ):
         labels = ["test-label"]
         label_manager.ensure_labels_exist("owner", "repo", labels, color="ff0000")
 
         requests.post.assert_called_once_with(
             "https://api.github.com/repos/owner/repo/labels",
-            headers={"Authorization": "token test-token", "Accept": "application/vnd.github.v3+json"},
+            headers={
+                "Authorization": "token test-token",
+                "Accept": "application/vnd.github.v3+json",
+            },
             json={"name": "test-label", "color": "ff0000"},
         )
 
@@ -82,7 +100,10 @@ def test_add_labels_to_issue_success(label_manager, mock_response):
 
         requests.post.assert_called_once_with(
             "https://api.github.com/repos/owner/repo/issues/123/labels",
-            headers={"Authorization": "token test-token", "Accept": "application/vnd.github.v3+json"},
+            headers={
+                "Authorization": "token test-token",
+                "Accept": "application/vnd.github.v3+json",
+            },
             json={"labels": ["label1", "label2"]},
         )
 
@@ -104,6 +125,9 @@ def test_add_labels_to_issue_empty_labels(label_manager, mock_response):
 
         requests.post.assert_called_once_with(
             "https://api.github.com/repos/owner/repo/issues/123/labels",
-            headers={"Authorization": "token test-token", "Accept": "application/vnd.github.v3+json"},
+            headers={
+                "Authorization": "token test-token",
+                "Accept": "application/vnd.github.v3+json",
+            },
             json={"labels": []},
         )
