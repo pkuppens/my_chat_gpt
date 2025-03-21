@@ -1,0 +1,94 @@
+# .coveragerc - Coverage.py configuration file
+# This configuration is designed for use in GitHub Actions.
+# It allows low code coverage initially (fail_under is set to 0) while tests are being added.
+# As coverage improves, update 'fail_under' to enforce higher standards and adjust report details.
+# Documentation: https://coverage.readthedocs.io/en/latest/config.html
+
+[run]
+# Specify the package(s)/module(s) to measure. Adjust 'source' as your project structure evolves.
+source = my_chat_gpt_utils
+
+# Exclude files or patterns from coverage measurement.
+# Uncomment any of the below patterns if you wish to omit test files, __init__.py files,
+# database migration files, or vendored/third-party code.
+# omit =
+    # */test_*.py        # Uncomment to exclude test files from coverage
+    # */__init__.py      # Uncomment to exclude __init__ files
+    # */migrations/*     # Uncomment to exclude migration files
+    # */vendored/*       # Uncomment to exclude vendored/third-party packages
+
+# Optionally, you can specify 'include' to only measure specific files.
+# This is commented out by default. This project has only one directories under test for now.
+include =
+    my_chat_gpt_utils/*
+
+# Branch coverage measures whether each possible branch (decision) is executed.
+# It is currently disabled (False) for faster execution and simpler reports.
+# Consider enabling branch coverage (branch = True) when tests and code quality improve.
+branch = False
+
+# Uncomment and adjust the following if your project uses multithreading or multiprocessing.
+# concurrency = thread
+
+[report]
+# 'fail_under' specifies the minimum allowed coverage percentage.
+# It is set to 0 to prevent CI failures due to low coverage.
+# As you add more tests and your coverage improves, gradually increase this value.
+fail_under = 0
+
+# Exclude specific lines from the coverage measurement.
+# This helps remove boilerplate or lines that are difficult to test.
+exclude_lines =
+    # Default excludes:
+    pragma: no cover
+    def __repr__
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    pass
+    raise ImportError
+    except ImportError:
+    
+    # Additional patterns that may be useful to exclude:
+    # def __str__
+    # raise AssertionError
+    # class .*\bError\b:
+    # @(abc\.)?abstractmethod
+
+# 'ignore_errors' determines if coverage should continue reporting even if source files have syntax errors.
+# Set to False to ensure that such errors are not overlooked.
+ignore_errors = False
+
+# 'show_missing' enables the reporting of line numbers for statements that were not executed.
+# This is highly recommended to identify untested code areas.
+show_missing = True
+
+# 'skip_covered' if True, would skip files with 100% coverage in the report.
+# It is set to False to maintain full visibility of all files.
+skip_covered = False
+
+# 'skip_empty' removes empty files from the report to reduce clutter.
+skip_empty = True
+
+# 'precision' defines the number of decimal places in the reported coverage percentage.
+precision = 2
+
+[html]
+# HTML report configuration for a visually accessible coverage report.
+# 'directory' defines where the HTML report is generated.
+directory = htmlcov
+
+# 'title' sets the title of the HTML coverage report.
+title = My Chat GPT Utils Coverage Report
+
+# 'extra_css' can be used to add custom CSS to the report.
+# Uncomment and set the path if you wish to use a custom style.
+# extra_css = my_custom.css
+
+[xml]
+# XML report configuration, useful for integration with CI/CD and other code quality tools.
+# 'output' defines the file where the XML report is saved.
+output = coverage.xml
+
+# 'package_depth' controls the package hierarchy depth in the XML report.
+# A high value like 99 ensures that the full package structure is represented.
+package_depth = 99

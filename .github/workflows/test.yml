@@ -20,8 +20,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # pip install -e ".[dev]"  # would be needed for linting with ruff
         pip install -e ".[test]"
+
+    - name: Verify test discovery
+      run: |
+        pytest tests/unit/ --collect-only
 
     - name: Run unit tests
       run: |
@@ -43,6 +46,10 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -e ".[test]"
+
+    - name: Verify test discovery
+      run: |
+        pytest tests/integration/ --collect-only
 
     - name: Run integration tests
       env:
