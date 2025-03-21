@@ -11,16 +11,14 @@ source = my_chat_gpt_utils
 # Exclude files or patterns from coverage measurement.
 # Uncomment any of the below patterns if you wish to omit test files, __init__.py files,
 # database migration files, or vendored/third-party code.
-# omit =
-    # */test_*.py        # Uncomment to exclude test files from coverage
-    # */__init__.py      # Uncomment to exclude __init__ files
-    # */migrations/*     # Uncomment to exclude migration files
-    # */vendored/*       # Uncomment to exclude vendored/third-party packages
+omit =
+    */tests/*
+    */other_unnecessary_directories/*
 
 # Optionally, you can specify 'include' to only measure specific files.
-# This is commented out by default. This project has only one directories under test for now.
-include =
-    my_chat_gpt_utils/*
+# This is commented out by default. This project has only one directory under test for now.
+# include =
+#    my_chat_gpt_utils/*
 
 # Branch coverage measures whether each possible branch (decision) is executed.
 # It is currently disabled (False) for faster execution and simpler reports.
