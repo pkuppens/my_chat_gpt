@@ -1,3 +1,4 @@
+# The packages required for the functionality of the app
 fastapi>=0.111.1
 python-multipart>=0.0.18
 pydantic>=2.0.0
