@@ -40,7 +40,7 @@ def validate_github_event() -> Dict[str, Any]:
 
 
 def main() -> None:
-    """Main execution function for GitHub issue LLM analysis."""
+    """Execute the GitHub issue LLM analysis workflow."""
     try:
         logging.info("Starting issue analysis")
         event = validate_github_event()

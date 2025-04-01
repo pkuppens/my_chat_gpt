@@ -1,3 +1,10 @@
+"""
+Collect and process articles related to LangChain from various sources.
+
+This script scrapes articles from different platforms (LinkedIn, Medium) that
+discuss LangChain, saves them to a JSON file, and displays them.
+"""
+
 import json
 
 import requests
@@ -19,28 +26,59 @@ SOURCES = [
 ]
 
 
-# Function to collect articles from a source
 def collect_articles(source):
+    """
+    Scrape articles from a specified source.
+
+    Args:
+    ----
+        source (dict): Dictionary containing source details (name, url, article_selector).
+
+    Returns:
+    -------
+        list: List of dictionaries containing scraped articles with their source.
+
+    """
     response = requests.get(source["url"])
     soup = BeautifulSoup(response.content, "html.parser")
     articles = soup.select(source["article_selector"])
     return [{"source": source["name"], "content": article.get_text(strip=True)} for article in articles]
 
 
-# Function to save articles to a JSON file
 def save_articles(articles, filename="collected_articles.json"):
+    """
+    Save collected articles to a JSON file.
+
+    Args:
+    ----
+        articles (list): List of article dictionaries to save.
+        filename (str, optional): Output JSON filename. Defaults to "collected_articles.json".
+
+    """
     with open(filename, "w") as file:
         json.dump(articles, file, indent=4)
 
 
-# Function to display articles
 def display_articles(articles):
+    """
+    Print articles to the console in a readable format.
+
+    Args:
+    ----
+        articles (list): List of article dictionaries to display.
+
+    """
     for article in articles:
         print(f"Source: {article['source']}\nContent: {article['content']}\n")
 
 
-# Main function to collect, save, and display articles
 def main():
+    """
+    Execute the article collection workflow.
+
+    Collects articles from all defined sources, saves them to a JSON file,
+    and displays them on the console.
+    """
     all_articles = []
     for source in SOURCES:
         articles = collect_articles(source)

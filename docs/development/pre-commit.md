@@ -102,7 +102,7 @@ git commit -m "Your message" --no-verify
 Common issues:
 1. **Whitespace or EOL issues**: Let the hooks fix them automatically
 2. **Failed tests**: Fix the failing tests before committing
-3. **Ruff issues**: 
+3. **Ruff issues**:
    - Run `ruff check .` to see all issues
    - Run `ruff format .` to fix formatting
    - Check the [Ruff documentation](https://github.com/astral-sh/ruff) for rule explanations

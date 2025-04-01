@@ -1,5 +1,6 @@
 """
 Basic example of using Ollama with Python.
+
 This example demonstrates basic model interaction, streaming, and error handling.
 """
 
@@ -13,6 +14,12 @@ from examples.ollama_client import OllamaClient
 
 
 def main():
+    """
+    Run basic example of Ollama usage.
+
+    Demonstrates creating a client, listing available models,
+    and generating both streaming and non-streaming responses.
+    """
     try:
         # Create client (this will check Ollama status and available models)
         client = OllamaClient()

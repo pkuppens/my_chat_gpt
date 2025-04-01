@@ -24,6 +24,7 @@ class GithubDuplicateIssueDetector:
     def __init__(self):
         """
         Initialize the detector with GitHub credentials and repository info.
+
         Reads configuration from environment variables.
         """
         self.github_token = os.getenv("GITHUB_TOKEN")
@@ -170,6 +171,12 @@ def process_issue_data(issue_data: Dict[str, Any], client: OpenAI) -> Dict[str, 
 
 
 def main():
+    """
+    Execute the duplicate issue detection workflow.
+
+    Retrieves issue data from GitHub event, analyzes it for potential
+    duplicates, and adds a comment with the findings to the issue.
+    """
     try:
         logging.info("Starting duplicate issue detection")
         event = validate_github_event()

@@ -1,5 +1,5 @@
 """
-Issue Analysis Prompt Manager
+Issue Analysis Prompt Manager.
 
 This module provides functionality for loading and formatting prompts used by LLMs
 to analyze GitHub issues. It handles the loading of system and user prompts from
@@ -42,22 +42,41 @@ except ImportError:
 
 
 class PlaceholderDict(dict):
+    """
+    Dictionary subclass that returns placeholder strings for missing keys.
+
+    This class is used to handle undefined placeholders in prompt templates
+    by returning the placeholder key wrapped in curly braces instead of raising
+    a KeyError.
+    """
+
     def __missing__(self, key):
+        """
+        Return a placeholder string for missing keys.
+
+        Args:
+        ----
+            key: The missing key.
+
+        Returns:
+        -------
+            str: The key wrapped in curly braces as a placeholder.
+
+        """
         return "{" + key + "}"
 
 
-def load_analyze_issue_prompt(placeholders: Dict = None) -> Tuple[str, str]:
+def load_analyze_issue_prompt(placeholders: Dict[str, Any] | None = None) -> Tuple[str, str]:
     """
-    Load the prompt for analyzing a GitHub issue with LLM.
+    Load and format the system and user prompts for issue analysis.
 
     Args:
     ----
-        placeholders: Dictionary containing values to substitute in the prompt templates.
-                      If None, an empty dictionary will be used.
+        placeholders: Dictionary of placeholder values to substitute in the prompts.
 
     Returns:
     -------
-        Tuple containing (system_prompt, user_prompt) strings with placeholders substituted.
+        Tuple containing the formatted system prompt and user prompt.
 
     """
     placeholders = placeholders or {}  # do not use mutable {} as default parameter!
@@ -179,14 +198,26 @@ if __name__ == "__main__":
 
 
 class DocumentationPrompt:
-    """Class for generating documentation-related prompts."""
+    """Class for managing documentation generation prompts."""
 
     def __init__(self):
-        """Initialize the documentation prompt generator."""
+        """Initialize the DocumentationPrompt instance."""
+        pass
 
     @staticmethod
     def get_prompt(item: Dict[str, Any]) -> str:
-        """Generate a prompt for documentation generation."""
+        """
+        Generate a documentation prompt for the given item.
+
+        Args:
+        ----
+            item: Dictionary containing the item details to document.
+
+        Returns:
+        -------
+            str: The formatted documentation prompt.
+
+        """
         return f"""Generate documentation for the following item:
 Title: {item.get('title', 'N/A')}
 Description: {item.get('description', 'N/A')}

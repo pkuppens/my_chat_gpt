@@ -1,3 +1,5 @@
+"""Module for interacting with OpenAI's ChatGPT API to process and analyze text content."""
+
 import os
 import textwrap
 
@@ -11,15 +13,48 @@ openai.api_key = os.environ["OPENAI_API_KEY"]
 
 
 def read_text_from_file(file_path):
+    """
+    Read and return the contents of a text file.
+
+    Args:
+    ----
+        file_path (str): Path to the text file to read.
+
+    Returns:
+    -------
+        str: Contents of the file.
+
+    """
     with open(file_path, "r") as file:
         return file.read()
 
 
 def chunk_text(text, max_tokens):
+    """
+    Split text into chunks that fit within token limits.
+
+    Args:
+    ----
+        text (str): The text to chunk.
+        max_tokens (int): Maximum number of tokens per chunk.
+
+    Returns:
+    -------
+        list: List of text chunks.
+
+    """
     return textwrap.wrap(text, max_tokens)
 
 
 def start_conversation():
+    """
+    Initialize a new conversation with the ChatGPT API.
+
+    Returns
+    -------
+        str: The conversation ID for the new chat session.
+
+    """
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         prompt="The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI created by OpenAI. How can I help you today?\nHuman: I'd like to cancel my subscription.\nAI:",
@@ -34,11 +69,30 @@ def start_conversation():
 
 
 def send_message(conversation_id, message):
+    """
+    Send a message to an existing ChatGPT conversation.
+
+    Args:
+    ----
+        conversation_id (str): The ID of the conversation to send the message to.
+        message (str): The message to send.
+
+    Returns:
+    -------
+        str: The AI's response to the message.
+
+    """
     response = openai.ChatCompletion.append_message(conversation_id, role="user", content=message)
     return response.choices[0].text.strip()
 
 
 def main():
+    """
+    Process a text file and analyze it using the ChatGPT API.
+
+    This function reads a text file, chunks it into manageable pieces,
+    and processes it through the ChatGPT API for analysis.
+    """
     # Step 1: Read the text from a file
     file_path = "09 Clustering Variables.txt"
     text = read_text_from_file(file_path)

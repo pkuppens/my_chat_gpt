@@ -1,7 +1,7 @@
 """
-This module provides functionality for analyzing GitHub issues using LLMs.
+Analyze GitHub issues using Language Models.
 
-It includes:
+The module provides functionality for:
 1. Issue analysis using OpenAI's API
 2. Label management
 3. Comment generation

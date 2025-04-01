@@ -82,7 +82,19 @@ def process_items(items: List[Dict[str, Any]], current_directory: str) -> None:
 
 
 def main(file_path: Optional[str] = None, current_directory: Optional[Path] = None) -> int:
-    """Main function to read JSON, process items, and write content to files."""
+    """
+    Process JSON input and generate documentation files.
+
+    Args:
+    ----
+        file_path: Path to the input JSON file. If None, reads from command line.
+        current_directory: Base directory for output files. If None, uses current directory.
+
+    Returns:
+    -------
+        int: Exit code (0 for success, 1 for failure).
+
+    """
     # If no file path provided, get from command line args
     if file_path is None:
         if len(sys.argv) < 2:

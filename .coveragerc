@@ -45,7 +45,7 @@ exclude_lines =
     pass
     raise ImportError
     except ImportError:
-    
+
     # Additional patterns that may be useful to exclude:
     # def __str__
     # raise AssertionError
