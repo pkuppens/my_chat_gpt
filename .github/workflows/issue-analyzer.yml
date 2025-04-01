@@ -30,9 +30,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # Install core dependencies including packaging
-          pip install -r requirements.github.workflow  # Install workflow-specific dependencies
-          pip install -e .  # Install the local package in development mode
+          pip install -r requirements.txt
+          pip install -r requirements.github.workflow
+          pip install -e .
 
       # Test dependencies to ensure everything is installed correctly
       - name: Test dependencies

@@ -8,7 +8,23 @@ It assumes packages are already installed in the environment and only verifies i
 
 import importlib
 import sys
-from typing import List, Tuple
+from typing import Dict, List, Tuple
+
+
+def get_import_mapping() -> Dict[str, str]:
+    """
+    Get mapping between package names and their import names.
+
+    Returns
+    -------
+        Dict[str, str]: Dictionary mapping package names to their import names.
+
+    """
+    return {
+        'scikit-learn': 'sklearn',
+        'PyYAML': 'yaml',
+        'PyGithub': 'github'
+    }
 
 
 def get_required_packages() -> List[str]:
@@ -37,9 +53,13 @@ def get_required_packages() -> List[str]:
                         for subline in subf:
                             subline = subline.strip()
                             if subline and not subline.startswith('#'):
-                                packages.append(subline.split('==')[0])
+                                # Split on any of the common version specifiers
+                                package = subline.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0]
+                                packages.append(package)
                 else:
-                    packages.append(line.split('==')[0])
+                    # Split on any of the common version specifiers
+                    package = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0]
+                    packages.append(package)
 
     return packages
 
@@ -60,10 +80,14 @@ def check_package_imports(packages: List[str]) -> List[Tuple[str, bool, str]]:
         List[Tuple[str, bool, str]]: List of tuples containing (package_name, success, error_message).
 
     """
+    import_mapping = get_import_mapping()
     results = []
+
     for package in packages:
         try:
-            importlib.import_module(package)
+            # Use the mapped import name if it exists, otherwise use the package name
+            import_name = import_mapping.get(package, package)
+            importlib.import_module(import_name)
             results.append((package, True, ""))
         except ImportError as e:
             results.append((package, False, str(e)))

@@ -1,6 +1,6 @@
 # Core dependencies for GitHub Actions workflow
-PyGithub
+PyGithub>=2.1.1
 openai
-pyyaml
+PyYAML>=6.0.1
 requests
-scikit-learn
+scikit-learn>=1.3.0
