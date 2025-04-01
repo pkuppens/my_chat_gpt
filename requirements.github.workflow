@@ -4,3 +4,4 @@ openai
 pyyaml
 requests
 scikit-learn
+packaging
