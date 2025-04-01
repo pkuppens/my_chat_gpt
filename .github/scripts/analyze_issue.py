@@ -132,10 +132,6 @@ def get_github_repo_info() -> tuple[str, str]:
             "GITHUB_REPOSITORY environment variable is required. "
             "Please set it in your .env file or environment."
         )
-    if repo == "pkuppens/my_chat_gpt":
-        raise ValueError(
-            "Please replace 'pkuppens/my_chat_gpt' in .env with your actual repository"
-        )
 
     try:
         owner, name = repo.split("/")
