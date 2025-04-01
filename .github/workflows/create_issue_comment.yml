@@ -26,4 +26,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONUNBUFFERED: "1"
         run: |
-          python -u .github/scripts/identify_duplicates_v2.py
+          python -u .github/scripts/identify_duplicates.py
