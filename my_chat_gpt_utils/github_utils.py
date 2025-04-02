@@ -14,6 +14,7 @@ from github.NamedUser import NamedUser
 from github.Repository import Repository
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import logging
 
 from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCauseSolution
 
@@ -213,7 +214,20 @@ class GithubClientFactory:
         client = Github(token or "test_token")
         if not test_mode:
             try:
-                client.get_user()  # Validate token by making an API call
+                # Try to get user info, but handle permission errors gracefully
+                try:
+                    client.get_user()  # Validate token by making an API call
+                except GithubException as e:
+                    if e.status == 403:
+                        # Token exists but doesn't have user permissions
+                        # This is expected for GITHUB_TOKEN in GitHub Actions
+                        logging.warning(
+                            "GitHub token does not have user permissions. "
+                            "This is normal for GITHUB_TOKEN in GitHub Actions. "
+                            "Some features may be limited."
+                        )
+                    else:
+                        raise  # Re-raise other GitHub exceptions
             except BadCredentialsException as e:
                 raise GithubAuthenticationError(
                     original_exception=e,

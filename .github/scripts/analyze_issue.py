@@ -52,6 +52,7 @@ from typing import Any, Dict
 from dotenv import load_dotenv
 
 from my_chat_gpt_utils.analyze_issue import process_issue_analysis
+from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCauseSolution
 from my_chat_gpt_utils.openai_utils import OpenAIConfig
 
 # Configure logging
@@ -147,13 +148,23 @@ def validate_github_token() -> None:
     """Validate that GitHub token is set and not the default value."""
     token = os.getenv("GITHUB_TOKEN")
     if not token:
-        raise ValueError(
-            "GITHUB_TOKEN environment variable is required. "
-            "Please set it in your .env file or environment."
+        raise GithubAuthenticationError(
+            problem="GitHub token not found",
+            cause="GITHUB_TOKEN environment variable is not set",
+            solution="Set the GITHUB_TOKEN environment variable with a valid GitHub token"
         )
     if token == "your_github_token_here":
-        raise ValueError(
-            "Please replace 'your_github_token_here' in .env with your actual GitHub token"
+        raise GithubAuthenticationError(
+            problem="Invalid GitHub token",
+            cause="Default placeholder token is being used",
+            solution="Please replace 'your_github_token_here' in .env with your actual GitHub token"
+        )
+    
+    # Check if we're running in GitHub Actions
+    if os.getenv("GITHUB_ACTIONS"):
+        logging.info(
+            "Running in GitHub Actions. Note that GITHUB_TOKEN has limited permissions "
+            "and cannot access user information. This is expected behavior."
         )
 
 
@@ -205,6 +216,9 @@ def main() -> None:
         sys.exit(1)
     except NotImplementedError as e:
         logging.error(f"Not implemented: {str(e)}")
+        sys.exit(1)
+    except GithubAuthenticationError as e:
+        logging.error(f"GitHub authentication error: {str(e)}")
         sys.exit(1)
     except Exception as e:
         logging.error(f"Error during execution: {str(e)}")
