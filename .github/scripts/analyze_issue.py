@@ -52,7 +52,7 @@ from typing import Any, Dict
 from dotenv import load_dotenv
 
 from my_chat_gpt_utils.analyze_issue import process_issue_analysis
-from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCauseSolution
+from my_chat_gpt_utils.exceptions import GithubAuthenticationError
 from my_chat_gpt_utils.openai_utils import OpenAIConfig
 
 # Configure logging
@@ -159,7 +159,7 @@ def validate_github_token() -> None:
             cause="Default placeholder token is being used",
             solution="Please replace 'your_github_token_here' in .env with your actual GitHub token"
         )
-    
+
     # Check if we're running in GitHub Actions
     if os.getenv("GITHUB_ACTIONS"):
         logging.info(

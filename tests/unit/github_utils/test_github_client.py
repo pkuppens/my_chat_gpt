@@ -23,7 +23,7 @@ import os
 from unittest.mock import patch
 
 import pytest
-from github import GithubException
+from github import GithubException, RateLimitExceededException
 
 from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCauseSolution
 from my_chat_gpt_utils.github_utils import GithubClientFactory
@@ -138,15 +138,16 @@ def test_github_client_test_mode():
 def test_github_client_error_handling():
     """Test error handling in GitHub client operations."""
     # Test missing token
-    with patch.dict(os.environ, {}, clear=True):
-        with pytest.raises(ProblemCauseSolution) as exc_info:
-            GithubClientFactory.create_client()
-        assert "GitHub token not found" in str(exc_info.value)
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        with patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(ProblemCauseSolution) as exc_info:
+                GithubClientFactory.create_client()
+            assert "GitHub token not found" in str(exc_info.value)
 
     # Test rate limit error
     with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
-        mock_github.return_value.get_user.side_effect = GithubException(403, {"message": "API rate limit exceeded"})
+        mock_github.return_value.get_user.side_effect = RateLimitExceededException(403, {"message": "API rate limit exceeded"})
         with patch.dict(os.environ, {"GITHUB_TOKEN": "test-token"}, clear=True):
             with pytest.raises(ProblemCauseSolution) as exc_info:
-                GithubClientFactory.create_client()
-            assert "GitHub API request failed with 403 Forbidden" in str(exc_info.value)
+                GithubClientFactory.create_client(test_mode=False)
+            assert "GitHub API rate limit exceeded" in str(exc_info.value)

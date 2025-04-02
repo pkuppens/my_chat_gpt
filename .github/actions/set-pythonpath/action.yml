@@ -4,7 +4,7 @@ description: 'Sets PYTHONPATH to include the workspace directory, preserving exi
 # Usage:
 # This composite action can be used in any workflow by adding:
 #   - uses: ./.github/actions/set-pythonpath
-# 
+#
 # How it works:
 # 1. The 'uses' statement in a workflow file references this action.yml file
 # 2. GitHub Actions automatically executes the steps defined in this file
@@ -27,4 +27,4 @@ runs:
           echo "PYTHONPATH=$PYTHONPATH:${{ github.workspace }}" >> "$GITHUB_ENV"
         else
           echo "PYTHONPATH=${{ github.workspace }}" >> "$GITHUB_ENV"
-        fi 
+        fi

@@ -2,6 +2,7 @@
 
 import datetime
 import json
+import logging
 import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple, TypeVar, cast
@@ -14,7 +15,6 @@ from github.NamedUser import NamedUser
 from github.Repository import Repository
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-import logging
 
 from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCauseSolution
 
@@ -214,33 +214,20 @@ class GithubClientFactory:
         client = Github(token or "test_token")
         if not test_mode:
             try:
-                # Try to get user info, but handle permission errors gracefully
-                try:
-                    client.get_user()  # Validate token by making an API call
-                except GithubException as e:
-                    if e.status == 403:
-                        # Token exists but doesn't have user permissions
-                        # This is expected for GITHUB_TOKEN in GitHub Actions
-                        logging.warning(
-                            "GitHub token does not have user permissions. "
-                            "This is normal for GITHUB_TOKEN in GitHub Actions. "
-                            "Some features may be limited."
-                        )
-                    else:
-                        raise  # Re-raise other GitHub exceptions
-            except BadCredentialsException as e:
-                raise GithubAuthenticationError(
-                    original_exception=e,
-                    problem="GitHub API authentication failed",
-                    cause="Invalid or expired GitHub token",
-                    solution="Check your GitHub token and ensure it has the required permissions"
-                )
+                client.get_user()  # Validate token by making an API call
             except RateLimitExceededException as e:
                 raise ProblemCauseSolution(
                     problem="GitHub API rate limit exceeded",
                     cause="Too many requests in a short time period",
                     solution="Wait before retrying or authenticate to increase rate limits",
                     original_exception=e
+                )
+            except BadCredentialsException as e:
+                raise GithubAuthenticationError(
+                    original_exception=e,
+                    problem="GitHub API authentication failed",
+                    cause="Invalid or expired GitHub token",
+                    solution="Check your GitHub token and ensure it has the required permissions"
                 )
             except GithubException as e:
                 if e.status == 401:
@@ -251,11 +238,12 @@ class GithubClientFactory:
                         solution="Check your GitHub token and ensure it has the required permissions"
                     )
                 elif e.status == 403:
-                    raise ProblemCauseSolution(
-                        problem="GitHub API request failed with 403 Forbidden",
-                        cause="Insufficient permissions for the provided token",
-                        solution="Ensure your GitHub token has the required permissions at https://github.com/settings/tokens",
-                        original_exception=e
+                    # Token exists but doesn't have user permissions
+                    # This is expected for GITHUB_TOKEN in GitHub Actions
+                    logging.warning(
+                        "GitHub token does not have user permissions. "
+                        "This is normal for GITHUB_TOKEN in GitHub Actions. "
+                        "Some features may be limited."
                     )
                 else:
                     raise ProblemCauseSolution(
