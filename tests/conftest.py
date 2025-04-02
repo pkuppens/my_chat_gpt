@@ -6,16 +6,14 @@ across different test modules.
 """
 
 import json
-import os
-import sys
 from typing import Any, Dict
 from unittest.mock import MagicMock
 
 import pytest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
 from my_chat_gpt_utils.openai_utils import OpenAIConfig
+
+# Import project_root to configure Python path
 
 
 class MockOpenAI:

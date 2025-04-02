@@ -4,7 +4,7 @@
 class ProblemCauseSolution(Exception):
     """
     Exception class that wraps other exceptions with Problem-Cause-Solution information.
-    
+
     This helps provide clear guidance on what went wrong, why it happened, and how to fix it.
     """
 
@@ -13,10 +13,12 @@ class ProblemCauseSolution(Exception):
         Initialize the exception with problem, cause, and solution information.
 
         Args:
+        ----
             problem (str): Description of what went wrong
             cause (str): Explanation of why it happened
             solution (str): Instructions on how to fix it
             original_exception (Exception | None, optional): The original exception that caused this
+
         """
         self.problem = problem
         self.cause = cause
@@ -33,10 +35,12 @@ class GithubAuthenticationError(ProblemCauseSolution):
         Initialize the GitHub authentication error.
 
         Args:
+        ----
             original_exception (Exception | None, optional): The original exception that caused this
             problem (str | None, optional): Custom problem description
             cause (str | None, optional): Custom cause description
             solution (str | None, optional): Custom solution description
+
         """
         if problem is None and cause is None and solution is None:
             super().__init__(
@@ -62,10 +66,12 @@ class OpenAIAuthenticationError(ProblemCauseSolution):
         Initialize the OpenAI authentication error.
 
         Args:
+        ----
             original_exception (Exception | None, optional): The original exception that caused this
             problem (str | None, optional): Custom problem description
             cause (str | None, optional): Custom cause description
             solution (str | None, optional): Custom solution description
+
         """
         if problem is None and cause is None and solution is None:
             super().__init__(
@@ -80,4 +86,4 @@ class OpenAIAuthenticationError(ProblemCauseSolution):
                 cause=cause or "Invalid or expired API key",
                 solution=solution or "Check your OpenAI API key and ensure it is correctly set in the environment",
                 original_exception=original_exception
-            ) 
+            )

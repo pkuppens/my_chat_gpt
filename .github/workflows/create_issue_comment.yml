@@ -14,8 +14,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+
+      # This composite action sets PYTHONPATH to include the workspace directory
+      # See .github/actions/set-pythonpath/action.yml for details
       - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
+        uses: ./.github/actions/set-pythonpath
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip

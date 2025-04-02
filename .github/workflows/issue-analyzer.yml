@@ -18,10 +18,10 @@ jobs:
         with:
           python-version: '3.12'
 
-      # Set PYTHONPATH to include the current directory
-      # This ensures imports work correctly in the GitHub Actions environment
+      # This composite action sets PYTHONPATH to include the workspace directory
+      # See .github/actions/set-pythonpath/action.yml for details
       - name: Set PYTHONPATH
-        run: echo "PYTHONPATH=$PYTHONPATH:$(pwd)" >> $GITHUB_ENV
+        uses: ./.github/actions/set-pythonpath
 
       # Install dependencies
       # Note: We install from requirements.github.workflow which contains only the necessary
