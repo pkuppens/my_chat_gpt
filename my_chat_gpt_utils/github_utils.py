@@ -2,16 +2,29 @@
 
 import datetime
 import json
+import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, TypeVar, cast
 
 import requests
-from github import Github, Issue, Repository
-from github.GithubException import GithubException
+from github import Github
+from github.GithubException import BadCredentialsException, GithubException, RateLimitExceededException
+from github.Issue import Issue
+from github.NamedUser import NamedUser
+from github.Repository import Repository
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCauseSolution
+
+T = TypeVar('T')
+
+def safe_get(obj: Optional[Dict[str, Any]], key: str, default: T) -> T:
+    """Safely get a value from a dictionary with a default value."""
+    if obj is None:
+        return default
+    return obj.get(key, default)
 
 def get_github_client(test_mode: bool = False) -> Github:
     """
@@ -24,6 +37,11 @@ def get_github_client(test_mode: bool = False) -> Github:
     Returns:
     -------
         Github: GitHub client instance
+
+    Raises:
+    ------
+        GithubAuthenticationError: If GitHub token is invalid or expired
+        ProblemCauseSolution: For other GitHub API related issues
 
     """
     client = GithubClientFactory.create_client(test_mode=test_mode)
@@ -86,11 +104,11 @@ class IssueContext:
 class IssueRetriever:
     """Service for retrieving and filtering GitHub issues."""
 
-    def __init__(self, repository: Repository):
+    def __init__(self, repository: Any):
         """Initialize the issue retriever with a GitHub repository."""
         self.repository = repository
 
-    def get_recent_issues(self, state: str = "all", days_back: int = 30) -> List[Issue]:
+    def get_recent_issues(self, state: str = "all", days_back: int = 30) -> List[Any]:
         """
         Retrieve recent issues from the repository.
 
@@ -101,7 +119,7 @@ class IssueRetriever:
 
         Returns:
         -------
-            List[Issue]: List of issues created within the specified time window
+            List[Any]: List of issues created within the specified time window
 
         """
         since = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days_back)
@@ -129,20 +147,20 @@ class IssueSimilarityAnalyzer:
         self.similarity_threshold = similarity_threshold
 
     def compute_similarities(
-        self, current_issue: Issue, comparable_issues: List[Issue], threshold: Optional[float] = None
-    ) -> List[Tuple[Issue, float]]:
+        self, current_issue: Any, comparable_issues: List[Any], threshold: Optional[float] = None
+    ) -> List[Tuple[Any, float]]:
         """
         Compute similarity scores between current issue and comparable issues.
 
         Args:
         ----
-            current_issue (Issue): The issue to compare against.
-            comparable_issues (List[Issue]): List of issues to compare with.
+            current_issue (Any): The issue to compare against.
+            comparable_issues (List[Any]): List of issues to compare with.
             threshold (Optional[float]): Override the default similarity threshold.
 
         Returns:
         -------
-            List[Tuple[Issue, float]]: List of (issue, similarity) tuples for issues above threshold.
+            List[Tuple[Any, float]]: List of (issue, similarity) tuples for issues above threshold.
 
         """
         if not comparable_issues:
@@ -180,31 +198,134 @@ class GithubClientFactory:
 
         Raises:
         ------
-            ValueError: If token is missing or invalid
+            GithubAuthenticationError: If GitHub token is invalid or expired
+            ProblemCauseSolution: For other GitHub API related issues
 
         """
         if not token:
             token = os.getenv("GITHUB_TOKEN")
         if not token and not test_mode:
-            raise ValueError("GITHUB_TOKEN environment variable is required")
+            raise ProblemCauseSolution(
+                problem="GitHub token not found",
+                cause="GITHUB_TOKEN environment variable is not set",
+                solution="Set the GITHUB_TOKEN environment variable with a valid GitHub token"
+            )
 
         client = Github(token or "test_token")
         if not test_mode:
             try:
                 client.get_user()  # Validate token by making an API call
+            except RateLimitExceededException as e:
+                raise ProblemCauseSolution(
+                    problem="GitHub API rate limit exceeded",
+                    cause="Too many requests in a short time period",
+                    solution="Wait before retrying or authenticate to increase rate limits",
+                    original_exception=e
+                )
+            except BadCredentialsException as e:
+                raise GithubAuthenticationError(
+                    original_exception=e,
+                    problem="GitHub API authentication failed",
+                    cause="Invalid or expired GitHub token",
+                    solution="Check your GitHub token and ensure it has the required permissions"
+                )
             except GithubException as e:
                 if e.status == 401:
-                    raise ValueError("Invalid or expired GITHUB_TOKEN")
-                raise
+                    raise GithubAuthenticationError(
+                        original_exception=e,
+                        problem="GitHub API authentication failed",
+                        cause="Invalid or expired GitHub token",
+                        solution="Check your GitHub token and ensure it has the required permissions"
+                    )
+                elif e.status == 403:
+                    # Token exists but doesn't have user permissions
+                    # This is expected for GITHUB_TOKEN in GitHub Actions
+                    logging.warning(
+                        "GitHub token does not have user permissions. "
+                        "This is normal for GITHUB_TOKEN in GitHub Actions. "
+                        "Some features may be limited."
+                    )
+                else:
+                    raise ProblemCauseSolution(
+                        problem=f"GitHub API request failed with status {e.status}",
+                        cause="Unexpected GitHub API error",
+                        solution="Check the GitHub API documentation for more information about this error",
+                        original_exception=e
+                    )
+            except Exception as e:
+                raise ProblemCauseSolution(
+                    problem="Failed to validate GitHub token",
+                    cause=f"Unexpected error: {str(e)}",
+                    solution="Check your network connection and try again",
+                    original_exception=e
+                )
         return client
 
     @staticmethod
     def get_repository(client: Github) -> Repository:
-        """Get the repository context from environment variables."""
+        """
+        Get the repository context from environment variables.
+
+        Args:
+        ----
+            client (Github): GitHub client instance.
+
+        Returns:
+        -------
+            Repository: GitHub repository instance.
+
+        Raises:
+        ------
+            ProblemCauseSolution: If repository information is missing or invalid
+            GithubAuthenticationError: If GitHub token is invalid or expired
+
+        """
         repo_name = os.getenv("GITHUB_REPOSITORY")
         if not repo_name:
-            raise ValueError("GITHUB_REPOSITORY environment variable is required")
-        return client.get_repo(repo_name)
+            raise ProblemCauseSolution(
+                problem="Repository information not found",
+                cause="GITHUB_REPOSITORY environment variable is not set",
+                solution="Set the GITHUB_REPOSITORY environment variable in format 'owner/repo'"
+            )
+        try:
+            repo = client.get_repo(repo_name)
+            return cast(Repository, repo)
+        except BadCredentialsException as e:
+            raise GithubAuthenticationError(
+                original_exception=e,
+                problem="GitHub API authentication failed",
+                cause="Invalid or expired GitHub token",
+                solution="Check your GitHub token and ensure it has the required permissions"
+            )
+        except RateLimitExceededException as e:
+            raise ProblemCauseSolution(
+                problem="GitHub API rate limit exceeded",
+                cause="Too many requests in a short time period",
+                solution="Wait before retrying or authenticate to increase rate limits",
+                original_exception=e
+            )
+        except GithubException as e:
+            if e.status == 404:
+                raise ProblemCauseSolution(
+                    problem="Repository not found",
+                    cause=f"Repository '{repo_name}' does not exist or is not accessible",
+                    solution="Check if the repository exists and if your token has access to it",
+                    original_exception=e
+                )
+            elif e.status == 403:
+                raise ProblemCauseSolution(
+                    problem="Access to repository denied",
+                    cause="Insufficient permissions to access the repository",
+                    solution="Ensure your GitHub token has the required repository access permissions",
+                    original_exception=e
+                )
+            else:
+                raise ProblemCauseSolution(
+                    problem=f"Failed to access repository with status {e.status}",
+                    cause="Unexpected GitHub API error",
+                    solution="Check the GitHub API documentation for more information about this error",
+                    original_exception=e
+                )
 
 
 class GitHubEventProcessor:
@@ -215,29 +336,49 @@ class GitHubEventProcessor:
         """Parse and validate the GitHub issue event."""
         event_path = os.getenv("GITHUB_EVENT_PATH")
         if not event_path:
-            raise ValueError("GITHUB_EVENT_PATH environment variable is required")
+            raise ProblemCauseSolution(
+                problem="GitHub event path not found",
+                cause="GITHUB_EVENT_PATH environment variable is not set",
+                solution="Ensure this script is running in a GitHub Actions workflow"
+            )
 
-        with open(event_path, "r") as f:
-            event = json.load(f)
+        try:
+            with open(event_path, "r") as f:
+                event = json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            raise ProblemCauseSolution(
+                problem="Failed to parse GitHub event file",
+                cause=f"Error reading or parsing event file: {str(e)}",
+                solution="Check if the event file exists and contains valid JSON",
+                original_exception=e
+            )
 
         if "issue" not in event:
-            raise ValueError("Event does not contain issue data")
+            raise ProblemCauseSolution(
+                problem="Invalid GitHub event type",
+                cause="Event does not contain issue data",
+                solution="Ensure this action is triggered by an issue event"
+            )
 
         return event
 
     @staticmethod
-    def extract_issue_context(event: Dict[str, Any]) -> Issue:
+    def extract_issue_context(event: Dict[str, Any]) -> Dict[str, Any]:
         """Extract issue context from the event data."""
         issue_data = event["issue"]
         required_fields = ["number", "title", "body"]
         missing_fields = [field for field in required_fields if field not in issue_data]
         if missing_fields:
-            raise ValueError(f"Missing required issue fields: {', '.join(missing_fields)}")
+            raise ProblemCauseSolution(
+                problem="Missing required issue fields",
+                cause=f"Event data is missing fields: {', '.join(missing_fields)}",
+                solution="Ensure the GitHub event contains all required issue fields"
+            )
 
         return issue_data
 
 
-def get_repository(client: Github, repo_name: str):
+def get_repository(client: Any, repo_name: str):
     """Get a repository object."""
     return client.get_repo(repo_name)
 
@@ -269,13 +410,13 @@ def add_comment(issue, comment: str):
     return issue.create_comment(comment)
 
 
-def get_github_issue(client: Github, repo_name: str, issue_data: Dict[str, Any]):
+def get_github_issue(client: Any, repo_name: str, issue_data: Dict[str, Any]):
     """Convert a dictionary to a GitHub issue object."""
     repo = get_repository(client, repo_name)
     return repo.get_issue(number=issue_data["issue_number"])
 
 
-def append_response_to_issue(client: Github, repo_name: str, issue_data: Dict[str, Any], response: str):
+def append_response_to_issue(client: Any, repo_name: str, issue_data: Dict[str, Any], response: str):
     """Append the complete response to the issue comments."""
     issue = get_github_issue(client, repo_name, issue_data)
     comment = f"## OpenAI API Response\n\n{response}"
@@ -283,15 +424,15 @@ def append_response_to_issue(client: Github, repo_name: str, issue_data: Dict[st
 
 
 class GitHubLabelManager:
-    """Manages GitHub issue labels, ensuring required labels exist and are applied."""
+    """Class to manage GitHub issue labels."""
 
     def __init__(self, github_token: str):
         """
-        Initialize the label manager.
+        Initialize GitHubLabelManager.
 
         Args:
         ----
-            github_token (str): GitHub authentication token.
+            github_token (str): GitHub authentication token
 
         """
         self.github_token = github_token
@@ -306,43 +447,106 @@ class GitHubLabelManager:
 
         Args:
         ----
-            repo_owner (str): GitHub repository owner.
-            repo_name (str): GitHub repository name.
-            labels (List[str]): Labels to ensure exist.
-            color (str, optional): Default color for new labels.
+            repo_owner (str): GitHub repository owner
+            repo_name (str): GitHub repository name
+            labels (List[str]): Labels to ensure exist
+            color (str, optional): Default color for new labels
+
+        Raises:
+        ------
+            ProblemCauseSolution: If label operations fail
 
         """
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/labels"
 
-        # Get existing labels
-        response = requests.get(url, headers=self.headers)
-        existing_labels = [label["name"] for label in response.json()]
+        try:
+            # Get existing labels
+            response = requests.get(url, headers=self.headers)
+            response.raise_for_status()
+            existing_labels = [label["name"] for label in response.json()]
 
-        # Create missing labels
-        for label in labels:
-            if label not in existing_labels:
-                label_data = {"name": label, "color": color}
-                requests.post(url, headers=self.headers, json=label_data)
+            # Create missing labels
+            for label in labels:
+                if label not in existing_labels:
+                    label_data = {"name": label, "color": color}
+                    response = requests.post(url, headers=self.headers, json=label_data)
+                    response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            if response.status_code == 403:
+                raise ProblemCauseSolution(
+                    problem="Failed to manage repository labels",
+                    cause="Insufficient permissions to manage labels",
+                    solution="Ensure your GitHub token has 'repo' scope permissions",
+                    original_exception=e
+                )
+            else:
+                raise ProblemCauseSolution(
+                    problem="Failed to manage repository labels",
+                    cause=f"GitHub API request failed with status {response.status_code}",
+                    solution="Check the GitHub API documentation for more information about this error",
+                    original_exception=e
+                )
 
     def add_labels_to_issue(self, repo_owner: str, repo_name: str, issue_number: int, labels: List[str]) -> bool:
         """
-        Add labels to a specific GitHub issue.
+        Add labels to a GitHub issue.
 
         Args:
         ----
-            repo_owner (str): GitHub repository owner.
-            repo_name (str): GitHub repository name.
-            issue_number (int): Issue number to label.
-            labels (List[str]): Labels to add.
+            repo_owner (str): Owner of the repository
+            repo_name (str): Name of the repository
+            issue_number (int): Issue number
+            labels (List[str]): List of labels to add
 
         Returns:
         -------
-            bool: True if labels were successfully added, False otherwise.
+            bool: True if labels were added successfully, False otherwise
+
+        Raises:
+        ------
+            ProblemCauseSolution: If there is an error adding labels
 
         """
         url = f"https://api.github.com/repos/{repo_owner}/{repo_name}/issues/{issue_number}/labels"
-        response = requests.post(url, headers=self.headers, json={"labels": labels})
-        return response.status_code == 200
+        response = None
+
+        try:
+            response = requests.post(url, headers=self.headers, json={"labels": labels})
+            # Check status code first
+            if response.status_code == 404:
+                raise ProblemCauseSolution(
+                    problem="Failed to add labels to issue",
+                    cause="Issue or repository not found",
+                    solution="Check if the repository and issue exist and you have access to them",
+                    original_exception=None
+                )
+            elif response.status_code == 403:
+                raise ProblemCauseSolution(
+                    problem="Failed to add labels to issue",
+                    cause="Insufficient permissions",
+                    solution="Ensure your GitHub token has write access to the repository",
+                    original_exception=None
+                )
+
+            # Then raise for other status codes
+            response.raise_for_status()
+            return True
+        except requests.exceptions.RequestException as e:
+            if not isinstance(e, requests.exceptions.HTTPError):  # Only handle non-HTTP errors here
+                raise ProblemCauseSolution(
+                    problem="Failed to add labels to issue",
+                    cause=f"GitHub API error: {str(e)}",
+                    solution="Check the GitHub API documentation for more information",
+                    original_exception=e
+                )
+            raise  # Re-raise HTTP errors to be caught by the outer exception handler
+        except Exception as e:
+            raise ProblemCauseSolution(
+                problem="Failed to add labels to issue",
+                cause=f"Unexpected error: {str(e)}",
+                solution="Check your network connection and try again",
+                original_exception=e
+            )
 
 
 class IssueDataProvider:
@@ -359,16 +563,20 @@ class IssueDataProvider:
 
         Raises
         ------
-            ValueError: If event cannot be processed.
+            ProblemCauseSolution: If event cannot be processed.
 
         """
         event = GitHubEventProcessor.parse_issue_event()
+        repo_data = safe_get(event, "repository", {})
+        owner_data = safe_get(repo_data, "owner", {})
+        issue_data = safe_get(event, "issue", {})
+
         return {
-            "repo_owner": event.get("repository", {}).get("owner", {}).get("login"),
-            "repo_name": event.get("repository", {}).get("name"),
-            "issue_number": event.get("issue", {}).get("number"),
-            "issue_title": event.get("issue", {}).get("title"),
-            "issue_body": event.get("issue", {}).get("body") or "",
+            "repo_owner": safe_get(owner_data, "login", ""),
+            "repo_name": safe_get(repo_data, "name", ""),
+            "issue_number": safe_get(issue_data, "number", 0),
+            "issue_title": safe_get(issue_data, "title", ""),
+            "issue_body": safe_get(issue_data, "body", "") or "",
         }
 
     @staticmethod
@@ -386,25 +594,49 @@ class IssueDataProvider:
         -------
             Dict[str, Any]: Issue data.
 
+        Raises:
+        ------
+            ProblemCauseSolution: If issue cannot be retrieved
+
         """
-        repo = get_repository(client, repo_name)
-        issue = repo.get_issue(number=issue_number)
-        return {
-            "repo_owner": repo.owner.login,
-            "repo_name": repo_name,
-            "issue_number": issue_number,
-            "issue_title": issue.title,
-            "issue_body": issue.body or "",
-        }
+        try:
+            repo = client.get_repo(repo_name)
+            repo = cast(Repository, repo)
+            issue = repo.get_issue(number=issue_number)
+            issue = cast(Issue, issue)
+            owner = cast(NamedUser, repo.owner)
+
+            return {
+                "repo_owner": owner.login,
+                "repo_name": repo_name,
+                "issue_number": issue_number,
+                "issue_title": issue.title or "",
+                "issue_body": issue.body or "",
+            }
+        except GithubException as e:
+            if e.status == 404:
+                raise ProblemCauseSolution(
+                    problem="Issue not found",
+                    cause=f"Issue #{issue_number} does not exist in repository '{repo_name}'",
+                    solution="Check if the issue number is correct and if your token has access to it",
+                    original_exception=e
+                )
+            else:
+                raise ProblemCauseSolution(
+                    problem="Failed to retrieve issue",
+                    cause=f"GitHub API request failed with status {e.status}",
+                    solution="Check the GitHub API documentation for more information about this error",
+                    original_exception=e
+                )
 
     @staticmethod
-    def from_latest_issue(client: Github, repo_name: str) -> Dict[str, Any]:
+    def from_latest_issue(client: Any, repo_name: str) -> Dict[str, Any]:
         """
         Get data from the latest issue in the repository.
 
         Args:
         ----
-            client (Github): GitHub client.
+            client (Any): GitHub client.
             repo_name (str): Repository name.
 
         Returns:

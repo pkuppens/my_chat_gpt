@@ -23,8 +23,9 @@ import os
 from unittest.mock import patch
 
 import pytest
-from github import GithubException
+from github import GithubException, RateLimitExceededException
 
+from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCauseSolution
 from my_chat_gpt_utils.github_utils import GithubClientFactory
 
 
@@ -81,25 +82,24 @@ def test_github_client_authentication():
     with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
         mock_github.return_value.get_user.side_effect = GithubException(401, {"message": "Bad credentials"})
         with patch.dict(os.environ, {"GITHUB_TOKEN": "invalid-token"}, clear=True):
-            with pytest.raises(ValueError, match="Invalid or expired GITHUB_TOKEN"):
+            with pytest.raises(GithubAuthenticationError) as exc_info:
                 GithubClientFactory.create_client()
+            assert "Invalid or expired GitHub token" in str(exc_info.value)
 
 
 def test_github_client_environment_handling():
-    """Test GitHub client behavior in different environments."""
-    # Test local environment
-    with patch.dict(os.environ, {"GITHUB_TOKEN": "local-token"}, clear=True):
-        client = GithubClientFactory.create_client()
-        assert client is not None
+    """Test environment variable handling."""
+    # Test with token in environment
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        mock_github.return_value.get_user.return_value = "test_user"
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "test-token"}, clear=True):
+            client = GithubClientFactory.create_client()
+            assert client is not None
 
-    # Test CI environment
-    with patch.dict(os.environ, {"GITHUB_TOKEN": "ci-token", "CI": "true"}, clear=True):
-        client = GithubClientFactory.create_client()
-        assert client is not None
-
-    # Test GitHub Actions environment
-    with patch.dict(os.environ, {"GITHUB_TOKEN": "actions-token", "GITHUB_ACTIONS": "true"}, clear=True):
-        client = GithubClientFactory.create_client()
+    # Test with token provided directly
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        mock_github.return_value.get_user.return_value = "test_user"
+        client = GithubClientFactory.create_client(token="test-token")
         assert client is not None
 
 
@@ -120,14 +120,17 @@ def test_github_client_repository_access():
     with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
         mock_github.return_value.get_repo.side_effect = GithubException(404, {"message": "Not Found"})
         with patch.dict(os.environ, {"GITHUB_REPOSITORY": "owner/invalid-repo", "GITHUB_TOKEN": "test-token"}, clear=True):
-            with pytest.raises(GithubException):
+            with pytest.raises(ProblemCauseSolution) as exc_info:
                 client = GithubClientFactory.create_client()
                 GithubClientFactory.get_repository(client)
+            assert "Repository not found" in str(exc_info.value)
 
 
 def test_github_client_test_mode():
-    """Test GitHub client in test mode."""
-    with patch.dict(os.environ, {}, clear=True):
+    """Test client behavior in test mode."""
+    # Test mode should skip validation
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        mock_github.return_value.get_user.side_effect = GithubException(401, {"message": "Bad credentials"})
         client = GithubClientFactory.create_client(test_mode=True)
         assert client is not None
 
@@ -135,13 +138,16 @@ def test_github_client_test_mode():
 def test_github_client_error_handling():
     """Test error handling in GitHub client operations."""
     # Test missing token
-    with patch.dict(os.environ, {}, clear=True):
-        with pytest.raises(ValueError, match="GITHUB_TOKEN environment variable is required"):
-            GithubClientFactory.create_client()
-
-    # Test network failure
     with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
-        mock_github.side_effect = Exception("Network error")
-        with patch.dict(os.environ, {"GITHUB_TOKEN": "test-token"}, clear=True):
-            with pytest.raises(Exception, match="Network error"):
+        with patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(ProblemCauseSolution) as exc_info:
                 GithubClientFactory.create_client()
+            assert "GitHub token not found" in str(exc_info.value)
+
+    # Test rate limit error
+    with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
+        mock_github.return_value.get_user.side_effect = RateLimitExceededException(403, {"message": "API rate limit exceeded"})
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "test-token"}, clear=True):
+            with pytest.raises(ProblemCauseSolution) as exc_info:
+                GithubClientFactory.create_client(test_mode=False)
+            assert "GitHub API rate limit exceeded" in str(exc_info.value)

@@ -10,6 +10,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import requests
 
+from my_chat_gpt_utils.exceptions import ProblemCauseSolution
 from my_chat_gpt_utils.github_utils import GitHubLabelManager
 
 
@@ -112,9 +113,10 @@ def test_add_labels_to_issue_failure(label_manager):
     """Test handling failure when adding labels."""
     mock_response = MagicMock(spec=requests.Response)
     mock_response.status_code = 404
-    with patch("requests.post", return_value=mock_response):
-        result = label_manager.add_labels_to_issue("owner", "repo", 123, ["label1"])
-        assert result is False
+    with patch("requests.post", return_value=mock_response), pytest.raises(ProblemCauseSolution) as exc_info:
+        label_manager.add_labels_to_issue("owner", "repo", 123, ["label1"])
+
+    assert "Issue or repository not found" in str(exc_info.value)
 
 
 def test_add_labels_to_issue_empty_labels(label_manager, mock_response):

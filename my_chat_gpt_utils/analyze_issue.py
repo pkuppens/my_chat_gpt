@@ -16,7 +16,15 @@ from datetime import datetime
 from typing import Any, Dict, List, Optional, Union
 
 import openai
+from openai import APIError, RateLimitError
+from openai import AuthenticationError as OpenAIAuthenticationError
 
+from my_chat_gpt_utils.exceptions import (
+    OpenAIAuthenticationError as CustomOpenAIAuthenticationError,
+)
+from my_chat_gpt_utils.exceptions import (
+    ProblemCauseSolution,
+)
 from my_chat_gpt_utils.github_utils import (
     ISSUE_TYPES,
     PRIORITY_LEVELS,
@@ -87,18 +95,27 @@ class LLMIssueAnalyzer:
 
         Raises:
         ------
-            ValueError: If the response format is invalid.
-            json.JSONDecodeError: If the response content is not valid JSON.
-            Exception: For other API or processing errors.
+            ProblemCauseSolution: For various issues with clear problem-cause-solution descriptions
+            OpenAIAuthenticationError: If OpenAI API key is invalid or expired
+            ValueError: If the response format is invalid
+            json.JSONDecodeError: If the response content is not valid JSON
 
         """
         # Prepare the prompt
-        system_prompt, user_prompt = load_analyze_issue_prompt(
-            {
-                "issue_title": issue_data.get("title", issue_data.get("issue_title", "")),
-                "issue_body": issue_data.get("body", issue_data.get("issue_body", "")),
-            }
-        )
+        try:
+            system_prompt, user_prompt = load_analyze_issue_prompt(
+                {
+                    "issue_title": issue_data.get("title", issue_data.get("issue_title", "")),
+                    "issue_body": issue_data.get("body", issue_data.get("issue_body", "")),
+                }
+            )
+        except Exception as e:
+            raise ProblemCauseSolution(
+                problem="Failed to prepare analysis prompt",
+                cause=f"Error loading or formatting prompt templates: {str(e)}",
+                solution="Check if prompt template files exist and contain valid placeholders",
+                original_exception=e
+            )
 
         try:
             # Call OpenAI API
@@ -114,31 +131,56 @@ class LLMIssueAnalyzer:
 
             # Validate response structure
             if not hasattr(response, "choices") or not response.choices:
-                raise ValueError("OpenAI response missing 'choices' array")
+                raise ProblemCauseSolution(
+                    problem="Invalid OpenAI API response",
+                    cause="Response missing 'choices' array",
+                    solution="Check if the OpenAI API endpoint is correct and returning expected format"
+                )
 
             if not hasattr(response.choices[0], "message"):
-                raise ValueError("OpenAI response missing 'message' in first choice")
+                raise ProblemCauseSolution(
+                    problem="Invalid OpenAI API response",
+                    cause="Response missing 'message' in first choice",
+                    solution="Check if the OpenAI API endpoint is correct and returning expected format"
+                )
 
             if not hasattr(response.choices[0].message, "content"):
-                raise ValueError("OpenAI response missing 'content' in message")
+                raise ProblemCauseSolution(
+                    problem="Invalid OpenAI API response",
+                    cause="Response missing 'content' in message",
+                    solution="Check if the OpenAI API endpoint is correct and returning expected format"
+                )
 
             # Get and validate content
             content = response.choices[0].message.content
             if not isinstance(content, (str, bytes, bytearray)):
-                raise ValueError(f"Invalid content type: {type(content)}. Expected str, bytes, or bytearray.")
+                raise ProblemCauseSolution(
+                    problem="Invalid OpenAI API response content",
+                    cause=f"Unexpected content type: {type(content)}",
+                    solution="Check if the OpenAI API endpoint is returning text content as expected"
+                )
 
             # Parse response
             try:
                 analysis_dict = json.loads(content)
-            except json.JSONDecodeError:
+            except json.JSONDecodeError as e:
                 logger.error(f"Failed to parse OpenAI response as JSON: {content}")
-                raise
+                raise ProblemCauseSolution(
+                    problem="Invalid OpenAI API response format",
+                    cause="Response content is not valid JSON",
+                    solution="Check if the system prompt is correctly instructing the model to return JSON",
+                    original_exception=e
+                )
 
             # Validate required fields
             required_fields = ["issue_type", "priority", "complexity"]
             missing_fields = [field for field in required_fields if field not in analysis_dict]
             if missing_fields:
-                raise ValueError(f"Analysis missing required fields: {missing_fields}")
+                raise ProblemCauseSolution(
+                    problem="Incomplete analysis results",
+                    cause=f"Missing required fields in analysis: {', '.join(missing_fields)}",
+                    solution="Check if the system prompt correctly specifies all required fields"
+                )
 
             return IssueAnalysis(
                 issue_type=analysis_dict["issue_type"],
@@ -148,9 +190,35 @@ class LLMIssueAnalyzer:
                 next_steps=analysis_dict.get("next_steps", []),
             )
 
+        except OpenAIAuthenticationError as e:
+            raise CustomOpenAIAuthenticationError(
+                original_exception=e,
+                problem="OpenAI API authentication failed",
+                cause="Invalid or expired API key",
+                solution="Check your OpenAI API key and ensure it is correctly set in the environment"
+            )
+        except RateLimitError as e:
+            raise ProblemCauseSolution(
+                problem="OpenAI API rate limit exceeded",
+                cause="Too many requests in a short time period",
+                solution="Wait before retrying or upgrade your OpenAI API plan for higher rate limits",
+                original_exception=e
+            )
+        except APIError as e:
+            raise ProblemCauseSolution(
+                problem="OpenAI API error",
+                cause=f"API request failed: {str(e)}",
+                solution="Check OpenAI service status and try again later",
+                original_exception=e
+            )
         except Exception as e:
             logger.error(f"Failed to analyze issue: {e}")
-            raise
+            raise ProblemCauseSolution(
+                problem="Issue analysis failed",
+                cause=f"Unexpected error during analysis: {str(e)}",
+                solution="Check the logs for more details and try again",
+                original_exception=e
+            )
 
 
 def setup_openai_config() -> OpenAIConfig:

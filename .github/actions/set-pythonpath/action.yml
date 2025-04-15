@@ -1,0 +1,30 @@
+name: 'Set PYTHONPATH'
+description: 'Sets PYTHONPATH to include the workspace directory, preserving existing paths'
+
+# Usage:
+# This composite action can be used in any workflow by adding:
+#   - uses: ./.github/actions/set-pythonpath
+#
+# How it works:
+# 1. The 'uses' statement in a workflow file references this action.yml file
+# 2. GitHub Actions automatically executes the steps defined in this file
+# 3. The action runs in the same environment as the calling workflow
+# 4. Environment variables set here persist for subsequent steps
+#
+# Note: This action must be used after checkout and before any Python operations
+# that require the workspace to be in PYTHONPATH.
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set PYTHONPATH
+      shell: bash
+      # Using GitHub's recommended way to set environment variables
+      # See: https://docs.github.com/en/actions/using-workflows/workflow-commands-for-github-actions#setting-an-environment-variable
+      # Note: $GITHUB_ENV is the correct syntax for the target file
+      run: |
+        if [ -n "$PYTHONPATH" ]; then
+          echo "PYTHONPATH=$PYTHONPATH:${{ github.workspace }}" >> "$GITHUB_ENV"
+        else
+          echo "PYTHONPATH=${{ github.workspace }}" >> "$GITHUB_ENV"
+        fi
