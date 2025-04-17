@@ -21,9 +21,9 @@ def get_import_mapping() -> Dict[str, str]:
 
     """
     return {
-        'scikit-learn': 'sklearn',
-        'PyYAML': 'yaml',
-        'PyGithub': 'github'
+        "scikit-learn": "sklearn",
+        "PyYAML": "yaml",
+        "PyGithub": "github",
     }
 
 
@@ -42,23 +42,23 @@ def get_required_packages() -> List[str]:
     packages = []
 
     # Read requirements.github.workflow
-    with open('requirements.github.workflow', 'r') as f:
+    with open("requirements.github.workflow", "r") as f:
         for line in f:
             line = line.strip()
-            if line and not line.startswith('#'):
-                if line.startswith('-r'):
+            if line and not line.startswith("#"):
+                if line.startswith("-r"):
                     # Handle requirements file inclusion
                     req_file = line[3:].strip()
-                    with open(req_file, 'r') as subf:
+                    with open(req_file, "r") as subf:
                         for subline in subf:
                             subline = subline.strip()
-                            if subline and not subline.startswith('#'):
+                            if subline and not subline.startswith("#"):
                                 # Split on any of the common version specifiers
-                                package = subline.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0]
+                                package = subline.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0].split("!=")[0]
                                 packages.append(package)
                 else:
                     # Split on any of the common version specifiers
-                    package = line.split('==')[0].split('>=')[0].split('<=')[0].split('~=')[0].split('!=')[0]
+                    package = line.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0].split("!=")[0]
                     packages.append(package)
 
     return packages

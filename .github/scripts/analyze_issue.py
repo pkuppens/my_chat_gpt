@@ -58,14 +58,14 @@ from my_chat_gpt_utils.openai_utils import OpenAIConfig
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 
 # Load environment variables from .env file if it exists
-env_file = os.path.join(Path(__file__).resolve().parents[2], '.env')
+env_file = os.path.join(Path(__file__).resolve().parents[2], ".env")
 if os.path.exists(env_file):
     load_dotenv(env_file)
 
@@ -110,11 +110,11 @@ def get_openai_config() -> OpenAIConfig:
     if not api_key:
         raise ValueError(
             "OPENAI_API_KEY environment variable is required. "
-            "Please set it in your .env file or environment."
+            "Please set it in your .env file or environment.",
         )
     if api_key == "your_openai_api_key_here":
         raise ValueError(
-            "Please replace 'your_openai_api_key_here' in .env with your actual OpenAI API key"
+            "Please replace 'your_openai_api_key_here' in .env with your actual OpenAI API key",
         )
 
     return OpenAIConfig(
@@ -131,7 +131,7 @@ def get_github_repo_info() -> tuple[str, str]:
     if not repo:
         raise ValueError(
             "GITHUB_REPOSITORY environment variable is required. "
-            "Please set it in your .env file or environment."
+            "Please set it in your .env file or environment.",
         )
 
     try:
@@ -140,7 +140,7 @@ def get_github_repo_info() -> tuple[str, str]:
     except ValueError:
         raise ValueError(
             f"Invalid GITHUB_REPOSITORY format: {repo}. "
-            "Expected format: 'owner/repo'"
+            "Expected format: 'owner/repo'",
         )
 
 
@@ -151,20 +151,20 @@ def validate_github_token() -> None:
         raise GithubAuthenticationError(
             problem="GitHub token not found",
             cause="GITHUB_TOKEN environment variable is not set",
-            solution="Set the GITHUB_TOKEN environment variable with a valid GitHub token"
+            solution="Set the GITHUB_TOKEN environment variable with a valid GitHub token",
         )
     if token == "your_github_token_here":
         raise GithubAuthenticationError(
             problem="Invalid GitHub token",
             cause="Default placeholder token is being used",
-            solution="Please replace 'your_github_token_here' in .env with your actual GitHub token"
+            solution="Please replace 'your_github_token_here' in .env with your actual GitHub token",
         )
 
     # Check if we're running in GitHub Actions
     if os.getenv("GITHUB_ACTIONS"):
         logging.info(
             "Running in GitHub Actions. Note that GITHUB_TOKEN has limited permissions "
-            "and cannot access user information. This is expected behavior."
+            "and cannot access user information. This is expected behavior.",
         )
 
 

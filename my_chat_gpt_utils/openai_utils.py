@@ -59,7 +59,7 @@ class OpenAIVersionChecker:
                 logger.warning(
                     f"Outdated OpenAI library version. "
                     f"Current: {current_version}, Required: {required_version}. "
-                    "Please upgrade using: pip install --upgrade openai"
+                    "Please upgrade using: pip install --upgrade openai",
                 )
                 return False
             return True

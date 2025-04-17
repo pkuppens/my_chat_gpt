@@ -47,14 +47,14 @@ class GithubAuthenticationError(ProblemCauseSolution):
                 problem="GitHub API request failed with 403 Forbidden",
                 cause="Invalid or expired GitHub token",
                 solution="Check and create a new GitHub access token at https://github.com/settings/tokens",
-                original_exception=original_exception
+                original_exception=original_exception,
             )
         else:
             super().__init__(
                 problem=problem or "GitHub API authentication failed",
                 cause=cause or "Invalid or expired GitHub token",
                 solution=solution or "Check your GitHub token and ensure it has the required permissions",
-                original_exception=original_exception
+                original_exception=original_exception,
             )
 
 
@@ -78,12 +78,12 @@ class OpenAIAuthenticationError(ProblemCauseSolution):
                 problem="OpenAI API request failed",
                 cause="Invalid or expired OpenAI API key",
                 solution="Check and create a new OpenAI API key at https://platform.openai.com/api-keys",
-                original_exception=original_exception
+                original_exception=original_exception,
             )
         else:
             super().__init__(
                 problem=problem or "OpenAI API authentication failed",
                 cause=cause or "Invalid or expired API key",
                 solution=solution or "Check your OpenAI API key and ensure it is correctly set in the environment",
-                original_exception=original_exception
+                original_exception=original_exception,
             )

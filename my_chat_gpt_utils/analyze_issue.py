@@ -107,14 +107,14 @@ class LLMIssueAnalyzer:
                 {
                     "issue_title": issue_data.get("title", issue_data.get("issue_title", "")),
                     "issue_body": issue_data.get("body", issue_data.get("issue_body", "")),
-                }
+                },
             )
         except Exception as e:
             raise ProblemCauseSolution(
                 problem="Failed to prepare analysis prompt",
                 cause=f"Error loading or formatting prompt templates: {str(e)}",
                 solution="Check if prompt template files exist and contain valid placeholders",
-                original_exception=e
+                original_exception=e,
             )
 
         try:
@@ -134,21 +134,21 @@ class LLMIssueAnalyzer:
                 raise ProblemCauseSolution(
                     problem="Invalid OpenAI API response",
                     cause="Response missing 'choices' array",
-                    solution="Check if the OpenAI API endpoint is correct and returning expected format"
+                    solution="Check if the OpenAI API endpoint is correct and returning expected format",
                 )
 
             if not hasattr(response.choices[0], "message"):
                 raise ProblemCauseSolution(
                     problem="Invalid OpenAI API response",
                     cause="Response missing 'message' in first choice",
-                    solution="Check if the OpenAI API endpoint is correct and returning expected format"
+                    solution="Check if the OpenAI API endpoint is correct and returning expected format",
                 )
 
             if not hasattr(response.choices[0].message, "content"):
                 raise ProblemCauseSolution(
                     problem="Invalid OpenAI API response",
                     cause="Response missing 'content' in message",
-                    solution="Check if the OpenAI API endpoint is correct and returning expected format"
+                    solution="Check if the OpenAI API endpoint is correct and returning expected format",
                 )
 
             # Get and validate content
@@ -157,7 +157,7 @@ class LLMIssueAnalyzer:
                 raise ProblemCauseSolution(
                     problem="Invalid OpenAI API response content",
                     cause=f"Unexpected content type: {type(content)}",
-                    solution="Check if the OpenAI API endpoint is returning text content as expected"
+                    solution="Check if the OpenAI API endpoint is returning text content as expected",
                 )
 
             # Parse response
@@ -169,7 +169,7 @@ class LLMIssueAnalyzer:
                     problem="Invalid OpenAI API response format",
                     cause="Response content is not valid JSON",
                     solution="Check if the system prompt is correctly instructing the model to return JSON",
-                    original_exception=e
+                    original_exception=e,
                 )
 
             # Validate required fields
@@ -179,7 +179,7 @@ class LLMIssueAnalyzer:
                 raise ProblemCauseSolution(
                     problem="Incomplete analysis results",
                     cause=f"Missing required fields in analysis: {', '.join(missing_fields)}",
-                    solution="Check if the system prompt correctly specifies all required fields"
+                    solution="Check if the system prompt correctly specifies all required fields",
                 )
 
             return IssueAnalysis(
@@ -195,21 +195,21 @@ class LLMIssueAnalyzer:
                 original_exception=e,
                 problem="OpenAI API authentication failed",
                 cause="Invalid or expired API key",
-                solution="Check your OpenAI API key and ensure it is correctly set in the environment"
+                solution="Check your OpenAI API key and ensure it is correctly set in the environment",
             )
         except RateLimitError as e:
             raise ProblemCauseSolution(
                 problem="OpenAI API rate limit exceeded",
                 cause="Too many requests in a short time period",
                 solution="Wait before retrying or upgrade your OpenAI API plan for higher rate limits",
-                original_exception=e
+                original_exception=e,
             )
         except APIError as e:
             raise ProblemCauseSolution(
                 problem="OpenAI API error",
                 cause=f"API request failed: {str(e)}",
                 solution="Check OpenAI service status and try again later",
-                original_exception=e
+                original_exception=e,
             )
         except Exception as e:
             logger.error(f"Failed to analyze issue: {e}")
@@ -217,7 +217,7 @@ class LLMIssueAnalyzer:
                 problem="Issue analysis failed",
                 cause=f"Unexpected error during analysis: {str(e)}",
                 solution="Check the logs for more details and try again",
-                original_exception=e
+                original_exception=e,
             )
 
 
@@ -344,7 +344,7 @@ def process_issue_analysis(
 
     github_client = get_github_client(test_mode=test_mode)
     label_manager = GitHubLabelManager(
-        github_client.get_user().login if github_client else get_github_client(test_mode=test_mode).get_user().login
+        github_client.get_user().login if github_client else get_github_client(test_mode=test_mode).get_user().login,
     )
 
     # Create analyzer and analyze issue
