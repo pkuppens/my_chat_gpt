@@ -219,9 +219,9 @@ class DocumentationPrompt:
 
         """
         return f"""Generate documentation for the following item:
-Title: {item.get('title', 'N/A')}
-Description: {item.get('description', 'N/A')}
-Type: {item.get('type', 'N/A')}
+Title: {item.get("title", "N/A")}
+Description: {item.get("description", "N/A")}
+Type: {item.get("type", "N/A")}
 
 Please provide clear, concise documentation that follows best practices."""
 
