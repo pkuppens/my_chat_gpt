@@ -57,7 +57,11 @@ from my_chat_gpt_utils.openai_utils import OpenAIConfig
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s", handlers=[logging.StreamHandler(sys.stdout)]
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 
 # Load environment variables from .env file if it exists
@@ -104,9 +108,14 @@ def get_openai_config() -> OpenAIConfig:
     """Get OpenAI configuration from environment variables."""
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable is required. Please set it in your .env file or environment.")
+        raise ValueError(
+            "OPENAI_API_KEY environment variable is required. "
+            "Please set it in your .env file or environment.",
+        )
     if api_key == "your_openai_api_key_here":
-        raise ValueError("Please replace 'your_openai_api_key_here' in .env with your actual OpenAI API key")
+        raise ValueError(
+            "Please replace 'your_openai_api_key_here' in .env with your actual OpenAI API key",
+        )
 
     return OpenAIConfig(
         api_key=api_key,
@@ -120,13 +129,19 @@ def get_github_repo_info() -> tuple[str, str]:
     """Get GitHub repository owner and name from environment variables."""
     repo = os.getenv("GITHUB_REPOSITORY")
     if not repo:
-        raise ValueError("GITHUB_REPOSITORY environment variable is required. Please set it in your .env file or environment.")
+        raise ValueError(
+            "GITHUB_REPOSITORY environment variable is required. "
+            "Please set it in your .env file or environment.",
+        )
 
     try:
         owner, name = repo.split("/")
         return owner, name
     except ValueError:
-        raise ValueError(f"Invalid GITHUB_REPOSITORY format: {repo}. Expected format: 'owner/repo'")
+        raise ValueError(
+            f"Invalid GITHUB_REPOSITORY format: {repo}. "
+            "Expected format: 'owner/repo'",
+        )
 
 
 def validate_github_token() -> None:
@@ -149,7 +164,7 @@ def validate_github_token() -> None:
     if os.getenv("GITHUB_ACTIONS"):
         logging.info(
             "Running in GitHub Actions. Note that GITHUB_TOKEN has limited permissions "
-            "and cannot access user information. This is expected behavior."
+            "and cannot access user information. This is expected behavior.",
         )
 
 

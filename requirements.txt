@@ -338,3 +338,4 @@ y-py
 yarl
 ypy-websocket
 setuptools==65.5.1
+ruff>=0.3.0

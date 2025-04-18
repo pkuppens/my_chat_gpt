@@ -163,3 +163,4 @@ cython_debug/
 .uv/
 test_env/
 *.venv*/
+uv.lock

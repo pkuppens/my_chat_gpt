@@ -1,26 +1,26 @@
 repos:
--   repo: https://github.com/pre-commit/pre-commit-hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: end-of-file-fixer
-    -   id: check-yaml
-    -   id: check-added-large-files
-    -   id: check-json
-    -   id: check-merge-conflict
-    -   id: check-ast
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-merge-conflict
+      - id: check-ast
 
--   repo: https://github.com/astral-sh/ruff-pre-commit
+  - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.3.4
     hooks:
-    -   id: ruff
+      - id: ruff
         args: [--fix]
 
--   repo: local
+  - repo: local
     hooks:
-    -   id: pytest
+      - id: pytest
         name: pytest
-        entry: pytest
+        entry: cmd.exe /C "set PYTHONPATH=%PYTHONPATH%;. && uv run pytest"
         language: system
         pass_filenames: false
         always_run: true

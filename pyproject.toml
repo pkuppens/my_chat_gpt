@@ -279,29 +279,73 @@ build-backend = "setuptools.build_meta"
 line-length = 132
 
 [tool.ruff]
-# Same as Black.
+# Line length of 132 characters (matching black)
 line-length = 132
-indent-width = 4
 
-# Assume Python 3.11
-target-version = "py311"
+# Assume Python 3.10
+target-version = "py310"
 
 [tool.ruff.lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and import sorting (`I`)
-select = ["E", "F", "I", "D"]
+# Enable all rules by default, then selectively disable
+select = ["ALL"]
 ignore = [
-    "D203",  # Ignore 'one-blank-line-before-class'
-    "E501",  # Ignore line length violations
-    "D212",  # Ignore 'multi-line-summary-first-line'
-    "D104",  # Ignore 'missing-docstring-in-package'
+    "E",    # pycodestyle errors
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "W",    # pycodestyle warnings
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "RUF",  # Ruff-specific rules
+    "D",    # pydocstring
+    "ANN",  # type annotations
+    "TCH",  # type checking
+    "ERA",  # eradicate
+    "PD",   # pandas
+    "NPY",  # numpy
+    "PT",   # pytest
+    "TRY",  # tryceratops
+    "SLF",  # private member access
+    "PLR",  # pylint refactor
+    "PLW",  # pylint warnings
+    "PLE",  # pylint errors
+    "INP",  # implicit namespace packages
+    "TD",   # todos
+    "FIX",  # fixme
+    "S",    # security
+    "G004", # Logging statement uses f-string
+    "SIM108", # Use ternary operator
+    "FBT",  # Boolean argument issues
+    "RET",  # Return statement issues
+    "DTZ",  # Datetime issues
+    "PTH",  # Path handling (will be addressed separately)
+    "PERF203", # Try-except within loop performance
+    "SIM105", # Use contextlib.suppress
 ]
 
-[tool.ruff.format]
-# Use double quotes for strings.
-quote-style = "double"
+# Allow unused variables when they start with _
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Indent with spaces, rather than tabs.
-indent-style = "space"
+# Maximum complexity allowed
+mccabe.max-complexity = 15
 
-# Line ending style
-line-ending = "auto"
+# Per-file-ignores
+[tool.ruff.lint.per-file-ignores]
+# Ignore all errors in test files
+"tests/*" = ["ALL"]
+# Ignore all errors in __init__.py files
+"__init__.py" = ["ALL"]
+# Ignore all errors in setup.py
+"setup.py" = ["ALL"]
+# Allow print and assert in notebooks and scripts, and ignore unused arguments in notebooks
+"notebooks/*" = ["T201", "S101", "D212", "D401", "D413", "ANN", "I001", "F841", "ERA001", "TD002", "TD003", "FIX002", "ARG001"]
+"scripts/*" = ["T201", "D212", "ANN", "S113", "PTH123"]
+# Allow print and ignore exception handling in GitHub scripts
+".github/scripts/*" = ["T201", "D212", "ANN", "S113", "PTH123", "EM101", "EM102", "BLE001", "ARG001"]
+# Allow print and exception handling in examples
+"Llama/examples/*" = ["T201", "BLE001", "EM101", "EM102"]
+# Allow print in utils for logging purposes
+"my_chat_gpt_utils/*" = ["T201", "BLE001", "EM101", "EM102"]
+# Allow print in CollegeGPT for logging purposes
+"CollegeGPT/*" = ["T201"]

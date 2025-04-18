@@ -102,7 +102,7 @@ def load_analyze_issue_prompt(placeholders: Dict[str, Any] | None = None) -> Tup
         # For testing: use sample prompts if files don't exist
         system_prompt = (
             "System prompt: Analyze this GitHub issue. Issue types: {issue_types}. Priority levels: {priority_levels}".format(
-                **placeholders
+                **placeholders,
             )
         )
         user_prompt = (
@@ -202,7 +202,6 @@ class DocumentationPrompt:
 
     def __init__(self):
         """Initialize the DocumentationPrompt instance."""
-        pass
 
     @staticmethod
     def get_prompt(item: Dict[str, Any]) -> str:

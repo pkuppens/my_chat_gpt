@@ -107,7 +107,7 @@ class LLMIssueAnalyzer:
                 {
                     "issue_title": issue_data.get("title", issue_data.get("issue_title", "")),
                     "issue_body": issue_data.get("body", issue_data.get("issue_body", "")),
-                }
+                },
             )
         except Exception as e:
             raise ProblemCauseSolution(
@@ -344,7 +344,7 @@ def process_issue_analysis(
 
     github_client = get_github_client(test_mode=test_mode)
     label_manager = GitHubLabelManager(
-        github_client.get_user().login if github_client else get_github_client(test_mode=test_mode).get_user().login
+        github_client.get_user().login if github_client else get_github_client(test_mode=test_mode).get_user().login,
     )
 
     # Create analyzer and analyze issue

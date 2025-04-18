@@ -20,13 +20,11 @@ from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCause
 
 T = TypeVar("T")
 
-
 def safe_get(obj: Optional[Dict[str, Any]], key: str, default: T) -> T:
     """Safely get a value from a dictionary with a default value."""
     if obj is None:
         return default
     return obj.get(key, default)
-
 
 def get_github_client(test_mode: bool = False) -> Github:
     """
@@ -149,7 +147,7 @@ class IssueSimilarityAnalyzer:
         self.similarity_threshold = similarity_threshold
 
     def compute_similarities(
-        self, current_issue: Any, comparable_issues: List[Any], threshold: Optional[float] = None
+        self, current_issue: Any, comparable_issues: List[Any], threshold: Optional[float] = None,
     ) -> List[Tuple[Any, float]]:
         """
         Compute similarity scores between current issue and comparable issues.
@@ -245,7 +243,7 @@ class GithubClientFactory:
                     logging.warning(
                         "GitHub token does not have user permissions. "
                         "This is normal for GITHUB_TOKEN in GitHub Actions. "
-                        "Some features may be limited."
+                        "Some features may be limited.",
                     )
                 else:
                     raise ProblemCauseSolution(

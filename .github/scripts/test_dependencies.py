@@ -20,7 +20,11 @@ def get_import_mapping() -> Dict[str, str]:
         Dict[str, str]: Dictionary mapping package names to their import names.
 
     """
-    return {"scikit-learn": "sklearn", "PyYAML": "yaml", "PyGithub": "github"}
+    return {
+        "scikit-learn": "sklearn",
+        "PyYAML": "yaml",
+        "PyGithub": "github",
+    }
 
 
 def get_required_packages() -> List[str]:
