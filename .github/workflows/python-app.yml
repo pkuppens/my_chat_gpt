@@ -25,6 +25,16 @@ jobs:
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
 
+      # Using virtual environment instead of --system flag to:
+      # 1. Maintain consistency with local development workflow
+      # 2. Test the full package installation process
+      # 3. Enable future multi-environment support if needed
+      # 4. Document the recommended setup for new developers
+      - name: Create and activate virtual environment
+        run: |
+          uv venv .venv
+          source .venv/bin/activate
+
       - name: Install dependencies
         run: |
           uv pip install -r requirements.txt
