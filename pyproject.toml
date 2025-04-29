@@ -5,6 +5,7 @@ description = "A collection of LLM documents and experiments, including ChatGPT 
 authors = [{name = "Pieter Kuppens <pieter.kuppens@gmail.com>"}]
 license = {text = "MIT"}
 dynamic = ["requires-python", "optional-dependencies"]
+requires-python = ">=3.12"
 
 dependencies = [
     "aiofiles==24.1.0",
@@ -279,50 +280,17 @@ build-backend = "setuptools.build_meta"
 line-length = 132
 
 [tool.ruff]
-# Line length of 132 characters (matching black)
 line-length = 132
+target-version = "py312"
+select = ["E", "F", "I", "N", "W", "B", "UP", "PL", "RUF"]
+ignore = []
 
-# Assume Python 3.10
-target-version = "py310"
-
-[tool.ruff.lint]
-# Enable all rules by default, then selectively disable
-select = ["ALL"]
-ignore = [
-    "E",    # pycodestyle errors
-    "F",    # pyflakes
-    "I",    # isort
-    "N",    # pep8-naming
-    "W",    # pycodestyle warnings
-    "B",    # flake8-bugbear
-    "C4",   # flake8-comprehensions
-    "UP",   # pyupgrade
-    "RUF",  # Ruff-specific rules
-    "D",    # pydocstring
-    "ANN",  # type annotations
-    "TCH",  # type checking
-    "ERA",  # eradicate
-    "PD",   # pandas
-    "NPY",  # numpy
-    "PT",   # pytest
-    "TRY",  # tryceratops
-    "SLF",  # private member access
-    "PLR",  # pylint refactor
-    "PLW",  # pylint warnings
-    "PLE",  # pylint errors
-    "INP",  # implicit namespace packages
-    "TD",   # todos
-    "FIX",  # fixme
-    "S",    # security
-    "G004", # Logging statement uses f-string
-    "SIM108", # Use ternary operator
-    "FBT",  # Boolean argument issues
-    "RET",  # Return statement issues
-    "DTZ",  # Datetime issues
-    "PTH",  # Path handling (will be addressed separately)
-    "PERF203", # Try-except within loop performance
-    "SIM105", # Use contextlib.suppress
-]
+[tool.ruff.format]
+line-length = 132
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+line-ending = "auto"
 
 # Allow unused variables when they start with _
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
@@ -349,3 +317,8 @@ mccabe.max-complexity = 15
 "my_chat_gpt_utils/*" = ["T201", "BLE001", "EM101", "EM102"]
 # Allow print in CollegeGPT for logging purposes
 "CollegeGPT/*" = ["T201"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

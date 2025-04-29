@@ -2,28 +2,18 @@
 
 This document provides an overview of the linting configuration and tools used in this project.
 
-## Linting Tools
+## Linting Tool
 
-We use the following linting tools in this project:
-
-- **Black**: A code formatter for Python.
-- **Flake8**: A linting tool for Python.
+We use **Ruff** as our primary linting and formatting tool. Ruff is a fast Python linter and formatter written in Rust.
 
 ## Linting Configuration
 
-### Black
+The configuration for `ruff` is specified in the `pyproject.toml` file under the `[tool.ruff]` section. The settings are as follows:
 
-The configuration for `black` is specified in the `pyproject.toml` file under the `[tool.black]` section. The settings are as follows:
-
-- `line-length`: Set to 132 to allow longer lines.
-
-### Flake8
-
-The configuration for `flake8` is specified in the `.flake8` file. The settings are as follows:
-
-- `max-line-length`: Set to 132 to allow longer lines.
-- `ignore`: Ignore import order warnings.
-- `select`: Be strict about syntax errors.
+- `line-length`: Set to 132 to allow longer lines
+- `target-version`: Set to "py312" for Python 3.12 compatibility
+- `select`: Includes common rules for code quality
+- `ignore`: Specifies rules to ignore
 
 ## Pre-commit Hook
 
@@ -33,30 +23,29 @@ A pre-commit hook has been added to prevent deteriorating the lint score. The pr
 
 To configure the pre-commit hook, follow these steps:
 
-1. Ensure you have `pre-commit` installed. You can install it using `pip`:
+1. Ensure you have `pre-commit` installed. You can install it using `uv`:
 
-    ```sh
-    pip install pre-commit
-    ```
+   ```sh
+   uv pip install pre-commit
+   ```
 
 2. Create a `.pre-commit-config.yaml` file in the root directory with the following content:
 
-    ```yaml
-    repos:
-      - repo: local
-        hooks:
-          - id: pre-commit-lint
-            name: Pre-commit Lint
-            entry: .github/scripts/pre_commit_lint.sh
-            language: system
-            stages: [commit]
-    ```
+   ```yaml
+   repos:
+     - repo: https://github.com/astral-sh/ruff-pre-commit
+       rev: v0.3.0
+       hooks:
+         - id: ruff
+           args: [--fix]
+         - id: ruff-format
+   ```
 
 3. Install the pre-commit hook:
 
-    ```sh
-    pre-commit install
-    ```
+   ```sh
+   pre-commit install
+   ```
 
 ### Bypassing the Pre-commit Hook
 
@@ -73,15 +62,14 @@ git commit -m "Your commit message" --no-verify
 To run the linting tools manually, use the following commands:
 
 ```sh
-black .
-flake8
+ruff check .
+ruff format .
 ```
 
 ## Recommended Plugin Extensions
 
 For a better development experience, it is recommended to use the following plugin extensions:
 
-- **Python**: Provides rich support for the Python language, including features such as IntelliSense, linting, debugging, and more.
-- **Pylance**: A performant, feature-rich language server for Python in Visual Studio Code.
-- **Black**: A code formatter for Python.
-- **Flake8**: A linting tool for Python.
+- **Python**: Provides rich support for the Python language
+- **Pylance**: A performant language server for Python in Visual Studio Code
+- **Ruff**: Official VS Code extension for Ruff

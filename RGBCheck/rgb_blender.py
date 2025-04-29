@@ -27,10 +27,8 @@ def blend_colors(c1, c2, percent):
 
     :return: Blended color (RGB tuple)
     """
-    return tuple(
-        int(c1[i] + (c2[i] - c1[i]) * percent)
-        for i in range(3)
-    )
+    return tuple(int(c1[i] + (c2[i] - c1[i]) * percent) for i in range(3))
+
 
 # Generate blended colors and hex values
 blended_colors = [blend_colors(orig_rgb, white_rgb, p) for p in percentages]
@@ -45,8 +43,7 @@ ax.axis("off")
 for i, (hex_code, pct) in enumerate(zip(hex_colors, percentages)):
     rect = patches.Rectangle((i, 0), 1, 1, linewidth=1, edgecolor="none", facecolor=hex_code)
     ax.add_patch(rect)
-    ax.text(i + 0.5, 0.5, f"{int(pct*100)}%\n{hex_code}", color="black",
-            ha="center", va="center", fontsize=12)
+    ax.text(i + 0.5, 0.5, f"{int(pct * 100)}%\n{hex_code}", color="black", ha="center", va="center", fontsize=12)
 
 plt.tight_layout()
 plt.show()

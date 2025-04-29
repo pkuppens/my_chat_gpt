@@ -109,8 +109,7 @@ def get_openai_config() -> OpenAIConfig:
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise ValueError(
-            "OPENAI_API_KEY environment variable is required. "
-            "Please set it in your .env file or environment.",
+            "OPENAI_API_KEY environment variable is required. Please set it in your .env file or environment.",
         )
     if api_key == "your_openai_api_key_here":
         raise ValueError(
@@ -130,8 +129,7 @@ def get_github_repo_info() -> tuple[str, str]:
     repo = os.getenv("GITHUB_REPOSITORY")
     if not repo:
         raise ValueError(
-            "GITHUB_REPOSITORY environment variable is required. "
-            "Please set it in your .env file or environment.",
+            "GITHUB_REPOSITORY environment variable is required. Please set it in your .env file or environment.",
         )
 
     try:
@@ -139,8 +137,7 @@ def get_github_repo_info() -> tuple[str, str]:
         return owner, name
     except ValueError:
         raise ValueError(
-            f"Invalid GITHUB_REPOSITORY format: {repo}. "
-            "Expected format: 'owner/repo'",
+            f"Invalid GITHUB_REPOSITORY format: {repo}. Expected format: 'owner/repo'",
         )
 
 

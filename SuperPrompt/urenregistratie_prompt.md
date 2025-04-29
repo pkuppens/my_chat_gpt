@@ -1,6 +1,6 @@
 # 📊 Pieter Kuppens – Retrospective Business Hours Documentation System (2025)
 
-**Goal:**  
+**Goal:**
 Create a comprehensive Excel workbook to document professional activities retrospectively,
 targeting 1,350-1,440 business hours for Dutch fiscal requirements (minimum threshold: 1,225 hours).
 The system will reconstruct realistic business activities from existing digital footprints
