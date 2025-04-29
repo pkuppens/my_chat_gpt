@@ -45,6 +45,7 @@ dependencies = [
     "colorlog==6.9.0",
     "comm==0.2.2",
     "contourpy==1.3.1",
+    "coverage==7.8.0",
     "crashtest==0.4.1",
     "cryptography==42.0.5",
     "cycler==0.12.1",
@@ -200,6 +201,7 @@ dependencies = [
     "pyproject_hooks==1.2.0",
     "pyrsistent==0.20.0",
     "pytest==8.3.5",
+    "pytest-cov==6.1.1",
     "python-dateutil==2.9.0.post0",
     "python-dotenv==1.0.1",
     "python-json-logger==3.2.1",
@@ -282,6 +284,14 @@ line-length = 132
 [tool.ruff]
 line-length = 120
 target-version = "py312"
+
+[tool.ruff.format]
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "B", "UP", "PL", "RUF"]
 ignore = [
     # Documentation related
@@ -301,13 +311,6 @@ ignore = [
     "RUF",  # All ruff-specific rules
 ]
 
-[tool.ruff.format]
-indent-style = "space"
-quote-style = "double"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
-[tool.ruff.lint]
 # Allow unused variables when they start with _
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
@@ -330,11 +333,11 @@ mccabe.max-complexity = 20
 # Allow print and exception handling in examples
 "Llama/examples/*" = ["T201", "BLE001", "EM101", "EM102"]
 # Allow print in utils for logging purposes
-"my_chat_gpt_utils/*" = ["T201", "BLE001", "EM101", "EM102"]
+"my_chat_gpt_utils/*" = ["T201", "BLE001", "EM101", "EM102", "N818"]
 # Allow print in CollegeGPT for logging purposes
 "CollegeGPT/*" = ["T201"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-addopts = "-v --tb=short"
+addopts = "--cov=my_chat_gpt --cov-report=term-missing --cov-report=xml"

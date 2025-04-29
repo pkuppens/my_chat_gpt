@@ -100,11 +100,15 @@ def load_analyze_issue_prompt(placeholders: dict[str, Any] | None = None) -> tup
         user_prompt = raw_prompt.format_map(placeholders)
     except FileNotFoundError:
         # For testing: use sample prompts if files don't exist
-        system_prompt = "System prompt: Analyze this GitHub issue. Issue types: {issue_types}. Priority levels: {priority_levels}".format(
-            **placeholders,
+        system_prompt = (
+            "System prompt: Analyze this GitHub issue. "
+            "Issue types: {issue_types}. "
+            "Priority levels: {priority_levels}".format(
+                **placeholders,
+            )
         )
         user_prompt = (
-            "User prompt: Analyze issue titled '{issue_title}' with description '{issue_body}'".format(**placeholders)
+            ("User prompt: Analyze issue titled '{issue_title}' with description '{issue_body}'".format(**placeholders))
             if "issue_title" in placeholders and "issue_body" in placeholders
             else "User prompt: Please provide issue details."
         )
@@ -226,3 +230,47 @@ Please provide clear, concise documentation that follows best practices."""
 def get_documentation_prompt(item: dict[str, Any]) -> str:
     """Get a documentation prompt for the given item."""
     return DocumentationPrompt.get_prompt(item)
+
+
+class IssueAnalysisPrompt:
+    """Class for managing issue analysis prompts."""
+
+    def __init__(self, issue_type: str, priority: str, title: str, body: str):
+        """
+        Initialize the IssueAnalysisPrompt instance.
+
+        Args:
+        ----
+            issue_type: The type of the issue.
+            priority: The priority level of the issue.
+            title: The title of the issue.
+            body: The body of the issue.
+        """
+        self.issue_type = issue_type
+        self.priority = priority
+        self.title = title
+        self.body = body
+        self.system_prompt_file = "SuperPrompt/analyze_issue_system_prompt.txt"
+
+    def get_system_prompt(self) -> str:
+        try:
+            with open(self.system_prompt_file, "r", encoding="utf-8") as f:
+                raw_prompt = f.read()
+            return raw_prompt.format(
+                issue_type=self.issue_type,
+                priority=self.priority,
+                title=self.title,
+                body=self.body,
+            )
+        except FileNotFoundError:
+            return (
+                "You are a helpful assistant that analyzes GitHub issues. "
+                "Please analyze the following issue and provide a detailed response.\n\n"
+                "Issue Type: {issue_type}\nPriority: {priority}\n\n"
+                "Title: {title}\n\nBody: {body}"
+            ).format(
+                issue_type=self.issue_type,
+                priority=self.priority,
+                title=self.title,
+                body=self.body,
+            )

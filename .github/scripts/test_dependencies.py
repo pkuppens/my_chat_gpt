@@ -42,15 +42,15 @@ def get_required_packages() -> list[str]:
 
     # Read requirements.github.workflow
     with open("requirements.github.workflow") as f:
-        for line in f:
-            line = line.strip()
+        for _line in f:
+            line = _line.strip()
             if line and not line.startswith("#"):
                 if line.startswith("-r"):
                     # Handle requirements file inclusion
                     req_file = line[3:].strip()
                     with open(req_file) as subf:
-                        for subline in subf:
-                            subline = subline.strip()
+                        for _subline in subf:
+                            subline = _subline.strip()
                             if subline and not subline.startswith("#"):
                                 # Split on any of the common version specifiers
                                 package = (
