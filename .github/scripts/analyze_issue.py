@@ -47,7 +47,7 @@ if repo_root not in sys.path:
 import argparse
 import json
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from dotenv import load_dotenv
 
@@ -70,14 +70,14 @@ if os.path.exists(env_file):
     load_dotenv(env_file)
 
 
-def validate_github_event() -> Dict[str, Any]:
+def validate_github_event() -> dict[str, Any]:
     """Validate that the GitHub event is an issue event and return the event data."""
     event_path = os.getenv("GITHUB_EVENT_PATH")
     if not event_path:
         raise ValueError("This script should be run within a GitHub Action")
 
     try:
-        with open(event_path, "r") as f:
+        with open(event_path) as f:
             event = json.load(f)
     except Exception as e:
         raise ValueError(f"Error reading event file: {e}")
@@ -93,7 +93,7 @@ def validate_github_event() -> Dict[str, Any]:
     return event
 
 
-def get_test_issue_data() -> Dict[str, Any]:
+def get_test_issue_data() -> dict[str, Any]:
     """Get test issue data for local development."""
     return {
         "repo_owner": "test_owner",
@@ -209,16 +209,16 @@ def main() -> None:
         print(json.dumps(analysis_result, indent=2))
 
     except ValueError as e:
-        logging.error(f"Configuration error: {str(e)}")
+        logging.error(f"Configuration error: {e!s}")
         sys.exit(1)
     except NotImplementedError as e:
-        logging.error(f"Not implemented: {str(e)}")
+        logging.error(f"Not implemented: {e!s}")
         sys.exit(1)
     except GithubAuthenticationError as e:
-        logging.error(f"GitHub authentication error: {str(e)}")
+        logging.error(f"GitHub authentication error: {e!s}")
         sys.exit(1)
     except Exception as e:
-        logging.error(f"Error during execution: {str(e)}")
+        logging.error(f"Error during execution: {e!s}")
         sys.exit(1)
 
 

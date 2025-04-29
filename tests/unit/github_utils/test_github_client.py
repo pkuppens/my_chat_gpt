@@ -119,7 +119,9 @@ def test_github_client_repository_access():
     # Test with invalid repository
     with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
         mock_github.return_value.get_repo.side_effect = GithubException(404, {"message": "Not Found"})
-        with patch.dict(os.environ, {"GITHUB_REPOSITORY": "owner/invalid-repo", "GITHUB_TOKEN": "test-token"}, clear=True):
+        with patch.dict(
+            os.environ, {"GITHUB_REPOSITORY": "owner/invalid-repo", "GITHUB_TOKEN": "test-token"}, clear=True
+        ):
             with pytest.raises(ProblemCauseSolution) as exc_info:
                 client = GithubClientFactory.create_client()
                 GithubClientFactory.get_repository(client)
@@ -146,7 +148,9 @@ def test_github_client_error_handling():
 
     # Test rate limit error
     with patch("my_chat_gpt_utils.github_utils.Github") as mock_github:
-        mock_github.return_value.get_user.side_effect = RateLimitExceededException(403, {"message": "API rate limit exceeded"})
+        mock_github.return_value.get_user.side_effect = RateLimitExceededException(
+            403, {"message": "API rate limit exceeded"}
+        )
         with patch.dict(os.environ, {"GITHUB_TOKEN": "test-token"}, clear=True):
             with pytest.raises(ProblemCauseSolution) as exc_info:
                 GithubClientFactory.create_client(test_mode=False)

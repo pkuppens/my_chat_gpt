@@ -13,7 +13,7 @@ import logging
 import os
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 import openai
 from openai import APIError, RateLimitError
@@ -63,7 +63,7 @@ class IssueAnalysis:
     priority: str
     complexity: str
     review_feedback: str
-    next_steps: List[str]
+    next_steps: list[str]
 
 
 class LLMIssueAnalyzer:
@@ -81,7 +81,7 @@ class LLMIssueAnalyzer:
         self.config = config
         self.client = openai.OpenAI(api_key=config.api_key)
 
-    def analyze_issue(self, issue_data: Dict[str, Any]) -> IssueAnalysis:
+    def analyze_issue(self, issue_data: dict[str, Any]) -> IssueAnalysis:
         """
         Analyze a GitHub issue using OpenAI's API.
 
@@ -112,7 +112,7 @@ class LLMIssueAnalyzer:
         except Exception as e:
             raise ProblemCauseSolution(
                 problem="Failed to prepare analysis prompt",
-                cause=f"Error loading or formatting prompt templates: {str(e)}",
+                cause=f"Error loading or formatting prompt templates: {e!s}",
                 solution="Check if prompt template files exist and contain valid placeholders",
                 original_exception=e,
             )
@@ -207,7 +207,7 @@ class LLMIssueAnalyzer:
         except APIError as e:
             raise ProblemCauseSolution(
                 problem="OpenAI API error",
-                cause=f"API request failed: {str(e)}",
+                cause=f"API request failed: {e!s}",
                 solution="Check OpenAI service status and try again later",
                 original_exception=e,
             )
@@ -215,7 +215,7 @@ class LLMIssueAnalyzer:
             logger.error(f"Failed to analyze issue: {e}")
             raise ProblemCauseSolution(
                 problem="Issue analysis failed",
-                cause=f"Unexpected error during analysis: {str(e)}",
+                cause=f"Unexpected error during analysis: {e!s}",
                 solution="Check the logs for more details and try again",
                 original_exception=e,
             )
@@ -251,7 +251,7 @@ def setup_openai_config() -> OpenAIConfig:
     return config
 
 
-def get_required_labels() -> List[str]:
+def get_required_labels() -> list[str]:
     """
     Get list of all required labels for issues.
 
@@ -269,7 +269,7 @@ def get_required_labels() -> List[str]:
     ]
 
 
-def get_issue_specific_labels(analysis: IssueAnalysis) -> List[str]:
+def get_issue_specific_labels(analysis: IssueAnalysis) -> list[str]:
     """
     Get labels specific to an issue based on its analysis.
 
@@ -321,10 +321,10 @@ def create_analysis_comment(analysis: IssueAnalysis) -> str:
 
 
 def process_issue_analysis(
-    issue_data: Dict[str, Any],
-    openai_config: Union[Dict[str, Any], OpenAIConfig],
+    issue_data: dict[str, Any],
+    openai_config: dict[str, Any] | OpenAIConfig,
     test_mode: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Process issue analysis with OpenAI and GitHub integration.
 
@@ -371,7 +371,7 @@ def process_issue_analysis(
     return analysis
 
 
-def get_issue_data(issue_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def get_issue_data(issue_data: dict[str, Any] | None = None) -> dict[str, Any]:
     """Get issue data from environment or provided data."""
     if issue_data is not None:
         return issue_data
@@ -389,10 +389,10 @@ def get_issue_data(issue_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any
     event_path = os.getenv("GITHUB_EVENT_PATH")
     if event_path and os.path.exists(event_path):
         try:
-            with open(event_path, "r", encoding="utf-8") as f:
+            with open(event_path, encoding="utf-8") as f:
                 event_data = json.load(f)
                 return event_data.get("issue", {})
-        except (json.JSONDecodeError, IOError) as e:
+        except (OSError, json.JSONDecodeError) as e:
             logging.error(f"Failed to read event file: {e}")
             return {}
 

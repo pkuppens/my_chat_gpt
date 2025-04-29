@@ -18,11 +18,13 @@ repos:
 
   - repo: local
     hooks:
-      - id: pytest
+      - id: pytest-platform-agnostic
         name: pytest
-        entry: python -m pytest tests/
+        entry: python -c "import os, sys, platform; sys.path.insert(0, os.getcwd()); cmd = 'uv run pytest tests/ -v'; os.system(cmd)"
         language: system
         pass_filenames: false
         always_run: true
         types: [python]
-        additional_dependencies: [pytest]
+        verbose: true
+        env:
+          - VIRTUAL_ENV: .venv

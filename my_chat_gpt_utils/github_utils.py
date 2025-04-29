@@ -5,7 +5,7 @@ import json
 import logging
 import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple, TypeVar, cast
+from typing import Any, TypeVar, cast
 
 import requests
 from github import Github
@@ -21,7 +21,7 @@ from my_chat_gpt_utils.exceptions import GithubAuthenticationError, ProblemCause
 T = TypeVar("T")
 
 
-def safe_get(obj: Optional[Dict[str, Any]], key: str, default: T) -> T:
+def safe_get(obj: dict[str, Any] | None, key: str, default: T) -> T:
     """Safely get a value from a dictionary with a default value."""
     if obj is None:
         return default
@@ -97,7 +97,7 @@ class IssueContext:
 
     number: int
     title: str
-    body: Optional[str]
+    body: str | None
     state: str
     created_at: datetime.datetime
     url: str
@@ -110,7 +110,7 @@ class IssueRetriever:
         """Initialize the issue retriever with a GitHub repository."""
         self.repository = repository
 
-    def get_recent_issues(self, state: str = "all", days_back: int = 30) -> List[Any]:
+    def get_recent_issues(self, state: str = "all", days_back: int = 30) -> list[Any]:
         """
         Retrieve recent issues from the repository.
 
@@ -124,11 +124,11 @@ class IssueRetriever:
             List[Any]: List of issues created within the specified time window
 
         """
-        since = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days_back)
+        since = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=days_back)
         # Get issues from GitHub API with since parameter
         issues = self.repository.get_issues(state=state, since=since)
         # Double-check the date filter since GitHub API's since parameter isn't always reliable
-        cutoff_date = datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(days=days_back)
+        cutoff_date = datetime.datetime.now(datetime.UTC) - datetime.timedelta(days=days_back)
         return [issue for issue in issues if issue.created_at >= cutoff_date]
 
 
@@ -151,9 +151,9 @@ class IssueSimilarityAnalyzer:
     def compute_similarities(
         self,
         current_issue: Any,
-        comparable_issues: List[Any],
-        threshold: Optional[float] = None,
-    ) -> List[Tuple[Any, float]]:
+        comparable_issues: list[Any],
+        threshold: float | None = None,
+    ) -> list[tuple[Any, float]]:
         """
         Compute similarity scores between current issue and comparable issues.
 
@@ -181,14 +181,18 @@ class IssueSimilarityAnalyzer:
         # Use provided threshold or fall back to default
         threshold_to_use = threshold if threshold is not None else self.similarity_threshold
         # Filter issues above threshold
-        return [(issue, score) for issue, score in zip(comparable_issues, similarities) if score >= threshold_to_use]
+        return [
+            (issue, score)
+            for issue, score in zip(comparable_issues, similarities, strict=False)
+            if score >= threshold_to_use
+        ]
 
 
 class GithubClientFactory:
     """Factory class for creating GitHub API clients and retrieving repository context."""
 
     @staticmethod
-    def create_client(token: Optional[str] = None, test_mode: bool = False) -> Github:
+    def create_client(token: str | None = None, test_mode: bool = False) -> Github:
         """
         Create a GitHub client using environment variables.
 
@@ -260,7 +264,7 @@ class GithubClientFactory:
             except Exception as e:
                 raise ProblemCauseSolution(
                     problem="Failed to validate GitHub token",
-                    cause=f"Unexpected error: {str(e)}",
+                    cause=f"Unexpected error: {e!s}",
                     solution="Check your network connection and try again",
                     original_exception=e,
                 )
@@ -337,7 +341,7 @@ class GitHubEventProcessor:
     """Processes GitHub webhook events for issue-related actions."""
 
     @staticmethod
-    def parse_issue_event() -> Dict[str, Any]:
+    def parse_issue_event() -> dict[str, Any]:
         """Parse and validate the GitHub issue event."""
         event_path = os.getenv("GITHUB_EVENT_PATH")
         if not event_path:
@@ -348,12 +352,12 @@ class GitHubEventProcessor:
             )
 
         try:
-            with open(event_path, "r") as f:
+            with open(event_path) as f:
                 event = json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
+        except (OSError, json.JSONDecodeError) as e:
             raise ProblemCauseSolution(
                 problem="Failed to parse GitHub event file",
-                cause=f"Error reading or parsing event file: {str(e)}",
+                cause=f"Error reading or parsing event file: {e!s}",
                 solution="Check if the event file exists and contains valid JSON",
                 original_exception=e,
             )
@@ -368,7 +372,7 @@ class GitHubEventProcessor:
         return event
 
     @staticmethod
-    def extract_issue_context(event: Dict[str, Any]) -> Dict[str, Any]:
+    def extract_issue_context(event: dict[str, Any]) -> dict[str, Any]:
         """Extract issue context from the event data."""
         issue_data = event["issue"]
         required_fields = ["number", "title", "body"]
@@ -415,13 +419,13 @@ def add_comment(issue, comment: str):
     return issue.create_comment(comment)
 
 
-def get_github_issue(client: Any, repo_name: str, issue_data: Dict[str, Any]):
+def get_github_issue(client: Any, repo_name: str, issue_data: dict[str, Any]):
     """Convert a dictionary to a GitHub issue object."""
     repo = get_repository(client, repo_name)
     return repo.get_issue(number=issue_data["issue_number"])
 
 
-def append_response_to_issue(client: Any, repo_name: str, issue_data: Dict[str, Any], response: str):
+def append_response_to_issue(client: Any, repo_name: str, issue_data: dict[str, Any], response: str):
     """Append the complete response to the issue comments."""
     issue = get_github_issue(client, repo_name, issue_data)
     comment = f"## OpenAI API Response\n\n{response}"
@@ -446,7 +450,7 @@ class GitHubLabelManager:
             "Accept": "application/vnd.github.v3+json",
         }
 
-    def ensure_labels_exist(self, repo_owner: str, repo_name: str, labels: List[str], color: str = "6f42c1") -> None:
+    def ensure_labels_exist(self, repo_owner: str, repo_name: str, labels: list[str], color: str = "6f42c1") -> None:
         """
         Ensure specified labels exist in the repository.
 
@@ -492,7 +496,7 @@ class GitHubLabelManager:
                     original_exception=e,
                 )
 
-    def add_labels_to_issue(self, repo_owner: str, repo_name: str, issue_number: int, labels: List[str]) -> bool:
+    def add_labels_to_issue(self, repo_owner: str, repo_name: str, issue_number: int, labels: list[str]) -> bool:
         """
         Add labels to a GitHub issue.
 
@@ -540,7 +544,7 @@ class GitHubLabelManager:
             if not isinstance(e, requests.exceptions.HTTPError):  # Only handle non-HTTP errors here
                 raise ProblemCauseSolution(
                     problem="Failed to add labels to issue",
-                    cause=f"GitHub API error: {str(e)}",
+                    cause=f"GitHub API error: {e!s}",
                     solution="Check the GitHub API documentation for more information",
                     original_exception=e,
                 )
@@ -548,7 +552,7 @@ class GitHubLabelManager:
         except Exception as e:
             raise ProblemCauseSolution(
                 problem="Failed to add labels to issue",
-                cause=f"Unexpected error: {str(e)}",
+                cause=f"Unexpected error: {e!s}",
                 solution="Check your network connection and try again",
                 original_exception=e,
             )
@@ -558,7 +562,7 @@ class IssueDataProvider:
     """Provides flexible issue data retrieval from various sources."""
 
     @staticmethod
-    def from_github_event() -> Dict[str, Any]:
+    def from_github_event() -> dict[str, Any]:
         """
         Get issue data from GitHub event.
 
@@ -585,7 +589,7 @@ class IssueDataProvider:
         }
 
     @staticmethod
-    def from_issue_number(client: Github, repo_name: str, issue_number: int) -> Dict[str, Any]:
+    def from_issue_number(client: Github, repo_name: str, issue_number: int) -> dict[str, Any]:
         """
         Get issue data from issue number.
 
@@ -635,7 +639,7 @@ class IssueDataProvider:
                 )
 
     @staticmethod
-    def from_latest_issue(client: Any, repo_name: str) -> Dict[str, Any]:
+    def from_latest_issue(client: Any, repo_name: str) -> dict[str, Any]:
         """
         Get data from the latest issue in the repository.
 

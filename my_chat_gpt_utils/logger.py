@@ -9,18 +9,17 @@ ensures proper context information (filename, line number) in logs.
 
 import logging
 import os
-from typing import Optional, Union
 
 
 def configure_logger(
-    name: Optional[str] = None,
-    level: Union[int, str] = logging.INFO,
-    format_string: Optional[str] = None,
+    name: str | None = None,
+    level: int | str = logging.INFO,
+    format_string: str | None = None,
     include_file_info: bool = True,
     force_unbuffered: bool = False,
     add_file_handler: bool = False,
-    log_file_path: Optional[str] = None,
-    log_file_level: Union[int, str] = logging.INFO,
+    log_file_path: str | None = None,
+    log_file_level: int | str = logging.INFO,
 ) -> logging.Logger:
     """
     Configure and return a logger with specified settings.
@@ -142,7 +141,7 @@ class LoggerContext:
 
     """
 
-    def __init__(self, target_logger: logging.Logger, level: Union[int, str]):
+    def __init__(self, target_logger: logging.Logger, level: int | str):
         """
         Initialize a logger context with specified logger and temporary level.
 

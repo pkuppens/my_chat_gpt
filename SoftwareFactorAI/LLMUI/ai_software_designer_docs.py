@@ -7,12 +7,11 @@ and generates corresponding documentation files using AI assistance.
 
 import sys
 from pathlib import Path
-from typing import Optional
 
 from my_chat_gpt_utils.ai_doc_writer import main as ai_doc_writer_main
 
 
-def main(file_path: Optional[str] = None) -> int:
+def main(file_path: str | None = None) -> int:
     """
     Process JSON input and generate documentation files.
 

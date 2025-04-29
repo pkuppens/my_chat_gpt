@@ -25,7 +25,7 @@ def read_text_from_file(file_path):
         str: Contents of the file.
 
     """
-    with open(file_path, "r") as file:
+    with open(file_path) as file:
         return file.read()
 
 

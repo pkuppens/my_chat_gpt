@@ -6,7 +6,7 @@ generate text using various language models through Ollama's local API endpoint.
 """
 
 import json
-from typing import Generator, List, Optional
+from collections.abc import Generator
 
 import requests
 
@@ -57,7 +57,7 @@ class OllamaClient:
         except requests.exceptions.RequestException as e:
             raise Exception(f"Error checking Ollama status: {e}")
 
-    def _get_available_models(self) -> List[str]:
+    def _get_available_models(self) -> list[str]:
         """Get list of available models."""
         try:
             response = requests.get(f"{self.base_url}/api/tags")
@@ -74,7 +74,7 @@ class OllamaClient:
         stream: bool = False,
         temperature: float = 0.1,
         top_p: float = 0.9,
-    ) -> Optional[str]:
+    ) -> str | None:
         """Generate a response from the model."""
         if model not in self.available_models:
             print(f"Error: Model '{model}' not found. Available models: {', '.join(self.available_models)}")

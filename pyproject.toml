@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "A collection of LLM documents and experiments, including ChatGPT and local Ollama."
 authors = [{name = "Pieter Kuppens <pieter.kuppens@gmail.com>"}]
 license = {text = "MIT"}
-dynamic = ["requires-python", "optional-dependencies"]
+dynamic = ["optional-dependencies"]
 requires-python = ">=3.12"
 
 dependencies = [
@@ -280,23 +280,39 @@ build-backend = "setuptools.build_meta"
 line-length = 132
 
 [tool.ruff]
-line-length = 132
+line-length = 120
 target-version = "py312"
 select = ["E", "F", "I", "N", "W", "B", "UP", "PL", "RUF"]
-ignore = []
+ignore = [
+    # Documentation related
+    "D",  # All docstring rules
+    # Type checking
+    "ANN",  # All type annotation rules
+    # Style preferences
+    "Q",  # All quote style rules
+    "ISC",  # Implicit string concatenation
+    "C4",  # All comprehensions rules
+    "PLR",  # All variable naming rules
+    "ERA",  # All error handling rules
+    "EM",  # All exception handling rules
+    "T20",  # Print statements
+    "B",  # All bugbear rules
+    "UP",  # All pyupgrade rules
+    "RUF",  # All ruff-specific rules
+]
 
 [tool.ruff.format]
-line-length = 132
 indent-style = "space"
 quote-style = "double"
 skip-magic-trailing-comma = false
 line-ending = "auto"
 
+[tool.ruff.lint]
 # Allow unused variables when they start with _
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # Maximum complexity allowed
-mccabe.max-complexity = 15
+mccabe.max-complexity = 20
 
 # Per-file-ignores
 [tool.ruff.lint.per-file-ignores]

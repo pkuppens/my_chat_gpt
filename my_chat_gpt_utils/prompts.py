@@ -30,7 +30,7 @@ The current function could leave undefined placeholders in the prompt.
 
 import os
 import tempfile
-from typing import Any, Dict, Tuple
+from typing import Any
 
 # Try to import from my_chat_gpt_utils package, but fallback to constants if running standalone
 try:
@@ -66,7 +66,7 @@ class PlaceholderDict(dict):
         return "{" + key + "}"
 
 
-def load_analyze_issue_prompt(placeholders: Dict[str, Any] | None = None) -> Tuple[str, str]:
+def load_analyze_issue_prompt(placeholders: dict[str, Any] | None = None) -> tuple[str, str]:
     """
     Load and format the system and user prompts for issue analysis.
 
@@ -90,20 +90,18 @@ def load_analyze_issue_prompt(placeholders: Dict[str, Any] | None = None) -> Tup
     placeholders = PlaceholderDict(placeholders)
 
     try:
-        with open("SuperPrompt/analyze_issue_system_prompt.txt", "r", encoding="utf-8") as file:
+        with open("SuperPrompt/analyze_issue_system_prompt.txt", encoding="utf-8") as file:
             raw_prompt = file.read()
         system_prompt = raw_prompt.format_map(placeholders)
 
-        with open("SuperPrompt/analyze_issue_user_prompt.txt", "r", encoding="utf-8") as file:
+        with open("SuperPrompt/analyze_issue_user_prompt.txt", encoding="utf-8") as file:
             raw_prompt = file.read()
 
         user_prompt = raw_prompt.format_map(placeholders)
     except FileNotFoundError:
         # For testing: use sample prompts if files don't exist
-        system_prompt = (
-            "System prompt: Analyze this GitHub issue. Issue types: {issue_types}. Priority levels: {priority_levels}".format(
-                **placeholders,
-            )
+        system_prompt = "System prompt: Analyze this GitHub issue. Issue types: {issue_types}. Priority levels: {priority_levels}".format(
+            **placeholders,
         )
         user_prompt = (
             "User prompt: Analyze issue titled '{issue_title}' with description '{issue_body}'".format(**placeholders)
@@ -185,7 +183,7 @@ def run_tests():
             print(f"✓ {test_func.__name__} passed")
         except Exception as e:
             failures += 1
-            print(f"✗ {test_func.__name__} failed: {str(e)}")
+            print(f"✗ {test_func.__name__} failed: {e!s}")
 
     print(f"\nTest summary: {len(test_functions) - failures} passed, {failures} failed")
     return failures == 0
@@ -204,7 +202,7 @@ class DocumentationPrompt:
         """Initialize the DocumentationPrompt instance."""
 
     @staticmethod
-    def get_prompt(item: Dict[str, Any]) -> str:
+    def get_prompt(item: dict[str, Any]) -> str:
         """
         Generate a documentation prompt for the given item.
 
@@ -225,6 +223,6 @@ Type: {item.get("type", "N/A")}
 Please provide clear, concise documentation that follows best practices."""
 
 
-def get_documentation_prompt(item: Dict[str, Any]) -> str:
+def get_documentation_prompt(item: dict[str, Any]) -> str:
     """Get a documentation prompt for the given item."""
     return DocumentationPrompt.get_prompt(item)

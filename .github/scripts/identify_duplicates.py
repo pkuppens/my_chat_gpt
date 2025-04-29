@@ -10,7 +10,7 @@ import logging
 import os
 import sys
 from datetime import datetime, timedelta
-from typing import Any, Dict
+from typing import Any
 
 from github import Github
 from openai import OpenAI
@@ -85,7 +85,9 @@ class GithubDuplicateIssueDetector:
 
         # Log all similarity scores
         for i, similarity in enumerate(similarities):
-            logging.info(f"Issue #{existing_issues[i].number}: {existing_issues[i].title} - Similarity: {similarity:.1%}")
+            logging.info(
+                f"Issue #{existing_issues[i].number}: {existing_issues[i].title} - Similarity: {similarity:.1%}"
+            )
 
         # Filter issues that exceed threshold
         similar_issues = [
@@ -137,7 +139,7 @@ def validate_github_event():
         raise ValueError("This script should be run within a GitHub Action")
 
     try:
-        with open(event_path, "r") as f:
+        with open(event_path) as f:
             event = json.load(f)
     except Exception as e:
         raise ValueError(f"Error reading event file: {e}")
@@ -153,7 +155,7 @@ def validate_github_event():
     return event
 
 
-def process_issue_data(issue_data: Dict[str, Any], client: OpenAI) -> Dict[str, Any]:
+def process_issue_data(issue_data: dict[str, Any], client: OpenAI) -> dict[str, Any]:
     """
     Process issue data to identify potential duplicates.
 
@@ -192,7 +194,7 @@ def main():
         logging.info("Completed duplicate issue detection")
 
     except Exception as e:
-        logging.error(f"Error during execution: {str(e)}")
+        logging.error(f"Error during execution: {e!s}")
         sys.exit(1)
 
 
@@ -201,10 +203,12 @@ if __name__ == "__main__":
         try:
             logging.info("Running in test mode")
             detector = GithubDuplicateIssueDetector()
-            similar_issues = detector.find_similar_issues(123, "Test Issue Title", "Test Issue Body")  # Test issue number
+            similar_issues = detector.find_similar_issues(
+                123, "Test Issue Title", "Test Issue Body"
+            )  # Test issue number
             logging.info(f"Test completed: found {len(similar_issues)} similar issues")
         except Exception as e:
-            logging.error(f"Test failed: {str(e)}")
+            logging.error(f"Test failed: {e!s}")
             sys.exit(1)
     else:
         main()

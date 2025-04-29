@@ -6,13 +6,13 @@ import logging
 import os
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from my_chat_gpt_utils.openai_utils import get_openai_client
 from my_chat_gpt_utils.prompts import get_documentation_prompt
 
 
-def read_json_file(file_path: str) -> List[Dict[str, Any]]:
+def read_json_file(file_path: str) -> list[dict[str, Any]]:
     """
     Read and parse JSON data from a file.
 
@@ -43,7 +43,7 @@ def read_json_file(file_path: str) -> List[Dict[str, Any]]:
             print(f"Warning: File '{file_path}' is empty")
             return []
 
-        with open(file_path, "r", encoding="utf-8") as file:
+        with open(file_path, encoding="utf-8") as file:
             json_data = json.load(file)
 
             # Convert single item to list if it's not already a list
@@ -68,7 +68,7 @@ def write_content_to_file(content: str, file_path: str, current_directory: str) 
     logging.info(f"Wrote content to {file_path}")
 
 
-def process_items(items: List[Dict[str, Any]], current_directory: str) -> None:
+def process_items(items: list[dict[str, Any]], current_directory: str) -> None:
     """Process a list of items and generate documentation for each."""
     client = get_openai_client()
     for item in items:
@@ -81,7 +81,7 @@ def process_items(items: List[Dict[str, Any]], current_directory: str) -> None:
         write_content_to_file(content, item["file_path"], current_directory)
 
 
-def main(file_path: Optional[str] = None, current_directory: Optional[Path] = None) -> int:
+def main(file_path: str | None = None, current_directory: Path | None = None) -> int:
     """
     Process JSON input and generate documentation files.
 

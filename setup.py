@@ -108,9 +108,17 @@ setup(
     packages=find_packages(),
     install_requires=read_requirements("requirements-base.txt"),
     extras_require={
-        "dev": [req for req in read_requirements("requirements-dev.txt") if req not in read_requirements("requirements-base.txt")],
+        "dev": [
+            req
+            for req in read_requirements("requirements-dev.txt")
+            if req not in read_requirements("requirements-base.txt")
+        ],
         # dev includes test, otherwise, create a new test extras_require with requirements-test.txt:
-        "test": [req for req in read_requirements("requirements-test.txt") if req not in read_requirements("requirements-dev.txt")],
+        "test": [
+            req
+            for req in read_requirements("requirements-test.txt")
+            if req not in read_requirements("requirements-dev.txt")
+        ],
     },
     python_requires=">=3.11",
     description="A ChatGPT/LLM Agent Building Utility Package",

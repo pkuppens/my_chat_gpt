@@ -6,7 +6,7 @@ and displays the blended colors in a table format with their hex values.
 The original color is a shade of green (68, 170, 0) and the blending color is white (255, 255, 255).
 """
 
-import matplotlib.patches as patches
+from matplotlib import patches
 from matplotlib import pyplot as plt
 
 # Original color
@@ -40,7 +40,7 @@ ax.set_xlim(0, len(percentages))
 ax.set_ylim(0, 1)
 ax.axis("off")
 
-for i, (hex_code, pct) in enumerate(zip(hex_colors, percentages)):
+for i, (hex_code, pct) in enumerate(zip(hex_colors, percentages, strict=False)):
     rect = patches.Rectangle((i, 0), 1, 1, linewidth=1, edgecolor="none", facecolor=hex_code)
     ax.add_patch(rect)
     ax.text(i + 0.5, 0.5, f"{int(pct * 100)}%\n{hex_code}", color="black", ha="center", va="center", fontsize=12)

@@ -8,10 +8,9 @@ It assumes packages are already installed in the environment and only verifies i
 
 import importlib
 import sys
-from typing import Dict, List, Tuple
 
 
-def get_import_mapping() -> Dict[str, str]:
+def get_import_mapping() -> dict[str, str]:
     """
     Get mapping between package names and their import names.
 
@@ -27,7 +26,7 @@ def get_import_mapping() -> Dict[str, str]:
     }
 
 
-def get_required_packages() -> List[str]:
+def get_required_packages() -> list[str]:
     """
     Get all required packages from requirements files.
 
@@ -42,19 +41,21 @@ def get_required_packages() -> List[str]:
     packages = []
 
     # Read requirements.github.workflow
-    with open("requirements.github.workflow", "r") as f:
+    with open("requirements.github.workflow") as f:
         for line in f:
             line = line.strip()
             if line and not line.startswith("#"):
                 if line.startswith("-r"):
                     # Handle requirements file inclusion
                     req_file = line[3:].strip()
-                    with open(req_file, "r") as subf:
+                    with open(req_file) as subf:
                         for subline in subf:
                             subline = subline.strip()
                             if subline and not subline.startswith("#"):
                                 # Split on any of the common version specifiers
-                                package = subline.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0].split("!=")[0]
+                                package = (
+                                    subline.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0].split("!=")[0]
+                                )
                                 packages.append(package)
                 else:
                     # Split on any of the common version specifiers
@@ -64,7 +65,7 @@ def get_required_packages() -> List[str]:
     return packages
 
 
-def check_package_imports(packages: List[str]) -> List[Tuple[str, bool, str]]:
+def check_package_imports(packages: list[str]) -> list[tuple[str, bool, str]]:
     """
     Check if each package can be imported.
 
