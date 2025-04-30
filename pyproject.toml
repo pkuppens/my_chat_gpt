@@ -282,60 +282,69 @@ build-backend = "setuptools.build_meta"
 line-length = 132
 
 [tool.ruff]
-line-length = 120
-target-version = "py312"
-
-[tool.ruff.format]
-indent-style = "space"
-quote-style = "double"
-skip-magic-trailing-comma = false
-line-ending = "auto"
-
-[tool.ruff.lint]
-select = ["E", "F", "I", "N", "W", "B", "UP", "PL", "RUF"]
-ignore = [
-    # Documentation related
-    "D",  # All docstring rules
-    # Type checking
-    "ANN",  # All type annotation rules
-    # Style preferences
-    "Q",  # All quote style rules
-    "ISC",  # Implicit string concatenation
-    "C4",  # All comprehensions rules
-    "PLR",  # All variable naming rules
-    "ERA",  # All error handling rules
-    "EM",  # All exception handling rules
-    "T20",  # Print statements
-    "B",  # All bugbear rules
-    "UP",  # All pyupgrade rules
-    "RUF",  # All ruff-specific rules
+# Exclude a variety of commonly ignored directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "notebooks",  # Exclude notebooks directory
+    "Llama/examples/notebooks",  # Exclude Llama notebooks
 ]
 
-# Allow unused variables when they start with _
+# Same as Black.
+line-length = 132
+
+# Assume Python 3.12
+target-version = "py312"
+
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+select = [
+    "E4",  # pycodestyle errors
+    "E7",  # pycodestyle errors
+    "E9",  # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "W",   # pycodestyle warnings
+]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Maximum complexity allowed
-mccabe.max-complexity = 20
+# Unlike Flake8, default to a complexity level of 10.
+mccabe.max-complexity = 10
 
-# Per-file-ignores
+# Configure isort
+isort.known-first-party = ["my_chat_gpt_utils"]
+
+# Configure pydocstyle
+pydocstyle.convention = "google"
+
 [tool.ruff.lint.per-file-ignores]
-# Ignore all errors in test files
-"tests/*" = ["ALL"]
-# Ignore all errors in __init__.py files
-"__init__.py" = ["ALL"]
-# Ignore all errors in setup.py
-"setup.py" = ["ALL"]
-# Allow print and assert in notebooks and scripts, and ignore unused arguments in notebooks
-"notebooks/*" = ["T201", "S101", "D212", "D401", "D413", "ANN", "I001", "F841", "ERA001", "TD002", "TD003", "FIX002", "ARG001"]
-"scripts/*" = ["T201", "D212", "ANN", "S113", "PTH123"]
-# Allow print and ignore exception handling in GitHub scripts
-".github/scripts/*" = ["T201", "D212", "ANN", "S113", "PTH123", "EM101", "EM102", "BLE001", "ARG001"]
-# Allow print and exception handling in examples
-"Llama/examples/*" = ["T201", "BLE001", "EM101", "EM102"]
-# Allow print in utils for logging purposes
-"my_chat_gpt_utils/*" = ["T201", "BLE001", "EM101", "EM102", "N818"]
-# Allow print in CollegeGPT for logging purposes
-"CollegeGPT/*" = ["T201"]
+"notebooks/*.ipynb" = ["E501", "E402", "F821", "E722", "W293"]
+"Llama/examples/notebooks/*.ipynb" = ["E501", "E402", "F821", "E722", "W293"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

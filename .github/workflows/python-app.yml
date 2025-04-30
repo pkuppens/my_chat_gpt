@@ -24,28 +24,24 @@ jobs:
       - name: Install uv
         run: |
           curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      # Using virtual environment instead of --system flag to:
-      # 1. Maintain consistency with local development workflow
-      # 2. Test the full package installation process
-      # 3. Enable future multi-environment support if needed
-      # 4. Document the recommended setup for new developers
-      - name: Create and activate virtual environment
-        run: |
-          uv venv .venv
-          source .venv/bin/activate
+      - name: Create virtual environment
+        run: uv venv .venv
 
       - name: Install dependencies
         run: |
-          uv pip install -r requirements.txt
+          uv pip install --requirement requirements.txt
 
       - name: Lint with ruff
         run: |
-          uv pip install ruff
-          ruff check .
-          ruff format --check .
+          # Assuming ruff is in requirements.txt, otherwise add it here
+          # uv pip install ruff
+          uv run ruff check .
+          uv run ruff format --check .
 
       - name: Test with pytest
         run: |
-          uv pip install pytest
-          pytest
+          # Assuming pytest is in requirements.txt, otherwise add it here
+          # uv pip install pytest
+          uv run pytest

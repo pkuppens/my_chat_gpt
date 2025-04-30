@@ -276,6 +276,7 @@ rich-toolkit
 rpds-py
 rq
 rsa
+ruff
 s3transfer
 scikit-learn
 scipy
