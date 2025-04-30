@@ -1,5 +1,7 @@
-name: Python CI
+name: Python CI/CD
 
+# Trigger workflow on push to main or pull requests targeting main
+# See: https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows
 on:
   push:
     branches: [main]
@@ -7,16 +9,112 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  setup:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.12"]
-
+    outputs:
+      # Cache key is shared across jobs to ensure consistent caching
+      # See: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
+      cache-key: ${{ steps.cache-key.outputs.cache-key }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      # Generate a cache key based on requirements.txt and date
+      # This ensures cache is invalidated when dependencies change
+      # See: https://github.com/actions/cache#cache-keys
+      - name: Generate cache key
+        id: cache-key
+        run: echo "cache-key=uv-$(date +'%Y-%m-%d')-${{ hashFiles('requirements.txt') }}" >> $GITHUB_OUTPUT
+
+      # Cache UV's dependency resolution cache
+      # This speeds up dependency resolution in subsequent runs
+      # See: https://github.com/astral-sh/uv#caching
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ steps.cache-key.outputs.cache-key }}
+          restore-keys: |
+            uv-
+
+      - name: Create virtual environment
+        run: uv venv .venv
+
+      - name: Install dependencies
+        run: uv pip install --requirement requirements.txt
+
+      # Cache the virtual environment for reuse in other jobs
+      # This prevents rebuilding the venv for each job
+      # See: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#using-the-cache-action
+      - name: Cache virtual environment
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ steps.cache-key.outputs.cache-key }}
+
+  lint:
+    # This job depends on setup to ensure environment is ready
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: |
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
+      # Restore UV cache from setup job
+      # See: https://github.com/actions/cache#restoring-cache
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ needs.setup.outputs.cache-key }}
+          restore-keys: |
+            uv-
+
+      # Restore virtual environment from setup job
+      # This reuses the venv created in the setup job
+      - name: Cache virtual environment
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ needs.setup.outputs.cache-key }}
+
+      - name: Lint with ruff
+        run: |
+          .venv/bin/ruff check .
+          .venv/bin/ruff format --check .
+
+  test:
+    # This job depends on setup to ensure environment is ready
+    needs: setup
+    runs-on: ubuntu-latest
+    # Matrix strategy allows running tests in parallel
+    # See: https://docs.github.com/en/actions/using-jobs/using-a-matrix-for-your-jobs
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+        os: [ubuntu-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -26,22 +124,34 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      - name: Create virtual environment
-        run: uv venv .venv
+      # Restore UV cache from setup job
+      - name: Cache uv
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/uv
+          key: ${{ needs.setup.outputs.cache-key }}
+          restore-keys: |
+            uv-
 
-      - name: Install dependencies
-        run: |
-          uv pip install --requirement requirements.txt
+      # Restore virtual environment from setup job
+      - name: Cache virtual environment
+        uses: actions/cache@v3
+        with:
+          path: .venv
+          key: venv-${{ needs.setup.outputs.cache-key }}
 
-      - name: Lint with ruff
+      # Verify Python version matches matrix version
+      # This ensures the cached venv matches the Python version being tested
+      - name: Verify Python version
         run: |
-          # Assuming ruff is in requirements.txt, otherwise add it here
-          # uv pip install ruff
-          uv run ruff check .
-          uv run ruff format --check .
+          if [ ! -f .venv/pyvenv.cfg ] || ! grep -q "version = ${{ matrix.python-version }}" .venv/pyvenv.cfg; then
+            echo "Rebuilding virtual environment for Python ${{ matrix.python-version }}"
+            rm -rf .venv
+            uv venv .venv
+            uv pip install --requirement requirements.txt
+          fi
 
       - name: Test with pytest
-        run: |
-          # Assuming pytest is in requirements.txt, otherwise add it here
-          # uv pip install pytest
-          uv run pytest
+        run: .venv/bin/pytest
+        env:
+          PYTHONPATH: ${{ github.workspace }}
