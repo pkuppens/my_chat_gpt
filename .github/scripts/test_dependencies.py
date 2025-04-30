@@ -53,9 +53,7 @@ def get_required_packages() -> list[str]:
                             subline = _subline.strip()
                             if subline and not subline.startswith("#"):
                                 # Split on any of the common version specifiers
-                                package = (
-                                    subline.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0].split("!=")[0]
-                                )
+                                package = subline.split("==")[0].split(">=")[0].split("<=")[0].split("~=")[0].split("!=")[0]
                                 packages.append(package)
                 else:
                     # Split on any of the common version specifiers

@@ -181,11 +181,7 @@ class IssueSimilarityAnalyzer:
         # Use provided threshold or fall back to default
         threshold_to_use = threshold if threshold is not None else self.similarity_threshold
         # Filter issues above threshold
-        return [
-            (issue, score)
-            for issue, score in zip(comparable_issues, similarities, strict=False)
-            if score >= threshold_to_use
-        ]
+        return [(issue, score) for issue, score in zip(comparable_issues, similarities, strict=False) if score >= threshold_to_use]
 
 
 class GithubClientFactory:

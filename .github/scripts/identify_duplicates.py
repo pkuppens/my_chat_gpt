@@ -85,9 +85,7 @@ class GithubDuplicateIssueDetector:
 
         # Log all similarity scores
         for i, similarity in enumerate(similarities):
-            logging.info(
-                f"Issue #{existing_issues[i].number}: {existing_issues[i].title} - Similarity: {similarity:.1%}"
-            )
+            logging.info(f"Issue #{existing_issues[i].number}: {existing_issues[i].title} - Similarity: {similarity:.1%}")
 
         # Filter issues that exceed threshold
         similar_issues = [
@@ -203,9 +201,7 @@ if __name__ == "__main__":
         try:
             logging.info("Running in test mode")
             detector = GithubDuplicateIssueDetector()
-            similar_issues = detector.find_similar_issues(
-                123, "Test Issue Title", "Test Issue Body"
-            )  # Test issue number
+            similar_issues = detector.find_similar_issues(123, "Test Issue Title", "Test Issue Body")  # Test issue number
             logging.info(f"Test completed: found {len(similar_issues)} similar issues")
         except Exception as e:
             logging.error(f"Test failed: {e!s}")

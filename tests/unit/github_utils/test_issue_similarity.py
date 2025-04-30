@@ -27,9 +27,7 @@ def realistic_issues():
     # API-related issues
     api_issue1 = MagicMock()
     api_issue1.title = "Add rate limiting to REST API endpoints"
-    api_issue1.body = (
-        "We need to implement rate limiting for our REST API to prevent abuse. Should use token bucket algorithm."
-    )
+    api_issue1.body = "We need to implement rate limiting for our REST API to prevent abuse. Should use token bucket algorithm."
     issues.append(api_issue1)
 
     api_issue2 = MagicMock()

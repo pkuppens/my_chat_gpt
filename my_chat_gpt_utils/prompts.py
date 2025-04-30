@@ -101,9 +101,7 @@ def load_analyze_issue_prompt(placeholders: dict[str, Any] | None = None) -> tup
     except FileNotFoundError:
         # For testing: use sample prompts if files don't exist
         system_prompt = (
-            "System prompt: Analyze this GitHub issue. "
-            "Issue types: {issue_types}. "
-            "Priority levels: {priority_levels}".format(
+            "System prompt: Analyze this GitHub issue. Issue types: {issue_types}. Priority levels: {priority_levels}".format(
                 **placeholders,
             )
         )
