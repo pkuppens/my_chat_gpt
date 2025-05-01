@@ -151,6 +151,11 @@ jobs:
             uv pip install --requirement requirements.txt
           fi
 
+      # This composite action sets PYTHONPATH to include the workspace directory
+      # See .github/actions/set-pythonpath/action.yml for details
+      - name: Set PYTHONPATH
+        uses: ./.github/actions/set-pythonpath
+
       - name: Test with pytest
         run: .venv/bin/pytest
         env:
