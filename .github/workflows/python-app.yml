@@ -156,7 +156,10 @@ jobs:
       - name: Set PYTHONPATH
         uses: ./.github/actions/set-pythonpath
 
+      - name: Install package in development mode
+        run: uv pip install -e ".[test]"
+
       - name: Test with pytest
-        run: .venv/bin/pytest
+        run: uv run pytest
         env:
           PYTHONPATH: ${{ github.workspace }}
