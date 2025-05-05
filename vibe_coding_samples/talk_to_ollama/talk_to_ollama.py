@@ -15,7 +15,11 @@ import numpy as np
 from pydantic import BaseModel
 
 # Configure logging with detailed format
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", datefmt="%Y-%m-%d %H:%M:%S")
+logging.basicConfig(
+    level=logging.DEBUG if os.getenv("DEVELOPMENT_MODE", "false").lower() == "true" else logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 logger = logging.getLogger(__name__)
 
 # Load environment variables
@@ -119,11 +123,31 @@ def process_audio(
 ) -> tuple[tuple[int, np.ndarray], List[Dict]]:
     """Process audio input and generate response"""
     logger.info("Processing new audio input")
+
+    # Validate input parameters
+    if not isinstance(audio, tuple) or len(audio) != 2:
+        raise ValueError("Audio input must be a tuple of (sample_rate, audio_data)")
+
+    sample_rate, audio_data = audio
+    if not isinstance(sample_rate, int) or not isinstance(audio_data, np.ndarray):
+        raise ValueError("Audio input must be (int, np.ndarray)")
+
+    if audio_data.dtype != np.float32:
+        logger.warning(f"Converting audio data from {audio_data.dtype} to float32")
+        audio_data = audio_data.astype(np.float32)
+
+    logger.debug(f"Audio input: sample_rate={sample_rate}, shape={audio_data.shape}, dtype={audio_data.dtype}")
+
     chat_history = chat_history or []
 
     # Convert audio to text using FastRTC's Whisper
     logger.debug("Converting audio to bytes")
-    audio_bytes = audio_to_bytes(audio)
+    try:
+        audio_bytes = audio_to_bytes(audio)
+        logger.debug(f"Converted audio to {len(audio_bytes)} bytes")
+    except Exception as e:
+        logger.error(f"Error converting audio to bytes: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error processing audio: {str(e)}")
 
     # Use FastRTC's Whisper for speech recognition
     logger.info("Initializing Whisper for speech recognition")
@@ -207,16 +231,53 @@ async def process_audio_endpoint(file: UploadFile = File(...)):
         audio_data = await file.read()
         logger.debug(f"Read {len(audio_data)} bytes of audio data")
 
-        # Convert to numpy array (simplified example)
-        # In a real implementation, you would properly convert the audio data
-        audio_array = np.frombuffer(audio_data, dtype=np.float32)
+        # Convert to numpy array with proper dtype and shape
+        try:
+            # First try to interpret as float32
+            audio_array = np.frombuffer(audio_data, dtype=np.float32)
+            logger.debug(f"Successfully converted to float32 array with shape {audio_array.shape}")
+        except ValueError as e:
+            logger.debug(f"Float32 conversion failed: {str(e)}")
+            try:
+                # If that fails, try int16 (common for WAV files)
+                audio_array = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+                logger.debug(f"Converted from int16 to float32 array with shape {audio_array.shape}")
+            except ValueError as e:
+                logger.error(f"Int16 conversion failed: {str(e)}")
+                raise HTTPException(status_code=400, detail="Invalid audio format. Expected float32 or int16 data.")
+
+        # Ensure the array is 1D and has the correct number of samples
+        if len(audio_array.shape) > 1:
+            audio_array = audio_array.flatten()
+            logger.debug(f"Flattened array to shape {audio_array.shape}")
+
+        # Ensure the array length is a multiple of the sample size
+        sample_size = np.dtype(np.float32).itemsize
+        if len(audio_array) % sample_size != 0:
+            # Pad with zeros to make it a multiple of sample size
+            padding = sample_size - (len(audio_array) % sample_size)
+            audio_array = np.pad(audio_array, (0, padding), mode="constant")
+            logger.debug(f"Padded array to shape {audio_array.shape}")
+
+        # Create audio tuple with proper sample rate
         audio_tuple = (AUDIO_SAMPLE_RATE, audio_array)
+        logger.debug(f"Created audio tuple with sample rate {AUDIO_SAMPLE_RATE} and array shape {audio_array.shape}")
 
         # Process the audio
-        audio_response, chat_history = process_audio(audio_tuple)
+        try:
+            audio_response, chat_history = process_audio(audio_tuple)
+            logger.debug("Audio processing completed successfully")
+        except Exception as e:
+            logger.error(f"Error in process_audio: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error processing audio: {str(e)}")
 
         # Convert audio response to bytes
-        response_audio_bytes = audio_to_bytes(audio_response)
+        try:
+            response_audio_bytes = audio_to_bytes(audio_response)
+            logger.debug(f"Converted response audio to {len(response_audio_bytes)} bytes")
+        except Exception as e:
+            logger.error(f"Error converting response audio to bytes: {str(e)}")
+            raise HTTPException(status_code=500, detail=f"Error converting response audio: {str(e)}")
 
         # Get the last message from chat history
         last_message = chat_history[-1]["content"] if chat_history else ""
