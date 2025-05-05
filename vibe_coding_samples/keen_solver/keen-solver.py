@@ -1,6 +1,6 @@
-import numpy as np
-from itertools import permutations, product
 from math import prod
+
+import numpy as np
 
 
 def solve_keen(puzzle_size, cages):
