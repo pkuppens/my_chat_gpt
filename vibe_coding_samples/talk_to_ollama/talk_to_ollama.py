@@ -2,6 +2,8 @@ import os
 import json
 import requests
 import logging
+import wave
+import io
 from pathlib import Path
 from typing import List, Dict, Optional, Tuple
 from dotenv import load_dotenv
@@ -231,33 +233,62 @@ async def process_audio_endpoint(file: UploadFile = File(...)):
         audio_data = await file.read()
         logger.debug(f"Read {len(audio_data)} bytes of audio data")
 
-        # Convert to numpy array with proper dtype and shape
-        try:
-            # First try to interpret as float32
-            audio_array = np.frombuffer(audio_data, dtype=np.float32)
-            logger.debug(f"Successfully converted to float32 array with shape {audio_array.shape}")
-        except ValueError as e:
-            logger.debug(f"Float32 conversion failed: {str(e)}")
-            try:
-                # If that fails, try int16 (common for WAV files)
-                audio_array = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
-                logger.debug(f"Converted from int16 to float32 array with shape {audio_array.shape}")
-            except ValueError as e:
-                logger.error(f"Int16 conversion failed: {str(e)}")
-                raise HTTPException(status_code=400, detail="Invalid audio format. Expected float32 or int16 data.")
+        # Print first 20 printable characters for debugging
+        printable_chars = "".join(chr(b) if 32 <= b <= 126 else "." for b in audio_data[:20])
+        logger.debug(f"First 20 bytes (printable): {printable_chars}")
+        logger.debug(f"First 20 bytes (hex): {' '.join(f'{b:02x}' for b in audio_data[:20])}")
 
-        # Ensure the array is 1D and has the correct number of samples
+        # Try to read as WAV file
+        try:
+            with wave.open(io.BytesIO(audio_data), "rb") as wav_file:
+                # Get WAV parameters
+                n_channels = wav_file.getnchannels()
+                sample_width = wav_file.getsampwidth()
+                frame_rate = wav_file.getframerate()
+                n_frames = wav_file.getnframes()
+
+                logger.debug(
+                    f"WAV parameters: channels={n_channels}, sample_width={sample_width}, frame_rate={frame_rate}, frames={n_frames}"
+                )
+
+                # Read all frames
+                frames = wav_file.readframes(n_frames)
+
+                # Convert to numpy array based on sample width
+                if sample_width == 2:  # 16-bit
+                    audio_array = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
+                elif sample_width == 4:  # 32-bit
+                    audio_array = np.frombuffer(frames, dtype=np.float32)
+                else:
+                    raise ValueError(f"Unsupported sample width: {sample_width}")
+
+                # Handle multiple channels
+                if n_channels > 1:
+                    audio_array = audio_array.reshape(-1, n_channels)
+                    # Convert to mono by averaging channels
+                    audio_array = np.mean(audio_array, axis=1)
+
+                logger.debug(f"Converted WAV to array with shape {audio_array.shape} and dtype {audio_array.dtype}")
+
+        except wave.Error as e:
+            logger.debug(f"Not a WAV file: {str(e)}, trying direct conversion")
+            # Fall back to direct conversion if not a WAV file
+            try:
+                audio_array = np.frombuffer(audio_data, dtype=np.float32)
+                logger.debug("Successfully converted to float32 array")
+            except ValueError as e:
+                logger.debug(f"Float32 conversion failed: {str(e)}, trying int16")
+                try:
+                    audio_array = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
+                    logger.debug("Successfully converted to int16 array")
+                except ValueError as e:
+                    logger.error(f"All conversion attempts failed: {str(e)}")
+                    raise HTTPException(status_code=400, detail=f"Invalid audio format: {str(e)}")
+
+        # Ensure the array is 1D
         if len(audio_array.shape) > 1:
             audio_array = audio_array.flatten()
             logger.debug(f"Flattened array to shape {audio_array.shape}")
-
-        # Ensure the array length is a multiple of the sample size
-        sample_size = np.dtype(np.float32).itemsize
-        if len(audio_array) % sample_size != 0:
-            # Pad with zeros to make it a multiple of sample size
-            padding = sample_size - (len(audio_array) % sample_size)
-            audio_array = np.pad(audio_array, (0, padding), mode="constant")
-            logger.debug(f"Padded array to shape {audio_array.shape}")
 
         # Create audio tuple with proper sample rate
         audio_tuple = (AUDIO_SAMPLE_RATE, audio_array)

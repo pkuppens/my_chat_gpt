@@ -143,26 +143,48 @@
                 };
 
                 mediaRecorder.onstop = async () => {
+                    console.log('MediaRecorder stopped, processing audio chunks');
+                    console.log(`Number of chunks: ${audioChunks.length}`);
+                    
                     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    console.log(`Created audio blob: type=${audioBlob.type}, size=${audioBlob.size} bytes`);
                     audioChunks = [];
+                    
+                    // Convert to ArrayBuffer
+                    const arrayBuffer = await audioBlob.arrayBuffer();
+                    console.log(`Converted to ArrayBuffer: ${arrayBuffer.byteLength} bytes`);
+                    
+                    // Create a new blob with the ArrayBuffer
+                    const newBlob = new Blob([arrayBuffer], { type: 'audio/wav' });
+                    console.log(`Created new blob: type=${newBlob.type}, size=${newBlob.size} bytes`);
                     
                     // Send audio to server
                     const formData = new FormData();
-                    formData.append('file', audioBlob);
+                    formData.append('file', newBlob);
+                    console.log('Created FormData and appended audio blob');
                     
                     try {
+                        console.log('Sending audio to server...');
                         const response = await fetch('/process_audio', {
                             method: 'POST',
                             body: formData
                         });
                         
                         if (response.ok) {
+                            console.log('Server response received successfully');
                             const result = await response.json();
                             addMessage('assistant', result.text);
+                            
                             // Play audio response
+                            console.log('Converting audio response to playable format...');
                             const audioBytes = new Uint8Array(result.audio.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
                             const audio = new Audio(URL.createObjectURL(new Blob([audioBytes], { type: 'audio/wav' })));
+                            console.log('Playing audio response...');
                             audio.play();
+                        } else {
+                            console.error('Server returned error:', response.status, response.statusText);
+                            const errorText = await response.text();
+                            console.error('Error details:', errorText);
                         }
                     } catch (error) {
                         console.error('Error processing audio:', error);
