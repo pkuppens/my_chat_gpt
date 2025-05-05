@@ -233,7 +233,7 @@ def validate_cages(puzzle_size, cages):
     for idx, (_, _, cells) in enumerate(cages):
         for r, c in cells:
             if (r, c) in cell_count:
-                raise ValueError(f"Cell ({r},{c}) is in multiple cages! Cage indices: {cell_count[(r,c)]} and {idx}")
+                raise ValueError(f"Cell ({r},{c}) is in multiple cages! Cage indices: {cell_count[(r, c)]} and {idx}")
             if not (0 <= r < puzzle_size and 0 <= c < puzzle_size):
                 raise ValueError(f"Cell ({r},{c}) is outside the grid!")
             cell_count[(r, c)] = idx
