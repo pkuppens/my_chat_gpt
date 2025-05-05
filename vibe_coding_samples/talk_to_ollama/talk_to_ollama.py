@@ -1,19 +1,19 @@
-import os
-import json
-import requests
-import logging
-import wave
 import io
+import logging
+import os
+import wave
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
-from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, UploadFile, File
-from fastapi.responses import HTMLResponse, JSONResponse
+from typing import Dict, List, Optional
+
 import gradio as gr
-from fastrtc import Stream, ReplyOnPause, AdditionalOutputs
+import numpy as np
+import requests
+from dotenv import load_dotenv
+from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastrtc import ReplyOnPause, Stream
 from fastrtc.utils import audio_to_bytes
 from gtts import gTTS
-import numpy as np
 from pydantic import BaseModel
 
 # Configure logging with detailed format
