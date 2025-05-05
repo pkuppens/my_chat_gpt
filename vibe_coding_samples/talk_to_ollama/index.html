@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Talk to Ollama</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e8f5e9;
+        }
+        .system-prompt {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196F3;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+        button:disabled {
+            background-color: #cccccc;
+        }
+        .chat-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        .message {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+            max-width: 80%;
+            clear: both;
+        }
+        .user-message {
+            background-color: #e3f2fd;
+            float: left;
+            margin-right: 20%;
+            border-bottom-left-radius: 0;
+        }
+        .assistant-message {
+            background-color: #f1f1f1;
+            float: right;
+            margin-left: 20%;
+            border-bottom-right-radius: 0;
+        }
+        .message-prefix {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .user-prefix {
+            color: #1976D2;
+        }
+        .assistant-prefix {
+            color: #616161;
+        }
+        .clear {
+            clear: both;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Talk to Ollama</h1>
+        <div class="status" id="status">
+            Connecting to Ollama...
+        </div>
+        <div class="system-prompt" id="systemPrompt">
+            System Prompt: __SYSTEM_PROMPT__
+        </div>
+        <div class="controls">
+            <button id="startButton">Start Recording</button>
+            <button id="stopButton" disabled>Stop Recording</button>
+        </div>
+        <div class="chat-container" id="chatContainer"></div>
+    </div>
+
+    <script>
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        // Check Ollama connection
+        async function checkOllamaConnection() {
+            try {
+                const response = await fetch('http://localhost:11434/api/tags');
+                if (response.ok) {
+                    document.getElementById('status').textContent = 'Connected to Ollama';
+                    document.getElementById('status').style.backgroundColor = '#e8f5e9';
+                } else {
+                    throw new Error('Ollama not available');
+                }
+            } catch (error) {
+                document.getElementById('status').textContent = 'Error: Ollama not available. Please make sure Ollama is running.';
+                document.getElementById('status').style.backgroundColor = '#ffebee';
+            }
+        }
+
+        // Initialize WebRTC stream
+        async function initStream() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.onstop = async () => {
+                    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                    audioChunks = [];
+                    
+                    // Send audio to server
+                    const formData = new FormData();
+                    formData.append('file', audioBlob);
+                    
+                    try {
+                        const response = await fetch('/process_audio', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        
+                        if (response.ok) {
+                            const result = await response.json();
+                            addMessage('assistant', result.text);
+                            // Play audio response
+                            const audioBytes = new Uint8Array(result.audio.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
+                            const audio = new Audio(URL.createObjectURL(new Blob([audioBytes], { type: 'audio/wav' })));
+                            audio.play();
+                        }
+                    } catch (error) {
+                        console.error('Error processing audio:', error);
+                    }
+                };
+            } catch (error) {
+                console.error('Error accessing microphone:', error);
+            }
+        }
+
+        // Add message to chat
+        function addMessage(role, content) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${role}-message`;
+            
+            const prefixDiv = document.createElement('div');
+            prefixDiv.className = `message-prefix ${role}-prefix`;
+            prefixDiv.textContent = role === 'user' ? 'You:' : 'Assistant:';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.textContent = content;
+            
+            messageDiv.appendChild(prefixDiv);
+            messageDiv.appendChild(contentDiv);
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.appendChild(document.createElement('div')).className = 'clear';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Event listeners
+        document.getElementById('startButton').addEventListener('click', () => {
+            if (!isRecording) {
+                mediaRecorder.start();
+                isRecording = true;
+                document.getElementById('startButton').disabled = true;
+                document.getElementById('stopButton').disabled = false;
+            }
+        });
+
+        document.getElementById('stopButton').addEventListener('click', () => {
+            if (isRecording) {
+                mediaRecorder.stop();
+                isRecording = false;
+                document.getElementById('startButton').disabled = false;
+                document.getElementById('stopButton').disabled = true;
+            }
+        });
+
+        // Initialize
+        checkOllamaConnection();
+        initStream();
+    </script>
+</body>
+</html> 
