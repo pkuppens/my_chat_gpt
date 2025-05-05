@@ -1,0 +1,83 @@
+services:
+  ollama:
+    build:
+      context: ./ollama-plus
+      dockerfile: Dockerfile
+    container_name: ollama-plus
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama:/root/.ollama           # Shared model cache - DO NOT REMOVE THIS VOLUME!
+      - ./code:/workspace/code:rw             # Mount local code
+      - ./data:/workspace/data:rw             # Local experimentation data
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/version"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+
+  openwebui:
+    # Official Open WebUI configuration from https://docs.openwebui.com/getting-started/quick-start/
+    image: ghcr.io/open-webui/open-webui:cuda  # Using CUDA-enabled image
+    container_name: openwebui
+    ports:
+      - "3000:8080"  # Map host port 3000 to container port 8080 (official default)
+    volumes:
+      - open-webui:/app/backend/data  # Persistent storage for Open WebUI data
+    environment:
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - OLLAMA_HOST=http://ollama:11434
+      - WEBUI_AUTH=false  # Disable auth for local development
+      - WEBUI_PORT=8080   # Explicitly set the port the container should use
+      - WEBUI_HOST=0.0.0.0  # Allow external connections
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+
+  langflow:
+    image: logspace/langflow:latest
+    container_name: langflow
+    ports:
+      - "7860:7860"
+    environment:
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: unless-stopped
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --cleanup --interval 3600  # check hourly
+    restart: unless-stopped
+
+volumes:
+  ollama:  # DO NOT REMOVE - Contains downloaded Ollama models
+    external: true  # Use an external volume to share with other Ollama installations
+    name: ollama    # Explicitly name the volume to avoid Docker Compose prefixing
+  open-webui:  # Persistent storage for Open WebUI data
+  # source code and data are bind mounts for easier versioning
