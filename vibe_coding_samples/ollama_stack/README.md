@@ -1,5 +1,67 @@
 # Ollama Stack: Enhanced Local AI Development Environment
 
+## Overview
+
+This stack provides a modular, customizable local environment for experimenting with LLMs using:
+
+- **Ollama**: Fast local inference with open models (GPU-accelerated)
+- **Open WebUI**: Chat-like UI for easy use (GPU-accelerated, based on [official documentation](https://docs.openwebui.com/getting-started/quick-start/))
+- **LangFlow**: Visual agent/chain builder
+- **Extra tools**: Vim, zsh/csh, htop, git
+- **Self-updating**: Via Watchtower or `update.sh`
+
+## Development Mode with Shared Volumes
+
+### Purpose
+
+The stack is configured to use a shared Ollama volume, which means:
+
+- Models downloaded in one instance are available to all Ollama installations
+- No duplicate model storage across different installations
+- Persistent model storage even when containers are stopped/removed
+- Faster development workflow with shared resources
+
+### Setup Steps
+
+1. **Create the shared volume** (if it doesn't exist):
+
+   ```bash
+   docker volume create ollama
+   ```
+
+2. **Verify the volume exists**:
+
+   ```bash
+   docker volume inspect ollama
+   ```
+
+3. **Start the stack**:
+   ```bash
+   docker-compose up -d
+   ```
+
+The stack will automatically use the shared volume because of the volume configuration in `docker-compose.yml`:
+
+```yaml
+volumes:
+  ollama:
+    external: true # Use existing volume instead of creating new one
+    name: ollama # Explicit name to ensure consistency
+```
+
+### Benefits
+
+- **Storage Efficiency**: Models are stored once and shared across instances
+- **Development Speed**: No need to re-download models for different projects
+- **Consistency**: All instances use the same model versions
+- **Persistence**: Models remain available even after container removal
+
+### Important Notes
+
+- The shared volume is mounted at `/root/.ollama` in the container
+- Model downloads through Open WebUI or direct API calls will use this shared storage
+- Other Ollama installations can use the same volume by configuring their `docker-compose.yml` similarly
+
 ## ⚠️ Production Use Warning
 
 This configuration is optimized for local development and experimentation. For production use, you should:
@@ -27,16 +89,6 @@ This configuration is optimized for local development and experimentation. For p
    - Implement proper backup strategies
    - Use production-grade storage solutions
    - Consider data encryption at rest
-
-## Overview
-
-This stack provides a modular, customizable local environment for experimenting with LLMs using:
-
-- **Ollama**: Fast local inference with open models (GPU-accelerated)
-- **Open WebUI**: Chat-like UI for easy use (GPU-accelerated, based on [official documentation](https://docs.openwebui.com/getting-started/quick-start/))
-- **LangFlow**: Visual agent/chain builder
-- **Extra tools**: Vim, zsh/csh, htop, git
-- **Self-updating**: Via Watchtower or `update.sh`
 
 ## Prerequisites
 
@@ -78,30 +130,21 @@ ollama-stack/
 
 ## Usage
 
-### 1. Clone the repo
-
-```bash
-git clone https://your.repo/ollama-stack.git
-cd ollama-stack
-```
-
-### 2. Start the full stack
+### 1. Start the full stack
 
 ```bash
 docker-compose up -d
 ```
 
-### 3. Rebuild manually (optional)
+### 2. Rebuild manually (optional)
 
 ```bash
 ./update.sh
 ```
 
-### 4. Auto-update (optional)
+### 3. Auto-update (optional)
 
 Watchtower will check every hour for updated images.
-
----
 
 ## Accessing Tools
 
