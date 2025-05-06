@@ -25,6 +25,107 @@ productivity and efficiency.
    Request clear comments or documentation to ensure generated code is maintainable and easy to modify
    later.
 
+## Coding Style Guidelines
+
+### Python Coding Standards
+
+1. **PEP 8 Compliance**
+
+   - Follow PEP 8 style guide for code formatting
+   - Use 4 spaces for indentation
+   - Maximum line length of 132 characters
+   - Use meaningful variable and function names in snake_case
+   - Pass ruff linter checks for code quality
+
+2. **Type Annotations**
+
+   - Use type hints for all function arguments and return types
+   - Use `Type | None` instead of `Optional[Type]`
+   - Use `Type1 | Type2` instead of `Union[Type1, Type2]`
+   - Use `TypeVar` for generic types
+   - Use `TypeAlias` for complex type definitions
+
+3. **Documentation**
+
+   - Include docstrings for all functions, classes, and modules
+   - Follow Google-style docstring format
+   - Document parameters, return types, and exceptions
+   - Include usage examples in docstrings
+   - Use type annotations in docstrings for complex types
+
+4. **Code Structure**
+
+   - Write modular, single-responsibility functions
+   - Keep functions under 50 lines when possible
+   - Use meaningful variable names
+   - Implement proper error handling with try/except blocks
+   - Use context managers for resource management
+
+5. **Testing**
+   - Include doctests for simple functions
+   - Write unit tests for complex logic
+   - Use pytest for test organization
+   - Maintain high test coverage
+   - Use pytest fixtures for test setup
+
+### JavaScript/TypeScript Standards
+
+1. **Code Style**
+
+   - Follow ESLint and Prettier configurations
+   - Use 2 spaces for indentation
+   - Use meaningful camelCase variable names
+   - Implement consistent semicolon usage
+
+2. **TypeScript Best Practices**
+
+   - Use strict type checking
+   - Define interfaces for complex objects
+   - Use type guards for runtime type checking
+   - Leverage utility types when appropriate
+
+3. **Documentation**
+
+   - Use JSDoc comments for functions and classes
+   - Document parameters and return types
+   - Include examples in documentation
+   - Maintain README.md with setup instructions
+
+4. **Code Organization**
+   - Follow single responsibility principle
+   - Use async/await for asynchronous operations
+   - Implement proper error handling
+   - Keep functions focused and small
+
+### SQL Standards
+
+1. **Query Structure**
+
+   - Use consistent indentation
+   - Capitalize SQL keywords
+   - Use meaningful table and column aliases
+   - Include comments for complex queries
+
+2. **Performance**
+
+   - Use appropriate indexes
+   - Optimize JOIN operations
+   - Implement proper WHERE clauses
+   - Use EXPLAIN to analyze query performance
+
+3. **Security**
+
+   - Use parameterized queries
+   - Implement proper access controls
+   - Sanitize user inputs
+   - Follow least privilege principle
+
+4. **Maintainability**
+   - Use consistent naming conventions
+   - Document complex queries
+   - Break down complex queries into CTEs
+   - Include comments for business logic
+
 ## Example Prompts and Rationale
 
 Prompt Example 1:
@@ -77,6 +178,7 @@ key features and how to use them effectively:
 Cursor allows you to reference documentation directly in your prompts using @ tags:
 
 1. **Local Documentation References**
+
    ```
    @file:path/to/file.md
    @function:functionName
@@ -98,11 +200,13 @@ Cursor allows you to reference documentation directly in your prompts using @ ta
 ### AI-Assisted Features
 
 1. **Code Generation**
+
    - Generate boilerplate code
    - Create test cases
    - Implement interfaces
 
 2. **Code Refactoring**
+
    - Suggest improvements
    - Optimize performance
    - Enhance readability
@@ -115,11 +219,13 @@ Cursor allows you to reference documentation directly in your prompts using @ ta
 ### Best Practices for Cursor
 
 1. **Context-Aware Prompts**
+
    - Reference specific files or functions using @ tags
    - Provide relevant code snippets
    - Specify the programming language and framework
 
 2. **Iterative Development**
+
    - Use Cursor's AI to refine code incrementally
    - Leverage the built-in code review capabilities
    - Take advantage of automatic documentation generation
