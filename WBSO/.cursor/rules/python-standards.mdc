@@ -1,0 +1,94 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Python Coding Standards
+
+## Module Structure
+
+### Imports
+- Use absolute imports for all modules
+- Group imports in the following order:
+  1. Standard library imports
+  2. Third-party imports
+  3. Local imports
+- Use type hints for all function parameters and return values
+
+### Documentation
+- Include module-level docstrings explaining purpose and usage
+- Document all classes and functions with detailed docstrings
+- Include examples in docstrings where appropriate
+- Explain the "why" behind design decisions
+
+### Error Handling
+- Use custom exceptions for domain-specific errors
+- Include detailed error messages with context
+- Document all possible error scenarios
+- Provide recovery suggestions in error messages
+
+### Testing
+- Write tests for all edge cases
+- Document test scenarios
+- Include integration tests
+- Test error handling paths
+
+### Configuration
+- Use environment variables for sensitive data
+- Document all configuration options
+- Include validation rules
+- Provide sensible default values
+
+## Examples
+
+### Module Documentation
+```python
+"""
+WBSO AI Agent - PDF Processing Module
+
+This module handles the extraction and processing of PDF form fields for WBSO applications.
+It uses a combination of PDF parsing libraries and AI-assisted field matching to accurately
+identify and extract form data.
+
+Key Features:
+- PDF form field detection
+- Field value extraction
+- Context-aware field matching
+- Error handling and validation
+"""
+```
+
+### Class Documentation
+```python
+class PDFParser:
+    """PDF form parser for WBSO applications.
+
+    This class implements the core PDF processing functionality for WBSO forms.
+    It uses a combination of traditional PDF parsing and AI-assisted field matching
+    to accurately identify and extract form data.
+
+    Attributes:
+        form_path: Path to the PDF form file
+        field_mappings: Dictionary mapping field names to their locations
+        validation_rules: Rules for validating extracted field values
+    """
+```
+
+### Function Documentation
+```python
+def extract_form_fields(pdf_path: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+    """Extract and validate form fields from a PDF file.
+
+    Args:
+        pdf_path: Path to the PDF file to process
+        context: Optional dictionary containing additional context for field matching
+
+    Returns:
+        Dictionary containing extracted field names and their validated values
+
+    Raises:
+        FileNotFoundError: If the PDF file doesn't exist
+        PDFProcessingError: If there's an error processing the PDF
+        ValidationError: If extracted field values fail validation
+    """
+```
