@@ -135,7 +135,7 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorder = new MediaRecorder(stream);
-                
+
                 mediaRecorder.ondataavailable = (event) => {
                     if (event.data.size > 0) {
                         audioChunks.push(event.data);
@@ -145,36 +145,36 @@
                 mediaRecorder.onstop = async () => {
                     console.log('MediaRecorder stopped, processing audio chunks');
                     console.log(`Number of chunks: ${audioChunks.length}`);
-                    
+
                     const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
                     console.log(`Created audio blob: type=${audioBlob.type}, size=${audioBlob.size} bytes`);
                     audioChunks = [];
-                    
+
                     // Convert to ArrayBuffer
                     const arrayBuffer = await audioBlob.arrayBuffer();
                     console.log(`Converted to ArrayBuffer: ${arrayBuffer.byteLength} bytes`);
-                    
+
                     // Create a new blob with the ArrayBuffer
                     const newBlob = new Blob([arrayBuffer], { type: 'audio/wav' });
                     console.log(`Created new blob: type=${newBlob.type}, size=${newBlob.size} bytes`);
-                    
+
                     // Send audio to server
                     const formData = new FormData();
                     formData.append('file', newBlob);
                     console.log('Created FormData and appended audio blob');
-                    
+
                     try {
                         console.log('Sending audio to server...');
                         const response = await fetch('/process_audio', {
                             method: 'POST',
                             body: formData
                         });
-                        
+
                         if (response.ok) {
                             console.log('Server response received successfully');
                             const result = await response.json();
                             addMessage('assistant', result.text);
-                            
+
                             // Play audio response
                             console.log('Converting audio response to playable format...');
                             const audioBytes = new Uint8Array(result.audio.match(/.{1,2}/g).map(byte => parseInt(byte, 16)));
@@ -200,17 +200,17 @@
             const chatContainer = document.getElementById('chatContainer');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${role}-message`;
-            
+
             const prefixDiv = document.createElement('div');
             prefixDiv.className = `message-prefix ${role}-prefix`;
             prefixDiv.textContent = role === 'user' ? 'You:' : 'Assistant:';
-            
+
             const contentDiv = document.createElement('div');
             contentDiv.textContent = content;
-            
+
             messageDiv.appendChild(prefixDiv);
             messageDiv.appendChild(contentDiv);
-            
+
             chatContainer.appendChild(messageDiv);
             chatContainer.appendChild(document.createElement('div')).className = 'clear';
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -240,4 +240,4 @@
         initStream();
     </script>
 </body>
-</html> 
+</html>
