@@ -1,0 +1,94 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Python Code Standaarden
+
+## Modulestructuur
+
+### Imports
+- Gebruik absolute imports voor alle modules
+- Groepeer imports in de volgende volgorde:
+  1. Standaardbibliotheek imports
+  2. Third-party imports
+  3. Lokale imports
+- Gebruik type hints voor alle functieparameters en returnwaarden
+
+### Documentatie
+- Voeg module-level docstrings toe die het doel en gebruik uitleggen
+- Documenteer alle klassen en functies met gedetailleerde docstrings
+- Voeg voorbeelden toe in docstrings waar relevant
+- Leg de "waarom" achter ontwerpbeslissingen uit
+
+### Foutafhandeling
+- Gebruik custom exceptions voor domein-specifieke fouten
+- Voeg gedetailleerde foutmeldingen met context toe
+- Documenteer alle mogelijke foutscenario's
+- Geef herstelsuggesties in foutmeldingen
+
+### Testen
+- Schrijf tests voor alle edge cases
+- Documenteer testscenario's
+- Voeg integratietests toe
+- Test foutafhandelingspaden
+
+### Configuratie
+- Gebruik omgevingsvariabelen voor gevoelige data
+- Documenteer alle configuratieopties
+- Voeg validatieregels toe
+- Zorg voor zinnige standaardwaarden
+
+## Voorbeelden
+
+### Module Documentatie
+```python
+"""
+WBSO AI Agent - PDF Verwerkingsmodule
+
+Deze module handelt de extractie en verwerking van PDF-formuliervelden voor WBSO-aanvragen af.
+Het gebruikt een combinatie van PDF-parsing bibliotheken en AI-ondersteunde veldmatching om
+formuliergegevens nauwkeurig te identificeren en te extraheren.
+
+Kernfunctionaliteiten:
+- PDF-formulierveld detectie
+- Veldwaarde-extractie
+- Contextbewuste veldmatching
+- Foutafhandeling en validatie
+"""
+```
+
+### Klasse Documentatie
+```python
+class PDFParser:
+    """PDF-formulierparser voor WBSO-aanvragen.
+
+    Deze klasse implementeert de kernfunctionaliteit voor PDF-verwerking voor WBSO-formulieren.
+    Het gebruikt een combinatie van traditionele PDF-parsing en AI-ondersteunde veldmatching
+    om formuliergegevens nauwkeurig te identificeren en te extraheren.
+
+    Attributen:
+        form_path: Pad naar het PDF-formulierbestand
+        field_mappings: Dictionary die veldnamen koppelt aan hun locaties
+        validation_rules: Regels voor het valideren van geëxtraheerde veldwaarden
+    """
+```
+
+### Functie Documentatie
+```python
+def extract_form_fields(pdf_path: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+    """Extraheer en valideer formuliervelden uit een PDF-bestand.
+
+    Args:
+        pdf_path: Pad naar het te verwerken PDF-bestand
+        context: Optionele dictionary met aanvullende context voor veldmatching
+
+    Returns:
+        Dictionary met geëxtraheerde veldnamen en hun gevalideerde waarden
+
+    Raises:
+        FileNotFoundError: Als het PDF-bestand niet bestaat
+        PDFProcessingError: Als er een fout is bij het verwerken van de PDF
+        ValidationError: Als geëxtraheerde veldwaarden de validatie niet doorstaan
+    """
+```

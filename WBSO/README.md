@@ -1,87 +1,87 @@
 # WBSO AI Agent
 
-This project implements an AI Agent to assist with filling out WBSO (Wet Bevordering Speur- en Ontwikkelingswerk) development project software application forms.
+Dit project implementeert een AI Agent om te assisteren bij het invullen van WBSO (Wet Bevordering Speur- en Ontwikkelingswerk) aanvraagformulieren voor software ontwikkelingsprojecten.
 
-## 1. Project Overview
+## 1. Projectoverzicht
 
-The WBSO AI Agent is designed to:
+De WBSO AI Agent is ontworpen om:
 
-- Parse PDF forms to identify input fields
-- Match input fields to question text blocks and context
-- Determine input data types and constraints
-- Extract structured output using LLM
-- Generate specific prompts for form questions
-- Integrate with local LLM
+- PDF-formulieren te parsen om invoervelden te identificeren
+- Invoervelden te matchen met vraagtekstblokken en context
+- Invoergegevenstypen en beperkingen te bepalen
+- Gestructureerde output te extraheren met behulp van een LLM
+- Specifieke prompts te genereren voor formuliervragen
+- Te integreren met een lokale LLM
 
-## 2. Project Structure
+## 2. Projectstructuur
 
 ```
 WBSO/
-├── README.md                 # This file
-├── pyproject.toml           # Project configuration and dependencies
-├── LICENSE                  # License file
-├── .pre-commit-config.yaml  # Pre-commit hooks configuration
-├── src/                      # Source code
+├── README.md                 # Dit bestand
+├── pyproject.toml           # Projectconfiguratie en afhankelijkheden
+├── LICENSE                  # Licentiebestand
+├── .pre-commit-config.yaml  # Configuratie pre-commit hooks
+├── src/                      # Broncode
 │   ├── __init__.py
-│   ├── pdf/                  # PDF processing modules
+│   ├── pdf/                  # PDF-verwerkingsmodules
 │   │   ├── __init__.py
-│   │   ├── parser.py        # PDF parsing functionality
-│   │   └── matcher.py       # Field matching logic
-│   ├── llm/                  # LLM integration
+│   │   ├── parser.py        # PDF-parsefunctionaliteit
+│   │   └── matcher.py       # Logica voor veldmatching
+│   ├── llm/                  # LLM-integratie
 │   │   ├── __init__.py
-│   │   ├── client.py        # LLM client implementation
+│   │   ├── client.py        # LLM-clientimplementatie
 │   │   └── prompts.py       # Prompt templates
-│   └── utils/               # Utility functions
+│   └── utils/               # Hulpfuncties
 │       ├── __init__.py
-│       └── validators.py    # Input validation
+│       └── validators.py    # Invoervalidatie
 ├── tests/                   # Test suite
 │   ├── __init__.py
 │   ├── test_parser.py
 │   ├── test_matcher.py
 │   └── test_llm.py
-└── docs/                    # Documentation
-    ├── architecture.md      # System architecture
-    └── api.md              # API documentation
+└── docs/                    # Documentatie
+    ├── architecture.md      # Systeemarchitectuur
+    └── api.md              # API-documentatie
 ```
 
-## 3. Development Approach
+## 3. Ontwikkelingsaanpak
 
-This project follows the AI-assisted coding approach as outlined in [Full Process for Coding with AI Coding Assistants](https://docs.google.com/document/d/12ATcyjCEKh8T-MPDZ-VMiQ1XMa9FUvvk2QazrsKoiR8/edit?usp=sharing).
+Dit project volgt de AI-ondersteunde codeeraanpak zoals uiteengezet in [Full Process for Coding with AI Coding Assistants](https://docs.google.com/document/d/12ATcyjCEKh8T-MPDZ-VMiQ1XMa9FUvvk2QazrsKoiR8/edit?usp=sharing).
 
-Key aspects of the development process:
+Kernaspecten van het ontwikkelingsproces:
 
-1. Clear problem definition and requirements gathering
-2. Incremental development with AI assistance
-3. Regular testing and validation
-4. Documentation-driven development
-5. Continuous integration and deployment
+1. Duidelijke probleemdefinitie en verzamelen van vereisten
+2. Incrementele ontwikkeling met AI-assistentie
+3. Regelmatig testen en valideren
+4. Documentatiegestuurde ontwikkeling
+5. Continue integratie en implementatie
 
-## 4. Getting Started
+## 4. Aan de slag
 
-1. Clone the repository
-2. Install uv package manager:
+1. Kloon de repository
+2. Installeer de uv package manager:
    ```bash
    curl -LsSf https://astral.sh/uv/install.sh | sh
    ```
-3. Create a virtual environment and install dependencies:
+3. Creëer een virtuele omgeving en installeer afhankelijkheden:
    ```bash
    uv venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-   uv sync  # for initial setup
-   uv pip install -e ".[dev]"  # Install package in editable mode with dev dependencies
+   source .venv/bin/activate  # Op Windows: .venv\Scripts\activate
+   uv sync  # voor initiële setup
+   uv pip install -e ".[dev]"  # Installeer package in bewerkbare modus met dev-afhankelijkheden
    ```
-4. Set up pre-commit hooks:
+4. Stel pre-commit hooks in:
    ```bash
    pre-commit install
    pre-commit install --hook-type pre-push
    ```
 
-## 5. Contributing
+## 5. Bijdragen
 
-TODO: Contributing guidelines will be added in CONTRIBUTING.md. For now, please contact the project maintainer for contribution guidelines.
+TODO: Richtlijnen voor bijdragen zullen worden toegevoegd in CONTRIBUTING.md. Neem voorlopig contact op met de projectbeheerder voor bijdragerichtlijnen.
 
-## 6. License
+## 6. Licentie
 
-This project is licensed under the MIT License with commercial use restrictions. See the [LICENSE](LICENSE) file for details.
+Dit project is gelicentieerd onder de MIT-licentie met beperkingen voor commercieel gebruik. Zie het [LICENSE](LICENSE) bestand voor details.
 
-Commercial use of this software requires explicit approval from the author. For commercial licensing inquiries, please contact the project maintainer.
+Commercieel gebruik van deze software vereist expliciete toestemming van de auteur. Neem voor commerciële licentievragen contact op met de projectbeheerder.

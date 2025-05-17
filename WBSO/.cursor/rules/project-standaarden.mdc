@@ -1,0 +1,60 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# WBSO Project Standaarden
+
+## Projectstructuur
+- Volg de vastgestelde directorystructuur
+- Houd gerelateerde bestanden bij elkaar
+- Gebruik betekenisvolle bestands- en directorynamen
+- Handhaaf duidelijke modulegrenzen
+
+## Documentatie
+- Houd documentatie up-to-date
+- Voeg README-bestanden toe in alle belangrijke directory's
+- Documenteer alle configuratieopties
+- Leg de "waarom" achter ontwerpbeslissingen uit
+
+## Versiebeheer
+- Schrijf duidelijke commit-berichten
+- Volg het "conventional commits" formaat
+- Houd commits gefocust en atomisch
+- Review code vóór het committen
+
+## Ontwikkelworkflow
+- Volg de vastgestelde branching-strategie
+- Maak feature-branches voor nieuwe ontwikkeling
+- Houd branches up-to-date met main
+- Verwijder branches na het mergen
+
+## Codekwaliteit
+- Volg taal-specifieke stijlgidsen
+- Gebruik linters en formatters
+- Schrijf tests voor nieuwe features
+- Handhaaf testdekking
+
+## Beveiliging
+- Commit nooit gevoelige data
+- Gebruik omgevingsvariabelen voor geheimen
+- Volg beveiligingsrichtlijnen (best practices)
+- Voer regelmatige beveiligingsaudits uit
+
+## Prestaties
+- Optimaliseer voor prestaties
+- Monitor resourcegebruik
+- Profileer code indien nodig
+- Documenteer prestatievereisten
+
+## Toegankelijkheid
+- Volg toegankelijkheidsrichtlijnen
+- Test met schermlezers
+- Zorg voor toetsenbordnavigatie
+- Handhaaf kleurcontrast
+
+## Internationalisatie
+- Gebruik UTF-8 codering
+- Ondersteun meerdere talen
+- Behandel verschillende datumnotaties
+- Houd rekening met culturele verschillen
