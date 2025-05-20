@@ -338,5 +338,5 @@ xxhash
 y-py
 yarl
 ypy-websocket
-setuptools==65.5.1
+setuptools==78.1.1
 ruff>=0.3.0
