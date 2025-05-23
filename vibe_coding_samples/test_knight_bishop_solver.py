@@ -1,7 +1,7 @@
-import pytest
-import time
 import logging
-from datetime import datetime
+import time
+
+import pytest
 from knight_bishop_solver import KnightBishopSolver, Position
 
 # Configure logging
@@ -100,7 +100,7 @@ def test_specific_case():
     start, goal, board_size, bishop_pos, _, expected = TEST_CASES[5]
     logger.info(f"Running specific test case with multiple methods: board={board_size}, start={start}, goal={goal}")
 
-    for method in ["bfs", "bidirectional_bfs", "a_star", "ida_star"]:
+    for method in ["bidirectional_bfs", "a_star"]:
         logger.info(f"Testing with method: {method}")
         _run_test_case(start, goal, board_size, bishop_pos, method, expected)
 

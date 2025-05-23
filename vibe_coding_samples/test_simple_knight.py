@@ -19,7 +19,7 @@ def test_simple_case():
     # Test with bfs method
     result, time_taken = solver.solve(start, end, "bfs")
 
-    print(f"\nTest results:")
+    print("\nTest results:")
     print(f"Board size: {board_size}")
     print(f"Start: {start}, End: {end}, Bishop: {bishop_pos}")
     print(f"Result: {result} moves")
@@ -40,7 +40,7 @@ def test_bfs_on_all(start, goal, board_size, bishop_pos, _, expected):
     # Test with bfs method
     result, time_taken = solver.solve(start, goal, "bfs")
 
-    print(f"\nTest results for case:")
+    print("\nTest results for case:")
     print(f"Board size: {board_size}")
     print(f"Start: {start}, End: {goal}, Bishop: {bishop_pos}")
     print(f"Result: {result} moves")

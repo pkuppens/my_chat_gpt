@@ -4,11 +4,11 @@
 # To solve a knights and bishops problem: A Knight needs to move from a start to an end position
 # without hitting the bishop line of sight on an arbitrary chessboard, not necessarily square.
 
-from collections import deque
 import heapq
-from typing import List, Tuple, Set, Dict, Optional, NamedTuple
-import time
 import logging
+import time
+from collections import deque
+from typing import NamedTuple, Set, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -178,10 +178,6 @@ class KnightBishopSolver:
         Returns:
             Minimum number of moves required, or -1 if impossible
         """
-        # Check if start or end are invalid
-        if not self._is_valid_position(start) or not self._is_valid_position(end):
-            return -1
-
         # If start equals end, no moves needed
         if start == end:
             return 0
@@ -220,14 +216,6 @@ class KnightBishopSolver:
         Returns:
             Minimum number of moves required, or -1 if impossible
         """
-        # Check if start or end are invalid
-        if not self._is_valid_position(start):
-            logger.warning(f"Invalid start position: {start}")
-            return -1
-        if not self._is_valid_position(end):
-            logger.warning(f"Invalid end position: {end}")
-            return -1
-
         # If start equals end, no moves needed
         if start == end:
             logger.info("Start position equals end position, no moves needed")
@@ -261,11 +249,11 @@ class KnightBishopSolver:
 
             # Forward BFS step
             pos, moves = forward_queue.popleft()
-            
+
             # Skip if we've already processed this position with a better path
             if pos in forward_visited and forward_visited[pos] < moves:
                 continue
-                
+
             for d_row, d_col in self.knight_moves:
                 next_pos = Position(pos.row + d_row, pos.col + d_col)
                 if self._is_valid_position(next_pos):
@@ -285,11 +273,11 @@ class KnightBishopSolver:
 
             # Backward BFS step
             pos, moves = backward_queue.popleft()
-            
+
             # Skip if we've already processed this position with a better path
             if pos in backward_visited and backward_visited[pos] < moves:
                 continue
-                
+
             for d_row, d_col in self.knight_moves:
                 next_pos = Position(pos.row + d_row, pos.col + d_col)
                 if self._is_valid_position(next_pos):
@@ -322,10 +310,6 @@ class KnightBishopSolver:
         Returns:
             Minimum number of moves required, or -1 if impossible
         """
-        # Check if start or end are invalid
-        if not self._is_valid_position(start) or not self._is_valid_position(end):
-            return -1
-
         # If start equals end, no moves needed
         if start == end:
             return 0
@@ -382,10 +366,6 @@ class KnightBishopSolver:
         Returns:
             Minimum number of moves required, or -1 if impossible
         """
-        # Check if start or end are invalid
-        if not self._is_valid_position(start) or not self._is_valid_position(end):
-            return -1
-
         # If start equals end, no moves needed
         if start == end:
             return 0
