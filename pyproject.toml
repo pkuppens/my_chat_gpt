@@ -2,8 +2,8 @@
 name = "my_chat_gpt"
 version = "0.1.0"
 description = "A collection of LLM documents and experiments, including ChatGPT and local Ollama."
-authors = [{name = "Pieter Kuppens <pieter.kuppens@gmail.com>"}]
-license = {text = "MIT"}
+authors = [{ name = "Pieter Kuppens <pieter.kuppens@gmail.com>" }]
+license = { text = "MIT with commercial use restrictions" }
 dynamic = ["optional-dependencies"]
 requires-python = ">=3.12"
 
@@ -306,8 +306,8 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
-    "notebooks",  # Exclude notebooks directory
-    "Llama/examples/notebooks",  # Exclude Llama notebooks
+    "notebooks",                # Exclude notebooks directory
+    "Llama/examples/notebooks", # Exclude Llama notebooks
 ]
 
 # Same as Black.
@@ -319,12 +319,12 @@ target-version = "py312"
 [tool.ruff.lint]
 # Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
 select = [
-    "E4",  # pycodestyle errors
-    "E7",  # pycodestyle errors
-    "E9",  # pycodestyle errors
-    "F",   # pyflakes
-    "I",   # isort
-    "W",   # pycodestyle warnings
+    "E4", # pycodestyle errors
+    "E7", # pycodestyle errors
+    "E9", # pycodestyle errors
+    "F",  # pyflakes
+    "I",  # isort
+    "W",  # pycodestyle warnings
 ]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.

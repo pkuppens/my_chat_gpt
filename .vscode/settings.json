@@ -1,5 +1,5 @@
 {
-    "python.defaultInterpreterPath": "${workspaceFolder}/.venv_test/Scripts/python.exe",
+    "python.defaultInterpreterPath": "${workspaceFolder}/.venv/Scripts/python.exe",
     "python.terminal.activateEnvironment": true,
     "python.terminal.activateEnvInCurrentTerminal": true,
     "jupyter.notebookFileRoot": "${workspaceFolder}",
@@ -41,8 +41,11 @@
         "source.organizeImports.ruff": "explicit"
     },
     "python.testing.pytestArgs": [
-        "tests"
+        "vibe_coding_samples",
+        "tests",
     ],
     "python.testing.unittestEnabled": false,
+    "python.testing.nosetestsEnabled": false,
+    "python.testing.autoTestDiscoverOnSaveEnabled": true,
     "python.testing.pytestEnabled": true
 }
