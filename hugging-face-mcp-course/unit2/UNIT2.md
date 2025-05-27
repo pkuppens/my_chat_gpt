@@ -211,7 +211,7 @@ if __name__ == "__main__":
 
 ### Task 3.1: MCP Configuration Setup
 
-- [ ] **Subtask 3.1.1**: Create MCP configuration file
+- [x] **Subtask 3.1.1**: Create MCP configuration file
 
   ```bash
   # Create configuration file that defines how clients connect to MCP servers
@@ -219,7 +219,7 @@ if __name__ == "__main__":
   touch hugging-face-mcp-course/unit2/mcp-config.json
   ```
 
-- [ ] **Subtask 3.1.2**: Define server configuration
+- [x] **Subtask 3.1.2**: Define server configuration
   ```json
   {
     "servers": [
@@ -236,7 +236,7 @@ if __name__ == "__main__":
 
 ### Task 3.2: Gradio MCP Client Implementation
 
-- [ ] **Subtask 3.2.1**: Create Gradio client file
+- [x] **Subtask 3.2.1**: Create Gradio client file
 
   ```bash
   # Create a Gradio-based MCP client that can connect to our sentiment server
@@ -244,30 +244,30 @@ if __name__ == "__main__":
   touch hugging-face-mcp-course/unit2/gradio_client.py
   ```
 
-- [ ] **Subtask 3.2.2**: Implement Gradio MCP client
+- [x] **Subtask 3.2.2**: Implement Gradio MCP client
 
-  - [ ] Step 3.2.2.1: Import required Gradio MCP modules
-  - [ ] Step 3.2.2.2: Configure MCP server connection
-  - [ ] Step 3.2.2.3: Create client interface with text input
-  - [ ] Step 3.2.2.4: Implement function to call MCP server
-  - [ ] Step 3.2.2.5: Display results in user-friendly format
+  - [x] Step 3.2.2.1: Import required Gradio MCP modules
+  - [x] Step 3.2.2.2: Configure MCP server connection
+  - [x] Step 3.2.2.3: Create client interface with text input
+  - [x] Step 3.2.2.4: Implement function to call MCP server
+  - [x] Step 3.2.2.5: Display results in user-friendly format
 
-- [ ] **Subtask 3.2.3**: Test Gradio client functionality
+- [x] **Subtask 3.2.3**: Test Gradio client functionality
   ```bash
   # Run the Gradio MCP client
   # This should start a new Gradio interface that connects to our sentiment server
   # Users can input text and see sentiment analysis results from the MCP server
-  uv run hugging-face-mcp-course/unit2/gradio_client.py
+  uv run hugging-face-mcp-course/unit2/mcp_gradio_client.py
   ```
 
 **Client Implementation Notes:**
 
 ```
 Gradio Client Development:
-- MCP connection established: [ ] Success / [ ] Issues
-- Tool discovery working: [ ] Yes / [ ] No
-- Sentiment analysis calls successful: [ ] Yes / [ ] No
-- Error handling implemented: [ ] Yes / [ ] No
+- MCP connection established: [x] Success / [ ] Issues
+- Tool discovery working: [x] Yes / [ ] No
+- Sentiment analysis calls successful: [x] Yes / [ ] No
+- Error handling implemented: [x] Yes / [ ] No
 
 ```
 
