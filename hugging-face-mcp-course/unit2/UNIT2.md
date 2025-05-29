@@ -22,7 +22,7 @@ By the end of this unit, you will:
 - [x] **UV package manager** available/activated (shared environment approach)
 - [x] **Basic understanding** of MCP concepts from Unit 1
 
-## Task Group 1: Project Setup and Environment
+## Task 1: Project Setup and Environment
 
 ### Task 1.1: Project Structure Setup
 
@@ -35,7 +35,7 @@ By the end of this unit, you will:
   cd hugging-face-mcp-course/unit2
   ```
 
-- [ ] **Subtask 1.1.2**: Install required dependencies in shared UV environment
+- [x] **Subtask 1.1.2**: Install required dependencies in shared UV environment
 
   ```bash
   # Using shared UV environment (no separate venv)
@@ -99,15 +99,15 @@ Official documentation: [TextBlob Documentation](https://textblob.readthedocs.io
   >>> Sentiment: Sentiment(polarity=0.625, subjectivity=0.6)
   ```
 
-## Task Group 2: MCP Server Development
+## Task 2: MCP Server Development
 
 ### Task 2.1: Basic Sentiment Analysis Server
 
-- [x] **Subtask 2.1.1**: Create unit2.py file
+- [x] **Subtask 2.1.1**: Create sentiment_analysis_mcp_server.py file
 
   ```bash
   # Create the main server file that will contain our MCP server implementation
-  touch hugging-face-mcp-course/unit2/unit2.py
+  touch hugging-face-mcp-course/unit2/sentiment_analysis_mcp_server.py
   ```
 
 - [x] **Subtask 2.1.2**: Implement sentiment analysis function
@@ -126,7 +126,7 @@ Official documentation: [TextBlob Documentation](https://textblob.readthedocs.io
 **Code Implementation:**
 
 ```python
-# unit2.py implementation
+# sentiment_analysis_mcp_server.py implementation
 import gradio as gr
 from textblob import TextBlob
 
@@ -176,7 +176,7 @@ if __name__ == "__main__":
   # This starts both the Gradio web interface and the MCP server
   # Web interface: http://localhost:7860
   # MCP server: http://localhost:7860/gradio_api/mcp/sse
-  uv run hugging-face-mcp-course/unit2/unit2.py
+  uv run hugging-face-mcp-course/unit2/sentiment_analysis_mcp_server.py
   ```
 
 - [x] **Subtask 2.2.2**: Web interface validation
@@ -204,12 +204,20 @@ if __name__ == "__main__":
   curl http://localhost:7860/gradio_api/mcp/sse
   ```
 
-## Task Group 3: MCP Client Development
+## Task 3: MCP Client Development
 
 <!-- Task Group 3 builds various types of MCP clients that can connect to and use our sentiment analysis server.
      This demonstrates the client side of the MCP protocol and shows how different frameworks can integrate with MCP. -->
 
 ### Task 3.1: MCP Configuration Setup
+
+**What we're building**: A standardized configuration file that defines how MCP clients discover and connect to our sentiment analysis server.
+
+**User benefits**:
+
+- Centralized server configuration that can be shared across multiple clients
+- Easy switching between development and production environments
+- Standardized connection parameters for consistent client behavior
 
 - [x] **Subtask 3.1.1**: Create MCP configuration file
 
@@ -236,6 +244,15 @@ if __name__ == "__main__":
 
 ### Task 3.2: Gradio MCP Client Implementation
 
+**What we're building**: A Gradio web application that connects to our MCP sentiment analysis server, providing an interactive interface for testing and experimenting with the MCP connection.
+
+**User benefits**:
+
+- Visual web interface for testing MCP server functionality without writing code
+- Real-time feedback on MCP tool calls and responses
+- Easy demonstration of MCP capabilities to stakeholders
+- Debugging interface to verify server-client communication
+
 - [x] **Subtask 3.2.1**: Create Gradio client file
 
   ```bash
@@ -247,10 +264,15 @@ if __name__ == "__main__":
 - [x] **Subtask 3.2.2**: Implement Gradio MCP client
 
   - [x] Step 3.2.2.1: Import required Gradio MCP modules
+    - **Implementation hint**: `from gradio_client import Client` and `import gradio as gr`
   - [x] Step 3.2.2.2: Configure MCP server connection
+    - **Implementation hint**: Use `Client("http://localhost:7860")` to connect to the MCP server
   - [x] Step 3.2.2.3: Create client interface with text input
+    - **Implementation hint**: `gr.Interface()` with `gr.Textbox()` for user input
   - [x] Step 3.2.2.4: Implement function to call MCP server
+    - **Implementation hint**: Use `client.predict()` method to call the sentiment analysis function
   - [x] Step 3.2.2.5: Display results in user-friendly format
+    - **Implementation hint**: Format JSON response into readable text or use `gr.JSON()` component
 
 - [x] **Subtask 3.2.3**: Test Gradio client functionality
   ```bash
@@ -273,6 +295,19 @@ Gradio Client Development:
 
 ### Task 3.3: Python SmolAgents Client
 
+**What we're building**: An AI agent using Hugging Face's SmolAgents framework that can automatically use our sentiment analysis MCP tool to respond to natural language queries about text sentiment.
+
+**About SmolAgents**: SmolAgents is Hugging Face's lightweight framework for building AI agents that can use tools and reason about tasks. It provides a simple way to create agents that can automatically select and use appropriate tools based on user queries.
+
+**Reference**: [SmolAgents Documentation](https://huggingface.co/docs/smolagents)
+
+**User benefits**:
+
+- Natural language interface - users can ask questions like "What's the sentiment of this review?" instead of using structured API calls
+- Automatic tool selection - the agent decides when to use sentiment analysis based on context
+- Conversational interaction - users can have back-and-forth discussions about sentiment analysis results
+- Integration with Hugging Face ecosystem - easy access to models and other HF tools
+
 - [ ] **Subtask 3.3.1**: Create SmolAgents client file
 
   ```bash
@@ -285,10 +320,15 @@ Gradio Client Development:
 - [ ] **Subtask 3.3.2**: Implement SmolAgents MCP client
 
   - [ ] Step 3.3.2.1: Import SmolAgents MCP modules
+    - **Implementation hint**: First install with `uv add smolagents`, then `from smolagents import CodeAgent, MCPTool`
   - [ ] Step 3.3.2.2: Configure agent with MCP server
+    - **Implementation hint**: Create `MCPTool` instance pointing to `http://localhost:7860/gradio_api/mcp/sse`
   - [ ] Step 3.3.2.3: Create agent instance with sentiment analysis tool
+    - **Implementation hint**: `agent = CodeAgent(tools=[mcp_tool])` to initialize agent with MCP tool
   - [ ] Step 3.3.2.4: Implement test queries
+    - **Implementation hint**: Use `agent.run("Analyze the sentiment of: 'I love this product!'")` for testing
   - [ ] Step 3.3.2.5: Add error handling and logging
+    - **Implementation hint**: Wrap agent calls in try-except blocks and use `logging` module for debugging
 
 - [ ] **Subtask 3.3.3**: Test SmolAgents client
   ```bash
@@ -368,7 +408,7 @@ TypeScript Client (if implemented):
   # This makes your MCP server available to anyone on the internet
   cd hugging-face-mcp-course/unit2
   git init  # Initialize git repository
-  git add app.py requirements.txt  # Add necessary files
+  git add sentiment_analysis_mcp_server.py requirements.txt  # Add necessary files
   git commit -m "Unit 2: Sentiment Analysis MCP Server"  # Commit changes
   git remote add origin https://huggingface.co/spaces/YOUR_USERNAME/mcp-sentiment-unit2  # Add remote
   git push -u origin main  # Push to Hugging Face Spaces
@@ -469,7 +509,7 @@ Production Testing:
 ```bash
 # Start sentiment analysis server
 # Launches both web interface and MCP server
-uv run hugging-face-mcp-course/unit2/app.py
+uv run hugging-face-mcp-course/unit2/sentiment_analysis_mcp_server.py
 
 # Start Gradio MCP client
 # Launches client interface that connects to sentiment server

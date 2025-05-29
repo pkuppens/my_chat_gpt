@@ -297,7 +297,7 @@ if __name__ == "__main__":
     print("🌐 Client interface will be available at: http://localhost:7861")
     print()
     print("Make sure to start the MCP server first by running:")
-    print("  uv run hugging-face-mcp-course/unit2/unit2.py")
+    print("  uv run hugging-face-mcp-course/unit2/sentiment_analysis_mcp_server.py")
     print()
 
     # Launch on a different port to avoid conflicts with the server
