@@ -284,9 +284,6 @@ requires = ["setuptools>=76", "wheel", "uv==0.7.5"]
 build-backend = "setuptools.build_meta"
 # build-backend = "uv.build"
 
-[tool.black]
-line-length = 132
-
 [tool.ruff]
 # Exclude a variety of commonly ignored directories.
 exclude = [
@@ -315,19 +312,19 @@ exclude = [
     "Llama/examples/notebooks", # Exclude Llama notebooks
 ]
 
-# Same as Black.
+# Set line length to 132 characters for better readability on modern displays
 line-length = 132
 
 # Assume Python 3.12
 target-version = "py312"
 
 [tool.ruff.lint]
-# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+# Enable a comprehensive set of linting rules
 select = [
     "E4", # pycodestyle errors
     "E7", # pycodestyle errors
     "E9", # pycodestyle errors
-    "F",  # pyflakes
+    "F",  # Pyflakes
     "I",  # isort
     "W",  # pycodestyle warnings
 ]
@@ -344,7 +341,7 @@ unfixable = []
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
-# Unlike Flake8, default to a complexity level of 10.
+# Set maximum complexity level to 10 (reasonable for most functions)
 mccabe.max-complexity = 10
 
 # Configure isort
@@ -356,6 +353,19 @@ pydocstyle.convention = "google"
 [tool.ruff.lint.per-file-ignores]
 "notebooks/*.ipynb" = ["E501", "E402", "F821", "E722", "W293"]
 "Llama/examples/notebooks/*.ipynb" = ["E501", "E402", "F821", "E722", "W293"]
+
+[tool.ruff.format]
+# Use double quotes for strings.
+quote-style = "double"
+
+# Indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Automatically detect the appropriate line ending.
+line-ending = "auto"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

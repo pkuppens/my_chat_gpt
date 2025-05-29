@@ -44,8 +44,7 @@ By the end of this course, I will:
   ```
 
 - [ ] **Code Quality Tools**:
-  - [ ] `uv add black` (code formatting)
-  - [ ] `uv add flake8` (linting)
+  - [ ] `uv add ruff` (formatting and linting)
   - [ ] `uv add pytest` (testing)
 
 ### IDE & Editor Setup
