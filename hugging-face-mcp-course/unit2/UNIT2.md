@@ -14,6 +14,93 @@ By the end of this unit, you will:
 - Deploy your MCP Server to Hugging Face Spaces
 - Test and debug the complete system
 
+### Project Overview
+
+In this unit, we'll build a complete sentiment analysis application using MCP. Here's what we'll create:
+
+- In Task 1.1, we'll set up our project structure and install dependencies using UV package manager. This includes TextBlob for sentiment analysis and Gradio with MCP support.
+
+  ```bash
+  # Verify Task 1.1 setup
+  uv run python hugging-face-mcp-course/unit2/scripts/task11.py
+  ```
+
+- In Task 1.2, we'll configure TextBlob by downloading required NLTK corpora and verify its sentiment analysis functionality.
+
+  ```bash
+  # Verify Task 1.2 TextBlob setup
+  uv run python hugging-face-mcp-course/unit2/scripts/task12.py
+  ```
+
+- In Task 2.1, we'll build the basic sentiment analysis server that can be started with `uv run python hugging-face-mcp-course/unit2/unit2.py`. This creates an endpoint at localhost:7860 for sentiment analysis.
+
+  ```bash
+  # Verify Task 2.1 server implementation
+  uv run python hugging-face-mcp-course/unit2/scripts/task21.py
+  ```
+
+- In Task 2.2, we'll test and validate our server, ensuring both the web interface and MCP endpoints work correctly.
+
+  ```bash
+  # Verify Task 2.2 server functionality
+  uv run python hugging-face-mcp-course/unit2/scripts/task22.py
+  ```
+
+- In Task 3.1, we'll set up the MCP configuration that defines how clients connect to our server.
+
+  ```bash
+  # Verify Task 3.1 MCP configuration
+  uv run python hugging-face-mcp-course/unit2/scripts/task31.py
+  ```
+
+- In Task 3.2, we'll create a Gradio client that connects to our server. This client will run on localhost:7861 and provide a user-friendly interface for sentiment analysis.
+
+  ```bash
+  # Verify Task 3.2 Gradio client
+  uv run python hugging-face-mcp-course/unit2/scripts/task32.py
+  ```
+
+- In Task 3.3, we'll implement a Python client using the smolagents library, demonstrating how to connect to MCP servers programmatically.
+
+  ```bash
+  # Verify Task 3.3 SmolAgents client
+  uv run python hugging-face-mcp-course/unit2/scripts/task33.py
+  ```
+
+- In Task 3.4, we'll build a Node.js client, showing how to integrate MCP with JavaScript applications.
+
+  ```bash
+  # Verify Task 3.4 Node.js client
+  node hugging-face-mcp-course/unit2/scripts/task34.js
+  ```
+
+- In Task 4.1, we'll deploy our sentiment analysis server to Hugging Face Spaces, making it available to users worldwide.
+
+  ```bash
+  # Verify Task 4.1 deployment
+  uv run python hugging-face-mcp-course/unit2/scripts/task41.py
+  ```
+
+- In Task 4.2, we'll perform production testing to ensure our deployed server works reliably.
+
+  ```bash
+  # Verify Task 4.2 production testing
+  uv run python hugging-face-mcp-course/unit2/scripts/task42.py
+  ```
+
+- In Task 5.1, we'll enhance error handling and robustness across our server and clients.
+
+  ```bash
+  # Verify Task 5.1 error handling
+  uv run python hugging-face-mcp-course/unit2/scripts/task51.py
+  ```
+
+- In Task 5.2, we'll create comprehensive documentation and examples for our MCP application.
+  ```bash
+  # Verify Task 5.2 documentation
+  uv run python hugging-face-mcp-course/unit2/scripts/task52.py
+  ```
+
 ### Prerequisites Verification
 
 - [x] **Python 3.12+** installed and verified (3.12.8)
@@ -280,6 +367,7 @@ if __name__ == "__main__":
   # This should start a new Gradio interface that connects to our sentiment server
   # Users can input text and see sentiment analysis results from the MCP server
   uv run hugging-face-mcp-course/unit2/mcp_gradio_client.py
+  >>>
   ```
 
 **Client Implementation Notes:**
