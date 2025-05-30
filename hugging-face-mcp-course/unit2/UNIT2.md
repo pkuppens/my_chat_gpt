@@ -55,10 +55,25 @@ In this unit, we'll build a complete sentiment analysis application using MCP. H
 
 - In Task 3.2, we'll create a Gradio client that connects to our server. This client will run on localhost:7861 and provide a user-friendly interface for sentiment analysis.
 
+  To run and verify Task 3.2, you need to start both the server and client in separate terminal windows:
+
   ```bash
-  # Verify Task 3.2 Gradio client
-  uv run python hugging-face-mcp-course/unit2/scripts/task32.py
+  # Terminal 1: Start the sentiment analysis server
+  cd hugging-face-mcp-course
+  python unit2/sentiment_analysis_mcp_server.py
+  # Wait for the server to start (you should see a message about port 7860)
+
+  # Terminal 2: Start the Gradio client
+  cd hugging-face-mcp-course
+  python unit2/mcp_gradio_client.py
+  # Wait for the client to start (you should see a message about port 7861)
+
+  # Terminal 3: Run the verification script
+  cd hugging-face-mcp-course
+  uv run python unit2/scripts/task32.py
   ```
+
+  Note: On Windows, you need to open three separate Command Prompt or PowerShell windows to run these commands. Make sure to keep all three windows open while testing.
 
 - In Task 3.3, we'll implement a Python client using the smolagents library, demonstrating how to connect to MCP servers programmatically.
 

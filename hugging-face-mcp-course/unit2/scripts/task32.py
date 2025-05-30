@@ -2,12 +2,18 @@
 """
 Task 3.2 Verification Script
 Checks the Gradio MCP client implementation and functionality.
+
+IMPORTANT: Before running this script, you need to:
+1. Start the sentiment analysis server in a separate terminal:
+   python unit2/sentiment_analysis_mcp_server.py
+2. Start the Gradio client in another separate terminal:
+   python unit2/mcp_gradio_client.py
+
+The script will then verify that both services are running correctly.
 """
 
 import importlib.util
-import subprocess
 import sys
-import time
 from pathlib import Path
 
 import requests
@@ -32,68 +38,67 @@ def verify_gradio_client():
         client_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(client_module)
 
-        # Verify required imports (gradio is imported as gr), CLient was not needed
+        # Verify required imports (gradio is imported as gr)
         required_imports = ["gr"]
         for import_name in required_imports:
             if not hasattr(client_module, import_name):
                 print(f"❌ Error: Required import '{import_name}' not found")
                 return False
 
-        # Start the sentiment analysis server in background
-        print("Starting sentiment analysis server...")
-        server_cmd = [
-            "uv",
-            "run",
-            "python",
-            str(project_root / "unit2" / "sentiment_analysis_mcp_server.py"),
-        ]
-        server_process = subprocess.Popen(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Wait for server to start
-        time.sleep(5)
-
         # Verify server is running
+        print("Checking if server is running...")
         try:
             response = requests.get("http://localhost:7860/gradio_api/mcp/schema")
             if response.status_code != 200:
                 print("❌ Error: Server not responding correctly")
-                server_process.terminate()
+                print("To fix this:")
+                print("1. Open a new terminal window")
+                print("2. Navigate to the project root directory")
+                print("3. Run: python unit2/sentiment_analysis_mcp_server.py")
+                print(
+                    "4. Wait for the server to start (you should see a message about port 7860)"
+                )
                 return False
         except requests.exceptions.ConnectionError:
             print("❌ Error: Could not connect to server")
-            server_process.terminate()
+            print("To fix this:")
+            print("1. Open a new terminal window")
+            print("2. Navigate to the project root directory")
+            print("3. Run: python unit2/sentiment_analysis_mcp_server.py")
+            print(
+                "4. Wait for the server to start (you should see a message about port 7860)"
+            )
             return False
 
-        # Start the Gradio client
-        print("Starting Gradio client...")
-        client_cmd = ["uv", "run", "python", str(client_path)]
-        client_process = subprocess.Popen(client_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-        # Wait for client to start
-        time.sleep(10)
-
         # Verify client is running
+        print("Checking if client is running...")
         try:
             response = requests.get("http://localhost:7861")
             if response.status_code != 200:
                 print("❌ Error: Client not responding correctly")
-                client_process.terminate()
-                server_process.terminate()
+                print("To fix this:")
+                print("1. Open a new terminal window")
+                print("2. Navigate to the project root directory")
+                print("3. Run: python unit2/mcp_gradio_client.py")
+                print(
+                    "4. Wait for the client to start (you should see a message about port 7861)"
+                )
                 return False
         except requests.exceptions.ConnectionError:
             print("❌ Error: Could not connect to client")
-            client_process.terminate()
-            server_process.terminate()
+            print("To fix this:")
+            print("1. Open a new terminal window")
+            print("2. Navigate to the project root directory")
+            print("3. Run: python unit2/mcp_gradio_client.py")
+            print(
+                "4. Wait for the client to start (you should see a message about port 7861)"
+            )
             return False
 
         print("✅ Gradio client implementation verified successfully")
         print("✅ Server and client are running")
         print("Note: Server running on http://localhost:7860")
         print("Note: Client running on http://localhost:7861")
-
-        # Clean up processes
-        client_process.terminate()
-        server_process.terminate()
         return True
 
     except Exception as e:
