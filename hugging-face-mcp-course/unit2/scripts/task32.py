@@ -55,9 +55,7 @@ def verify_gradio_client():
                 print("1. Open a new terminal window")
                 print("2. Navigate to the project root directory")
                 print("3. Run: python unit2/sentiment_analysis_mcp_server.py")
-                print(
-                    "4. Wait for the server to start (you should see a message about port 7860)"
-                )
+                print("4. Wait for the server to start (you should see a message about port 7860)")
                 return False
         except requests.exceptions.ConnectionError:
             print("❌ Error: Could not connect to server")
@@ -65,9 +63,7 @@ def verify_gradio_client():
             print("1. Open a new terminal window")
             print("2. Navigate to the project root directory")
             print("3. Run: python unit2/sentiment_analysis_mcp_server.py")
-            print(
-                "4. Wait for the server to start (you should see a message about port 7860)"
-            )
+            print("4. Wait for the server to start (you should see a message about port 7860)")
             return False
 
         # Verify client is running
@@ -80,9 +76,7 @@ def verify_gradio_client():
                 print("1. Open a new terminal window")
                 print("2. Navigate to the project root directory")
                 print("3. Run: python unit2/mcp_gradio_client.py")
-                print(
-                    "4. Wait for the client to start (you should see a message about port 7861)"
-                )
+                print("4. Wait for the client to start (you should see a message about port 7861)")
                 return False
         except requests.exceptions.ConnectionError:
             print("❌ Error: Could not connect to client")
@@ -90,9 +84,7 @@ def verify_gradio_client():
             print("1. Open a new terminal window")
             print("2. Navigate to the project root directory")
             print("3. Run: python unit2/mcp_gradio_client.py")
-            print(
-                "4. Wait for the client to start (you should see a message about port 7861)"
-            )
+            print("4. Wait for the client to start (you should see a message about port 7861)")
             return False
 
         print("✅ Gradio client implementation verified successfully")
