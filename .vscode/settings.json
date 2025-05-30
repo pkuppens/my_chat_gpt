@@ -42,7 +42,7 @@
     },
     "python.testing.pytestArgs": [
         "vibe_coding_samples",
-        "tests",
+        "tests"
     ],
     "python.testing.unittestEnabled": false,
     "python.testing.nosetestsEnabled": false,

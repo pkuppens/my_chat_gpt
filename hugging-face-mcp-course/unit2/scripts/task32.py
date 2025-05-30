@@ -4,11 +4,12 @@ Task 3.2 Verification Script
 Checks the Gradio MCP client implementation and functionality.
 """
 
+import importlib.util
+import subprocess
 import sys
 import time
 from pathlib import Path
-import importlib.util
-import subprocess
+
 import requests
 
 
@@ -46,9 +47,7 @@ def verify_gradio_client():
             "python",
             str(project_root / "unit2" / "sentiment_analysis_mcp_server.py"),
         ]
-        server_process = subprocess.Popen(
-            server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        server_process = subprocess.Popen(server_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # Wait for server to start
         time.sleep(5)
@@ -68,9 +67,7 @@ def verify_gradio_client():
         # Start the Gradio client
         print("Starting Gradio client...")
         client_cmd = ["uv", "run", "python", str(client_path)]
-        client_process = subprocess.Popen(
-            client_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
+        client_process = subprocess.Popen(client_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # Wait for client to start
         time.sleep(10)
