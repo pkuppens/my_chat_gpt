@@ -49,8 +49,11 @@ This project includes an automated AI-powered workflow that reviews all newly op
 - ✅ Suggests improvements and next steps
 - ✅ Automatically adds relevant labels (Type, Priority, Complexity)
 - ✅ Posts detailed review feedback as a comment
+- ✅ Uses best practices embedded in the review prompt
 
-**Learn more**: [Issue Review Workflow Documentation](docs/development/ISSUE_REVIEW_WORKFLOW.md)
+**Learn more**: 
+- [Issue Review Workflow Documentation](docs/development/ISSUE_REVIEW_WORKFLOW.md)
+- [Workflow Configuration Guide](docs/development/WORKFLOW_CONFIGURATION.md) - Setup instructions and secrets management
 
 ## License
 

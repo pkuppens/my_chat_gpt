@@ -8,8 +8,13 @@ on:
 jobs:
   analyze-issue:
     runs-on: ubuntu-latest
+    # Allow workflow to write comments and manage labels
+    permissions:
+      issues: write
+      contents: read
+    
     steps:
-      # Checkout the repository
+      # Checkout the repository to access documentation and prompts
       - uses: actions/checkout@v3
 
       # Set up Python environment
@@ -38,8 +43,20 @@ jobs:
       - name: Test dependencies
         run: python .github/scripts/test_dependencies.py
 
-      # Run the issue analyzer
-      # Note: Environment variables are set for the LLM configuration
+      # Run the issue analyzer with enhanced prompt context
+      # Note: The workflow now uses the enhanced system prompt that includes
+      # best practices from docs/development/ISSUE_BEST_PRACTICES.md
+      # 
+      # Configuration Notes:
+      # - LLM_PROVIDER: Currently supports 'openai' (can be extended)
+      # - LLM_MODEL: OpenAI model to use (gpt-4o-mini for cost-effective, gpt-4 for complex)
+      # - OPENAI_API_KEY: Must be set in repository secrets
+      # - GITHUB_TOKEN: Automatically provided by GitHub Actions
+      #
+      # To configure:
+      # 1. Go to repository Settings > Secrets and variables > Actions
+      # 2. Add OPENAI_API_KEY with your OpenAI API key
+      # 3. Optionally override LLM_MODEL and other parameters below
       - name: Run issue analyzer
         env:
           LLM_PROVIDER: openai
