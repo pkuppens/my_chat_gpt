@@ -41,7 +41,7 @@ A collection of utilities and tools for working with ChatGPT and related AI tech
 
 ### OpenAI Agent SDK with Guardrails
 
-A production-ready, modular implementation of AI agents with swappable LLM providers and guardrails. **NEW!**
+A modular agent system with swappable LLM providers and guardrails.
 
 **Key Features:**
 - ✅ Swappable LLM providers (OpenAI, Ollama, custom)
