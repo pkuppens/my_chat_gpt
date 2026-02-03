@@ -1,16 +1,36 @@
 """
 Execute GitHub issue LLM analysis.
 
-This script analyzes GitHub issues using a Language Model (LLM) to:
+This script is designed to run as a GitHub Actions workflow step that automatically
+analyzes and reviews issues when they are created or edited.
+
+**How It Works:**
+1. Triggered by GitHub Actions workflow (.github/workflows/issue-analyzer.yml)
+2. Extracts issue details from the GitHub event
+3. Analyzes the issue using LLM (Language Model) based on best practices
+4. Posts analysis results as a comment on the issue
+5. Automatically adds classification labels (Type, Priority, Complexity)
+
+**Output:**
+- The analysis findings are posted as a **comment on the GitHub issue**
+- Labels are automatically added to the issue for easy filtering/tracking
+- The comment includes: classification, review feedback, suggestions, and next steps
+
+The script analyzes GitHub issues using a Language Model (LLM) to:
 1. Classify issue type and priority
 2. Assess complexity
-3. Provide review feedback
-4. Suggest next steps
+3. Provide review feedback with concrete improvement proposals
+4. Suggest or rewrite acceptance criteria
+5. Propose next steps and task breakdowns
 
 The script can run in three modes:
 1. GitHub Actions mode (default): Uses GITHUB_EVENT_PATH to get issue data
+   - This is the primary mode for the automated workflow
+   - Analysis is posted as a comment on the issue
 2. Local test mode (--test): Uses mock data for testing
+   - Useful for development and testing without API calls
 3. Local issue mode (--issue): Analyzes a specific GitHub issue number
+   - Can be used to manually analyze existing issues
 
 Required Environment Variables:
     - OPENAI_API_KEY: Your OpenAI API key
@@ -29,7 +49,7 @@ Example Usage:
     # Analyze a specific issue
     python analyze_issue.py --issue 123
 
-    # Run in GitHub Actions mode
+    # Run in GitHub Actions mode (typically called by workflow)
     python analyze_issue.py
 """
 
