@@ -39,6 +39,29 @@ A collection of utilities and tools for working with ChatGPT and related AI tech
 
 ## Features
 
+### OpenAI Agent SDK with Guardrails
+
+A production-ready, modular implementation of AI agents with swappable LLM providers and guardrails. **NEW!**
+
+**Key Features:**
+- ✅ Swappable LLM providers (OpenAI, Ollama, custom)
+- ✅ Swappable guardrail providers (OpenAI, Gemini, Local)
+- ✅ Agent creation from SuperPrompt templates
+- ✅ Multi-agent orchestration and delegation
+- ✅ File operations and custom tools
+- ✅ Prompt composition and reuse
+
+**Quick Start:**
+```bash
+# Run the example script
+python notebooks/quick_start_example.py
+
+# Or explore the Jupyter notebook
+jupyter notebook notebooks/OpenAI_Agents_SDK_with_Guardrails.ipynb
+```
+
+**Learn More:** See [notebooks/README_OpenAI_Agents.md](notebooks/README_OpenAI_Agents.md)
+
 ### AI-Powered Issue Review
 
 This project includes an automated AI-powered workflow that reviews all newly opened GitHub issues. The workflow:
