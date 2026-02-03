@@ -285,6 +285,32 @@ tool_registry.register_tool(
 )
 ```
 
+### Adding Custom Local Guardrail Checks
+
+```python
+from my_chat_gpt_utils.agents_sdk import LocalGuardrailProvider, GuardrailResult
+
+# Define custom check function
+def check_no_profanity(content: str) -> GuardrailResult:
+    """Custom check that blocks profanity"""
+    profanity_words = ['badword1', 'badword2']
+    
+    if any(word in content.lower() for word in profanity_words):
+        return GuardrailResult(
+            passed=False,
+            message="Profanity detected",
+            violations=["profanity"]
+        )
+    return GuardrailResult(passed=True)
+
+# Create provider with custom checks
+guardrail = LocalGuardrailProvider(custom_checks=[check_no_profanity])
+
+# The provider will run both built-in checks (length, sensitive keywords)
+# and your custom checks
+result = guardrail.check("some content")
+```
+
 ## Best Practices
 
 1. **Use Lazy Initialization**: Providers initialize clients only when needed

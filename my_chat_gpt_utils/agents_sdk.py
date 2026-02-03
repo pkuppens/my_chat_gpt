@@ -310,20 +310,21 @@ class GeminiGuardrailProvider(GuardrailProvider):
 class LocalGuardrailProvider(GuardrailProvider):
     """Local rule-based guardrail checking"""
     
-    def __init__(self, rules: Optional[List[Callable[[str], bool]]] = None):
-        self.rules = rules or self._default_rules()
-    
-    def _default_rules(self) -> List[Callable[[str], bool]]:
-        """Default local guardrail rules"""
-        return [
-            lambda text: len(text) < 10000,  # Max length
-            lambda text: not any(word in text.lower() for word in ['hack', 'exploit', 'bypass']),
-        ]
+    def __init__(self, custom_checks: Optional[List[Callable[[str], GuardrailResult]]] = None):
+        """
+        Initialize with optional custom check functions.
+        
+        Args:
+            custom_checks: Optional list of custom check functions that take content
+                          and return GuardrailResult. If None, uses default checks.
+        """
+        self.custom_checks = custom_checks
     
     def check(self, content: str, context: Optional[str] = None) -> GuardrailResult:
         """Check content using local rules"""
         violations = []
         
+        # Built-in checks
         if len(content) > 10000:
             violations.append("content_too_long")
         
@@ -332,6 +333,13 @@ class LocalGuardrailProvider(GuardrailProvider):
         found_sensitive = [word for word in sensitive_words if word in content.lower()]
         if found_sensitive:
             violations.append(f"sensitive_keywords: {', '.join(found_sensitive)}")
+        
+        # Run custom checks if provided
+        if self.custom_checks:
+            for check_func in self.custom_checks:
+                result = check_func(content)
+                if not result.passed:
+                    violations.extend(result.violations)
         
         if violations:
             return GuardrailResult(
