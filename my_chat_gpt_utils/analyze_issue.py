@@ -327,19 +327,19 @@ def process_issue_analysis(
 ) -> dict[str, Any]:
     """
     Process issue analysis with OpenAI and GitHub integration.
-    
+
     This function orchestrates the complete issue review workflow:
     1. Analyzes the issue using LLM
     2. Ensures required labels exist in the repository
     3. Adds classification labels to the issue (Type, Priority, Complexity)
     4. **Posts analysis findings as a comment on the GitHub issue**
-    
+
     The analysis comment includes:
     - Issue classification (Type, Priority, Complexity)
     - Review feedback with concrete improvement proposals
     - Suggested/rewritten acceptance criteria
     - Task breakdown and next steps
-    
+
     This integrates the issue analyzer into the automated workflow, making it visible
     to all issue participants and helping improve issue quality.
 
