@@ -340,8 +340,8 @@ def process_issue_analysis(
     - Suggested/rewritten acceptance criteria
     - Task breakdown and next steps
     
-    This makes the issue analyzer a **real workflow step**, not just a standalone tool.
-    The findings are visible to all issue participants and help improve issue quality.
+    This integrates the issue analyzer into the automated workflow, making it visible
+    to all issue participants and helping improve issue quality.
 
     Args:
     ----
@@ -379,7 +379,7 @@ def process_issue_analysis(
     )
 
     # Create and post comment to the GitHub issue
-    # This is the key step that makes this a real workflow - the analysis findings
+    # This integrates the analyzer into the workflow - the analysis findings
     # are posted as a comment on the issue for all participants to see
     comment = create_analysis_comment(analysis)
     full_repo_name = f"{issue_data['repo_owner']}/{issue_data['repo_name']}"
