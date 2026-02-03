@@ -66,13 +66,18 @@ class PlaceholderDict(dict):
         return "{" + key + "}"
 
 
-def load_analyze_issue_prompt(placeholders: dict[str, Any] | None = None) -> tuple[str, str]:
+def load_analyze_issue_prompt(
+    placeholders: dict[str, Any] | None = None,
+    include_best_practices: bool = False,
+) -> tuple[str, str]:
     """
     Load and format the system and user prompts for issue analysis.
 
     Args:
     ----
         placeholders: Dictionary of placeholder values to substitute in the prompts.
+        include_best_practices: If True, includes additional best practices context
+                               (note: best practices are now embedded in the system prompt).
 
     Returns:
     -------

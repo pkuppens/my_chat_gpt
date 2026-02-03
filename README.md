@@ -29,9 +29,31 @@ A collection of utilities and tools for working with ChatGPT and related AI tech
 
 - Package Management: `docs/package_management/`
 - Development Guidelines: `docs/development/`
+  - [Issue Best Practices](docs/development/ISSUE_BEST_PRACTICES.md) - How to write high-quality issues
+  - [Issue Review Workflow](docs/development/ISSUE_REVIEW_WORKFLOW.md) - AI-powered issue review system
+  - [Linting](docs/development/LINTING.md) - Code quality guidelines
 - Testing Strategy: `docs/testing/`
 - AI Resources: `docs/ai_resources/`
+- Examples: `docs/examples/` - Example issues and templates
 - Project-specific docs: See individual directory READMEs
+
+## Features
+
+### AI-Powered Issue Review
+
+This project includes an automated AI-powered workflow that reviews all newly opened GitHub issues. The workflow:
+
+- ✅ Analyzes issue title clarity
+- ✅ Checks title and description alignment
+- ✅ Evaluates SMART criteria (Specific, Measurable, Achievable, Relevant, Time-bound)
+- ✅ Suggests improvements and next steps
+- ✅ Automatically adds relevant labels (Type, Priority, Complexity)
+- ✅ Posts detailed review feedback as a comment
+- ✅ Uses best practices embedded in the review prompt
+
+**Learn more**: 
+- [Issue Review Workflow Documentation](docs/development/ISSUE_REVIEW_WORKFLOW.md)
+- [Workflow Configuration Guide](docs/development/WORKFLOW_CONFIGURATION.md) - Setup instructions and secrets management
 
 ## License
 
