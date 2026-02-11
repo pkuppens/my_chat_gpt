@@ -25,6 +25,16 @@ A collection of utilities and tools for working with ChatGPT and related AI tech
 3. Set up pre-commit hooks for code quality
 4. Set up testing environment (see `docs/testing/TEST-STRATEGY.md`)
 
+## Repository Maintenance
+
+This repository includes automated cleanup scripts that run after successful merges to main:
+
+- **Branch Cleanup** - Automatically deletes merged branches (both local and remote)
+- **Workflow Cleanup** - Removes obsolete GitHub Actions workflow runs
+- **Failed Run Preservation** - Keeps failed workflow runs for debugging
+
+**Learn more**: See [scripts/README.md](scripts/README.md) for usage and manual cleanup instructions.
+
 ## Documentation
 
 - Package Management: `docs/package_management/`
