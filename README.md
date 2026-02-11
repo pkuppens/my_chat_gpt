@@ -74,7 +74,7 @@ This project includes an automated AI-powered workflow that reviews all newly op
 - ✅ Posts detailed review feedback as a comment
 - ✅ Uses best practices embedded in the review prompt
 
-**Learn more**: 
+**Learn more**:
 - [Issue Review Workflow Documentation](docs/development/ISSUE_REVIEW_WORKFLOW.md)
 - [Workflow Configuration Guide](docs/development/WORKFLOW_CONFIGURATION.md) - Setup instructions and secrets management
 

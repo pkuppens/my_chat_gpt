@@ -238,12 +238,12 @@ class CustomLLMProvider(LLMProvider):
     def __init__(self, api_key: str, model: str):
         self.api_key = api_key
         self.model = model
-    
+
     def generate(self, messages: List[Message], **kwargs) -> Message:
         # Implement your LLM call here
         pass
-    
-    def generate_with_tools(self, messages: List[Message], 
+
+    def generate_with_tools(self, messages: List[Message],
                            tools: List[Dict], **kwargs) -> Message:
         # Implement tool calling support
         pass
@@ -258,7 +258,7 @@ class CustomGuardrailProvider(GuardrailProvider):
     def check(self, content: str, context: Optional[str] = None) -> GuardrailResult:
         # Implement your guardrail logic
         passed = self._check_content(content)
-        
+
         return GuardrailResult(
             passed=passed,
             message="Check completed",
@@ -294,7 +294,7 @@ from my_chat_gpt_utils.agents_sdk import LocalGuardrailProvider, GuardrailResult
 def check_no_profanity(content: str) -> GuardrailResult:
     """Custom check that blocks profanity"""
     profanity_words = ['badword1', 'badword2']
-    
+
     if any(word in content.lower() for word in profanity_words):
         return GuardrailResult(
             passed=False,

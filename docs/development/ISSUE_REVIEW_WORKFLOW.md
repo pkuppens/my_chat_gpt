@@ -138,7 +138,7 @@ jobs:
   classify:
     - Determine issue type
     - Add type label
-  
+
   review:
     needs: classify
     - Load type-specific review criteria

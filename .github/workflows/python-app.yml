@@ -62,8 +62,7 @@ jobs:
           key: venv-${{ steps.cache-key.outputs.cache-key }}
 
   lint:
-    # This job depends on setup to ensure environment is ready
-    needs: setup
+    # Independent of setup: uses uv tool run ruff (no venv needed)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -78,28 +77,8 @@ jobs:
           curl -LsSf https://astral.sh/uv/install.sh | sh
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-      # Restore UV cache from setup job
-      # See: https://github.com/actions/cache#restoring-cache
-      - name: Cache uv
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/uv
-          key: ${{ needs.setup.outputs.cache-key }}
-          restore-keys: |
-            uv-
-
-      # Restore virtual environment from setup job
-      # This reuses the venv created in the setup job
-      - name: Cache virtual environment
-        uses: actions/cache@v3
-        with:
-          path: .venv
-          key: venv-${{ needs.setup.outputs.cache-key }}
-
       - name: Lint with ruff
-        run: |
-          .venv/bin/ruff check .
-          .venv/bin/ruff format --check .
+        uses: ./.github/actions/ruff
 
   test:
     # This job depends on setup to ensure environment is ready

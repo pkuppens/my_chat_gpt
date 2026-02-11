@@ -37,7 +37,7 @@ Analyze and review each GitHub issue based on its content and provide:
    - Estimated complexity (Simple, Moderate, Complex)
 
 2. **Review Feedback with Concrete Improvement Proposals**:
-   - Evaluate if the **Title** is clear and concise, aligning with the description. 
+   - Evaluate if the **Title** is clear and concise, aligning with the description.
      * If unclear or vague: **Provide a specific rewritten title** that follows best practices
      * If missing action verbs: **Suggest an improved title** with appropriate action verbs
    - Assess if the **Description** is unambiguous, detailed, and provides sufficient context.

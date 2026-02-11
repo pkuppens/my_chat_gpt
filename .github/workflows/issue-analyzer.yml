@@ -12,7 +12,7 @@ jobs:
     permissions:
       issues: write
       contents: read
-    
+
     steps:
       # Checkout the repository to access documentation and prompts
       - uses: actions/checkout@v3
@@ -46,7 +46,7 @@ jobs:
       # Run the issue analyzer with enhanced prompt context
       # Note: The workflow now uses the enhanced system prompt that includes
       # best practices from docs/development/ISSUE_BEST_PRACTICES.md
-      # 
+      #
       # Configuration Notes:
       # - LLM_PROVIDER: Currently supports 'openai' (can be extended)
       # - LLM_MODEL: OpenAI model to use (gpt-4o-mini for cost-effective, gpt-4 for complex)

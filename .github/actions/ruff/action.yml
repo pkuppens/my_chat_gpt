@@ -1,0 +1,27 @@
+# Reusable Ruff action (format check + lint).
+# Uses `uv tool run ruff` so no venv or project deps are required;
+# uv installs ruff in an isolated env and runs it.
+#
+# See: https://github.com/pkuppens/babblr/blob/main/.github/actions/ruff/action.yml
+name: 'Run Ruff'
+description: 'Runs Ruff format check and lint'
+inputs:
+  working-directory:
+    description: 'Working directory to run Ruff in'
+    required: false
+    default: '.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Ruff format (check)
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        uv tool run ruff format --check .
+
+    - name: Ruff lint (check)
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        uv tool run ruff check .
