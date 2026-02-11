@@ -1,0 +1,2 @@
+# Ensure shell scripts use LF (required for bash on Windows)
+*.sh text eol=lf
