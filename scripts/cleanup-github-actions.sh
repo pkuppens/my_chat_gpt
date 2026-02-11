@@ -4,8 +4,9 @@
 #
 # Targets:
 # 1. Runs that required approval but are now obsolete (queued/waiting, old)
-# 2. Runs for branches that no longer exist
-# 3. Superseded runs (keeps only most recent completed per workflow+branch)
+# 2. Runs on PR refs (refs/pull/*) - ephemeral, no value after merge/close
+# 3. Runs for branches that no longer exist
+# 4. Superseded runs (keeps only most recent completed per workflow+branch)
 #
 # Usage:
 #   ./cleanup-github-actions.sh                    # Dry-run (show what would be cleaned)
@@ -37,8 +38,9 @@ GitHub Actions Workflow Run Cleanup
 
 Cleans up:
 1. Obsolete approval runs - queued/waiting runs older than ${STALE_DAYS} days
-2. Runs for branches that no longer exist
-3. Superseded runs - keeps only most recent completed per workflow+branch
+2. PR ref runs - all runs on refs/pull/* (ephemeral, no value after merge/close)
+3. Runs for branches that no longer exist
+4. Superseded runs - keeps only most recent completed per workflow+branch
 
 Usage:
     $0                    # Dry-run
@@ -131,9 +133,50 @@ done
 echo ""
 
 # ============================================================================
-# STEP 2: Runs for deleted branches
+# STEP 2: Runs on PR refs (refs/pull/*)
 # ============================================================================
-print_info "STEP 2: Checking runs for deleted branches..."
+print_info "STEP 2: Checking for runs on PR refs (refs/pull/*)..."
+
+PR_REF_BRANCHES=$($PYTHON -c "
+import json
+with open('$TEMP_RUNS') as f:
+    data = json.load(f)
+seen = set()
+for r in data:
+    b = r.get('headBranch', '')
+    if b.startswith('refs/pull/') and b not in seen:
+        seen.add(b)
+        print(b)
+")
+
+PR_REF_RUNS=0
+PR_REF_DELETED=0
+
+while IFS= read -r branch; do
+    [ -z "$branch" ] && continue
+    RUN_IDS=$(gh run list --branch "$branch" --limit 1000 --json databaseId --jq '.[].databaseId')
+    if [ -n "$RUN_IDS" ]; then
+        for run_id in $RUN_IDS; do
+            PR_REF_RUNS=$((PR_REF_RUNS + 1))
+            if [ "$DRY_RUN" = false ]; then
+                print_info "Deleting run $run_id (PR ref '$branch')"
+                if echo "y" | gh run delete "$run_id" 2>/dev/null; then
+                    PR_REF_DELETED=$((PR_REF_DELETED + 1))
+                fi
+            else
+                print_warning "Would delete run $run_id (PR ref '$branch')"
+            fi
+        done
+    fi
+done <<< "$PR_REF_BRANCHES"
+
+[ $PR_REF_RUNS -eq 0 ] && print_success "No PR ref runs" || print_warning "Found $PR_REF_RUNS run(s) on PR refs"
+echo ""
+
+# ============================================================================
+# STEP 3: Runs for deleted branches
+# ============================================================================
+print_info "STEP 3: Checking runs for deleted branches..."
 
 WORKFLOW_BRANCHES=$($PYTHON -c "
 import json
@@ -152,7 +195,7 @@ DELETED_BRANCH_SUCCESS=0
 
 while IFS= read -r branch; do
     [ -z "$branch" ] && continue
-    # Skip PR refs - handled by superseded cleanup
+    # PR refs already handled in Step 2
     case "$branch" in refs/pull/*) continue ;; esac
     # Check if branch exists
     if ! echo "$EXISTING_BRANCHES" | grep -qx "$branch"; then
@@ -177,9 +220,9 @@ done <<< "$WORKFLOW_BRANCHES"
 echo ""
 
 # ============================================================================
-# STEP 3: Superseded runs (keep most recent and failed runs for debugging)
+# STEP 4: Superseded runs (keep most recent and failed runs for debugging)
 # ============================================================================
-print_info "STEP 3: Checking superseded runs (keeping most recent + failed runs for debugging)..."
+print_info "STEP 4: Checking superseded runs (keeping most recent + failed runs for debugging)..."
 
 KEEP_RUNS=$($PYTHON << PYEOF
 import json
@@ -199,10 +242,10 @@ for runs in groups.values():
     if completed:
         # Sort by creation date (newest first)
         completed.sort(key=lambda x: x['createdAt'], reverse=True)
-        
+
         # Keep the most recent completed run
         keep.append(str(completed[0]['databaseId']))
-        
+
         # Also keep failed runs that came after the last successful run
         # This helps with debugging issues that haven't been resolved
         last_success_date = None
@@ -210,7 +253,7 @@ for runs in groups.values():
             if run.get('conclusion') == 'success':
                 last_success_date = run['createdAt']
                 break
-        
+
         # Keep all failed runs that are newer than the last success
         for run in completed:
             if run.get('conclusion') == 'failure':
@@ -256,13 +299,13 @@ rm -f "$TEMP_RUNS"
 echo "========================================"
 print_success "CLEANUP SUMMARY"
 echo "========================================"
-TOTAL=$((OBSOLETE_COUNT + DELETED_BRANCH_RUNS + SUPERSEDED_COUNT))
+TOTAL=$((OBSOLETE_COUNT + PR_REF_RUNS + DELETED_BRANCH_RUNS + SUPERSEDED_COUNT))
 if [ "$DRY_RUN" = true ]; then
-    echo "Would clean: $TOTAL runs (obsolete: $OBSOLETE_COUNT, deleted-branch: $DELETED_BRANCH_RUNS, superseded: $SUPERSEDED_COUNT)"
+    echo "Would clean: $TOTAL runs (obsolete: $OBSOLETE_COUNT, pr-refs: $PR_REF_RUNS, deleted-branch: $DELETED_BRANCH_RUNS, superseded: $SUPERSEDED_COUNT)"
     echo ""
     print_info "Run with --execute to perform: $0 --execute"
 else
-    DELETED=$((OBSOLETE_DELETED + DELETED_BRANCH_SUCCESS + SUPERSEDED_DELETED))
+    DELETED=$((OBSOLETE_DELETED + PR_REF_DELETED + DELETED_BRANCH_SUCCESS + SUPERSEDED_DELETED))
     echo "Deleted: $DELETED of $TOTAL runs"
 fi
 echo ""

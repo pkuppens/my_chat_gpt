@@ -1,10 +1,12 @@
 ---
 name: Repository Cleanup
 
-# Trigger this workflow after successful merge to main
-# This ensures cleanup only runs after CI/CD passes
+# Trigger after other CI workflows complete on main
+# This ensures cleanup can accurately detect superseded runs
 on:
-  push:
+  workflow_run:
+    workflows: ["Test", "Python CI/CD"]
+    types: [completed]
     branches: [main]
   workflow_dispatch:  # Allow manual triggering
 
@@ -18,42 +20,74 @@ jobs:
     name: Clean up merged branches and old workflow runs
     runs-on: ubuntu-latest
 
-    # Only run after other workflows succeed
-    # This prevents cleanup if tests/builds fail
     steps:
+      - name: Check all CI workflows have completed
+        id: check-complete
+        if: github.event_name == 'workflow_run'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          HEAD_SHA="${{ github.event.workflow_run.head_sha }}"
+          echo "Checking if all CI workflows completed for commit $HEAD_SHA"
+
+          # Check if both Test and Python CI/CD have completed for this commit
+          PENDING=$(gh run list \
+            --repo "${{ github.repository }}" \
+            --json headSha,status,workflowName \
+            --jq "[.[] | select(.headSha == \"$HEAD_SHA\" and .status != \"completed\" and (.workflowName == \"Test\" or .workflowName == \"Python CI/CD\"))] | length")
+
+          if [ "$PENDING" != "0" ]; then
+            echo "Not all CI workflows have completed yet ($PENDING still running). Skipping cleanup."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "All CI workflows completed for $HEAD_SHA. Proceeding with cleanup."
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Skip if not all workflows done
+        if: steps.check-complete.outputs.skip == 'true'
+        run: echo "Exiting early - cleanup will run when the other workflow completes."
+
       - name: Checkout repository
+        if: steps.check-complete.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history for branch analysis
 
       - name: Set up Python
+        if: steps.check-complete.outputs.skip != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Configure git
+        if: steps.check-complete.outputs.skip != 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email \
             "github-actions[bot]@users.noreply.github.com"
 
       - name: Authenticate GitHub CLI
+        if: steps.check-complete.outputs.skip != 'true'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
       - name: Clean up merged branches
+        if: steps.check-complete.outputs.skip != 'true'
         run: |
           echo "::group::Branch Cleanup"
           bash scripts/cleanup-merged-branches.sh --execute
           echo "::endgroup::"
 
       - name: Clean up old workflow runs
+        if: steps.check-complete.outputs.skip != 'true'
         run: |
           echo "::group::Workflow Run Cleanup"
           bash scripts/cleanup-github-actions.sh --execute
           echo "::endgroup::"
 
       - name: Summary
+        if: steps.check-complete.outputs.skip != 'true'
         run: |
           echo "### Cleanup Complete :rocket:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
