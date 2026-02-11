@@ -1,3 +1,4 @@
+---
 name: Repository Cleanup
 
 # Trigger this workflow after successful merge to main
@@ -16,7 +17,7 @@ jobs:
   cleanup:
     name: Clean up merged branches and old workflow runs
     runs-on: ubuntu-latest
-    
+
     # Only run after other workflows succeed
     # This prevents cleanup if tests/builds fail
     steps:
@@ -24,24 +25,25 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Fetch all history for branch analysis
-      
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      
+
       - name: Configure git
         run: |
           git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-      
+          git config --global user.email \
+            "github-actions[bot]@users.noreply.github.com"
+
       - name: Authenticate GitHub CLI
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           gh auth refresh -s workflow
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Clean up merged branches
         run: |
           echo "::group::Branch Cleanup"
@@ -49,7 +51,7 @@ jobs:
           echo "::endgroup::"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Clean up old workflow runs
         run: |
           echo "::group::Workflow Run Cleanup"
@@ -57,12 +59,11 @@ jobs:
           echo "::endgroup::"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Summary
         run: |
           echo "### Cleanup Complete :rocket:" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- Merged branches have been deleted" >> $GITHUB_STEP_SUMMARY
-          echo "- Old workflow runs have been cleaned up" >> $GITHUB_STEP_SUMMARY
-          echo "- Failed workflow runs are kept for debugging" >> $GITHUB_STEP_SUMMARY
-
+          echo "- Merged branches deleted" >> $GITHUB_STEP_SUMMARY
+          echo "- Old workflow runs cleaned" >> $GITHUB_STEP_SUMMARY
+          echo "- Failed runs kept for debugging" >> $GITHUB_STEP_SUMMARY
