@@ -18,6 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Free ~20GB before installing large deps (torch, gradio, etc.)
+      # See: https://github.com/jlumbroso/free-disk-space
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false  # Keep Python cached for faster setup-python
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -92,6 +99,12 @@ jobs:
         os: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v4
+
+      # Free ~20GB before restoring large venv cache
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: false
 
       - name: Set up Python
         uses: actions/setup-python@v5
