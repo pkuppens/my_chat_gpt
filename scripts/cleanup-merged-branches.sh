@@ -86,11 +86,19 @@ print_info "Fetching latest refs from remote..."
 git fetch origin --prune 2>/dev/null || print_warning "Failed to fetch from remote"
 echo ""
 
-# Determine the default branch
+# Determine the default branch (check local first, then remote)
 if git show-ref --verify --quiet refs/heads/main; then
     MAIN_BRANCH="main"
+    MAIN_REF="main"
 elif git show-ref --verify --quiet refs/heads/master; then
     MAIN_BRANCH="master"
+    MAIN_REF="master"
+elif git show-ref --verify --quiet refs/remotes/origin/main; then
+    MAIN_BRANCH="main"
+    MAIN_REF="origin/main"
+elif git show-ref --verify --quiet refs/remotes/origin/master; then
+    MAIN_BRANCH="master"
+    MAIN_REF="origin/master"
 else
     print_error "Could not find main or master branch"
     exit 1
@@ -102,7 +110,7 @@ echo ""
 # Function to check if a branch is protected
 is_protected_branch() {
     local branch=$1
-    
+
     # Protected branch patterns
     case "$branch" in
         main|master|develop|development|staging|production)
@@ -122,25 +130,25 @@ is_protected_branch() {
 # ============================================================================
 if [ "$CLEAN_LOCAL" = true ]; then
     print_info "STEP 1: Checking local branches merged into $MAIN_BRANCH..."
-    
+
     LOCAL_COUNT=0
     LOCAL_DELETED=0
-    
+
     # Get list of merged branches (excluding current branch and protected branches)
-    MERGED_BRANCHES=$(git branch --merged "$MAIN_BRANCH" | grep -v "^\*" | grep -v "^  $MAIN_BRANCH$" | sed 's/^[ *]*//' || true)
-    
+    MERGED_BRANCHES=$(git branch --merged "$MAIN_REF" | grep -v "^\*" | grep -v "^  $MAIN_BRANCH$" | sed 's/^[ *]*//' || true)
+
     if [ -n "$MERGED_BRANCHES" ]; then
         while IFS= read -r branch; do
             [ -z "$branch" ] && continue
-            
+
             # Skip protected branches
             if is_protected_branch "$branch"; then
                 print_info "Skipping protected branch: $branch"
                 continue
             fi
-            
+
             LOCAL_COUNT=$((LOCAL_COUNT + 1))
-            
+
             if [ "$DRY_RUN" = false ]; then
                 print_info "Deleting local branch: $branch"
                 if git branch -d "$branch" 2>/dev/null; then
@@ -154,7 +162,7 @@ if [ "$CLEAN_LOCAL" = true ]; then
             fi
         done <<< "$MERGED_BRANCHES"
     fi
-    
+
     if [ $LOCAL_COUNT -eq 0 ]; then
         print_success "No local merged branches to clean"
     else
@@ -172,33 +180,33 @@ fi
 # ============================================================================
 if [ "$CLEAN_REMOTE" = true ]; then
     print_info "STEP 2: Checking remote branches merged into origin/$MAIN_BRANCH..."
-    
+
     REMOTE_COUNT=0
     REMOTE_DELETED=0
-    
+
     # Ensure we have the remote main branch
     if ! git show-ref --verify --quiet "refs/remotes/origin/$MAIN_BRANCH"; then
         git fetch origin "$MAIN_BRANCH:refs/remotes/origin/$MAIN_BRANCH" 2>/dev/null || print_warning "Could not fetch origin/$MAIN_BRANCH"
     fi
-    
+
     # Get list of remote branches that have been merged
     MERGED_REMOTE_BRANCHES=$(git branch -r --merged "origin/$MAIN_BRANCH" 2>/dev/null | grep "origin/" | grep -v "origin/$MAIN_BRANCH$" | grep -v "origin/HEAD" | sed 's/^[ ]*//' | sed 's|origin/||' || true)
-    
+
     if [ -n "$MERGED_REMOTE_BRANCHES" ]; then
         while IFS= read -r branch; do
             [ -z "$branch" ] && continue
-            
+
             # Skip protected branches
             if is_protected_branch "$branch"; then
                 print_info "Skipping protected remote branch: $branch"
                 continue
             fi
-            
+
             REMOTE_COUNT=$((REMOTE_COUNT + 1))
-            
+
             if [ "$DRY_RUN" = false ]; then
                 print_info "Deleting remote branch: origin/$branch"
-                
+
                 # Try to delete using git push first
                 if git push origin --delete "$branch" 2>/dev/null; then
                     REMOTE_DELETED=$((REMOTE_DELETED + 1))
@@ -227,7 +235,7 @@ if [ "$CLEAN_REMOTE" = true ]; then
             fi
         done <<< "$MERGED_REMOTE_BRANCHES"
     fi
-    
+
     if [ $REMOTE_COUNT -eq 0 ]; then
         print_success "No remote merged branches to clean"
     else
@@ -261,4 +269,3 @@ else
     fi
 fi
 echo ""
-
