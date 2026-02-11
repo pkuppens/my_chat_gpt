@@ -177,9 +177,9 @@ done <<< "$WORKFLOW_BRANCHES"
 echo ""
 
 # ============================================================================
-# STEP 3: Superseded runs (keep only most recent completed per workflow+branch)
+# STEP 3: Superseded runs (keep most recent and failed runs for debugging)
 # ============================================================================
-print_info "STEP 3: Checking superseded runs (keep most recent completed per workflow+branch)..."
+print_info "STEP 3: Checking superseded runs (keeping most recent + failed runs for debugging)..."
 
 KEEP_RUNS=$($PYTHON << PYEOF
 import json
@@ -197,8 +197,26 @@ keep = []
 for runs in groups.values():
     completed = [r for r in runs if r['status'] == 'completed']
     if completed:
+        # Sort by creation date (newest first)
         completed.sort(key=lambda x: x['createdAt'], reverse=True)
+        
+        # Keep the most recent completed run
         keep.append(str(completed[0]['databaseId']))
+        
+        # Also keep failed runs that came after the last successful run
+        # This helps with debugging issues that haven't been resolved
+        last_success_date = None
+        for run in completed:
+            if run.get('conclusion') == 'success':
+                last_success_date = run['createdAt']
+                break
+        
+        # Keep all failed runs that are newer than the last success
+        for run in completed:
+            if run.get('conclusion') == 'failure':
+                if last_success_date is None or run['createdAt'] > last_success_date:
+                    keep.append(str(run['databaseId']))
+
 print('\n'.join(keep))
 PYEOF
 )
