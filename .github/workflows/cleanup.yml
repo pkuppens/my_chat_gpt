@@ -29,7 +29,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Configure git
         run: |
@@ -41,24 +41,18 @@ jobs:
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           gh auth refresh -s workflow
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Clean up merged branches
         run: |
           echo "::group::Branch Cleanup"
           bash scripts/cleanup-merged-branches.sh --execute
           echo "::endgroup::"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Clean up old workflow runs
         run: |
           echo "::group::Workflow Run Cleanup"
           bash scripts/cleanup-github-actions.sh --execute
           echo "::endgroup::"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Summary
         run: |
