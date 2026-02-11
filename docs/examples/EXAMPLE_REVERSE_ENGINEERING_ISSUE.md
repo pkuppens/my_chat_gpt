@@ -62,15 +62,15 @@ Build a command-line tool that:
 ```python
 class UserAuthentication:
     """Handles user authentication and session management."""
-    
+
     def login(self, username: str, password: str) -> bool:
         """
         Authenticate user credentials.
-        
+
         Args:
             username: User's login name
             password: User's password
-            
+
         Returns:
             True if authentication successful, False otherwise
         """
@@ -152,10 +152,10 @@ components:
 ### Risks & Mitigations
 1. **Risk**: Complex language features may be difficult to parse
    - **Mitigation**: Start with basic features, add advanced support iteratively
-   
+
 2. **Risk**: Different languages have different type systems
    - **Mitigation**: Use flexible schema that accommodates variations
-   
+
 3. **Risk**: Large codebases may have performance issues
    - **Mitigation**: Implement streaming and parallel processing
 
@@ -176,7 +176,7 @@ When this issue is submitted, the AI review workflow should provide feedback sim
 ### ✅ Strengths
 - **Clear Title**: Precisely describes the feature
 - **Comprehensive Description**: Includes problem statement, solution, acceptance criteria
-- **SMART Criteria**: 
+- **SMART Criteria**:
   - ✓ Specific: Clear scope and deliverables
   - ✓ Measurable: Concrete success metrics defined
   - ✓ Achievable: Reasonable scope for a development task

@@ -71,10 +71,9 @@ line-length = 132
 target-version = "py311"
 
 [tool.ruff.lint]
-# Enable only whitespace and unused import rules
+# Enable only whitespace and unused import rules.
+# E2/E3 removed: they require preview mode and have no effect otherwise.
 select = [
-    "E2",  # pycodestyle whitespace errors
-    "E3",  # pycodestyle whitespace errors
     "E4",  # pycodestyle whitespace errors
     "E5",  # pycodestyle whitespace errors
     "F401",  # unused imports
