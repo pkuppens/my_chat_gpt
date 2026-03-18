@@ -358,9 +358,8 @@ def process_issue_analysis(
         openai_config = OpenAIConfig(**openai_config)
 
     github_client = get_github_client(test_mode=test_mode)
-    label_manager = GitHubLabelManager(
-        github_client.get_user().login if github_client else get_github_client(test_mode=test_mode).get_user().login,
-    )
+    github_token = os.getenv("GITHUB_TOKEN") or ""
+    label_manager = GitHubLabelManager(github_token)
 
     # Create analyzer and analyze issue
     analyzer = LLMIssueAnalyzer(openai_config)

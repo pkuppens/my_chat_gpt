@@ -88,6 +88,16 @@ This project includes an automated AI-powered workflow that reviews all newly op
 - [Issue Review Workflow Documentation](docs/development/ISSUE_REVIEW_WORKFLOW.md)
 - [Workflow Configuration Guide](docs/development/WORKFLOW_CONFIGURATION.md) - Setup instructions and secrets management
 
+### AI and Skills
+
+This project uses Claude and Cursor skills from the shared pkuppens skills repository to guide issue definition, architecture, and design:
+
+- **Issue workflow** — Goal, Tasks, Acceptance Criteria (copy-pastable), Out of Scope, Estimate, Metadata. The Issue Analyzer evaluates issues against this structure.
+- **Architecture** — Consult, document, and maintain ADRs for system design.
+- **Design** — Design-consult for placing new code within existing components.
+
+Skills are loaded from `~/.cursor/skills/` or project `.cursor/skills/`. The `.claude/` directory contains project-specific settings (e.g. permissions for CLI tools). See [Issue Best Practices](docs/development/ISSUE_BEST_PRACTICES.md) for the preferred issue structure.
+
 ## License
 
 See LICENSE file for details.

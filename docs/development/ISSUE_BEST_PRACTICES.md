@@ -59,7 +59,34 @@ Make your issues **SMART**:
 
 ### 3. Structure Your Description
 
-Use this recommended structure:
+**Preferred: Issue-Workflow Format** (aligns with Claude/Cursor issue-workflow skills):
+
+```markdown
+## Goal
+[One sentence: what and why]
+
+## Tasks
+- [ ] Task 1
+- [ ] Task 2
+
+## Acceptance Criteria
+- [ ] [Criterion: copy-pastable command/URL or click path → expected result]
+- [ ] [Criterion: copy-pastable validation step]
+
+## Out of Scope
+- [What is excluded; use "tracked in #N" for related work]
+
+## Estimate
+Size: XS | S | M | L | XL — [brief rationale]
+
+## Metadata
+Labels: size:M, type:task — Milestone: (none) — Parent: #N
+
+## Related
+- #N (if duplicate or related)
+```
+
+**Alternative: Traditional structure** (Problem Statement, Proposed Solution, etc.):
 
 ```markdown
 ## Problem Statement
@@ -69,9 +96,8 @@ Use this recommended structure:
 [How will we solve it? What approach will we take?]
 
 ## Acceptance Criteria
-- [ ] Criterion 1
+- [ ] Criterion with copy-pastable steps (command/URL → expected result)
 - [ ] Criterion 2
-- [ ] Criterion 3
 
 ## Technical Details
 [Implementation notes, architecture decisions, constraints]
@@ -85,6 +111,10 @@ Use this recommended structure:
 ## Related Issues
 [Links to related issues or PRs]
 ```
+
+**Copy-pastable acceptance criteria**: Each criterion should include concrete steps someone can run or click without interpretation. Examples:
+- Bad: "API docs updated at `/docs`"
+- Good: "Run `uv run uvicorn backend.main:app`, open http://localhost:8000/docs, `/api/upload` is visible; with Try it, upload a sample PDF and succeed in <5s"
 
 ### 4. Use Issue Templates
 
