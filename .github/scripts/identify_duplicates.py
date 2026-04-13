@@ -10,10 +10,8 @@ import logging
 import os
 import sys
 from datetime import datetime, timedelta
-from typing import Any
 
 from github import Github
-from openai import OpenAI
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
@@ -151,23 +149,6 @@ def validate_github_event():
         raise ValueError(f"Missing required issue fields: {', '.join(missing_fields)}")
 
     return event
-
-
-def process_issue_data(issue_data: dict[str, Any], client: OpenAI) -> dict[str, Any]:
-    """
-    Process issue data to identify potential duplicates.
-
-    Args:
-    ----
-        issue_data: Dictionary containing issue information
-        client: OpenAI client instance
-
-    Returns:
-    -------
-        Dictionary containing analysis results and potential duplicates
-
-    """
-    # ... existing code ...
 
 
 def main():

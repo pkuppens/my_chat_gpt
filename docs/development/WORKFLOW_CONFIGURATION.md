@@ -78,6 +78,27 @@ If GitHub Actions are not already enabled:
      - Labels added (Type, Priority, Complexity)
      - Review feedback and suggestions
 
+### Manual verification checklist (CLI)
+
+Use this when validating the Issue Analyzer after changes (for example, issues #26 and #27):
+
+1. **Quick check (install + imports only)** — `workflow_dispatch` runs checkout, Python setup, `pip install`, and `test_dependencies.py`. The **Run issue analyzer** step is skipped because there is no issue in the event payload.
+
+   ```bash
+   gh workflow run issue-analyzer.yml
+   gh run list --workflow=issue-analyzer.yml --limit 1
+   gh run watch
+   ```
+
+2. **Full end-to-end check** — open a new issue or edit an existing one so the workflow runs with `github.event_name == 'issues'`. Then confirm:
+   - Actions log: no `401` / `403` on GitHub API calls for comments or labels.
+   - Issue thread: analysis comment and labels (Type, Priority, Complexity) as configured.
+
+**Duplicate Issue Detection** (`create_issue_comment.yml`):
+
+- Triggered automatically on **issue opened** only (no `workflow_dispatch`).
+- To validate: open a short test issue, then check the issue for a **Potential Duplicate Issues** comment and the Actions run for errors.
+
 ## Configuration Options
 
 ### LLM Model Selection
