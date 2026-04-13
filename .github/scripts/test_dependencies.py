@@ -23,6 +23,7 @@ def get_import_mapping() -> dict[str, str]:
         "scikit-learn": "sklearn",
         "PyYAML": "yaml",
         "PyGithub": "github",
+        "python-dotenv": "dotenv",
     }
 
 
