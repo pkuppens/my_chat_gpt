@@ -170,6 +170,10 @@ The prompt already includes best practices from `docs/development/ISSUE_BEST_PRA
 3. Test API key with OpenAI Playground
 4. Generate a new API key if needed
 
+### Issue: "OPENAI_API_KEY environment variable is required" (Actions log)
+
+The **Run issue analyzer** step reads `secrets.OPENAI_API_KEY`. If that secret is missing or empty, the step fails before any API call. Add the secret under **Settings → Secrets and variables → Actions** (see [Prerequisites](#prerequisites)). `workflow_dispatch` runs skip the LLM step, so this error appears only for real `issues` events.
+
 ### Issue: "Permission denied" or "Cannot post comment"
 
 **Solutions**:
