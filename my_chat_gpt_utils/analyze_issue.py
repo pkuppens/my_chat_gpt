@@ -44,6 +44,36 @@ from my_chat_gpt_utils.openai_utils import (
 from my_chat_gpt_utils.prompts import load_analyze_issue_prompt
 
 
+def _normalize_escapes(text: str) -> str:
+    """Turn literal escape sequences from LLM JSON strings into real characters.
+
+    Models sometimes return JSON where values still contain the two-character
+    sequences backslash+n or backslash+t instead of real newlines or tabs. Those
+    would otherwise appear as visible ``\\n`` in GitHub issue comments.
+
+    Args:
+        text (str): Raw string from parsed JSON.
+
+    Returns:
+        str: Text with common literal escapes replaced by whitespace characters.
+
+    """
+    if not text:
+        return text
+    return text.replace("\\n", "\n").replace("\\t", "\t")
+
+
+def _normalize_next_steps(steps: Any) -> list[str]:
+    """Normalize each next-step string using :func:`_normalize_escapes`."""
+    if not isinstance(steps, list):
+        return []
+    out: list[str] = []
+    for item in steps:
+        s = item if isinstance(item, str) else str(item)
+        out.append(_normalize_escapes(s))
+    return out
+
+
 @dataclass
 class IssueAnalysis:
     """
@@ -182,12 +212,15 @@ class LLMIssueAnalyzer:
                     solution="Check if the system prompt correctly specifies all required fields",
                 )
 
+            review_raw = analysis_dict.get("review_feedback", "")
+            review_feedback = _normalize_escapes(review_raw if isinstance(review_raw, str) else str(review_raw))
+
             return IssueAnalysis(
                 issue_type=analysis_dict["issue_type"],
                 priority=analysis_dict["priority"],
                 complexity=analysis_dict["complexity"],
-                review_feedback=analysis_dict.get("review_feedback", ""),
-                next_steps=analysis_dict.get("next_steps", []),
+                review_feedback=review_feedback,
+                next_steps=_normalize_next_steps(analysis_dict.get("next_steps", [])),
             )
 
         except OpenAIAuthenticationError as e:

@@ -20,6 +20,8 @@ import pytest
 from my_chat_gpt_utils.analyze_issue import (
     IssueAnalysis,
     LLMIssueAnalyzer,
+    _normalize_escapes,
+    _normalize_next_steps,
     create_analysis_comment,
     get_issue_data,
     get_issue_specific_labels,
@@ -286,6 +288,25 @@ def test_analyze_issue(mock_openai, mock_issue_data, mock_openai_config):
     assert analysis.next_steps == ["Step 1", "Step 2"]
 
 
+def test_analyze_issue_normalizes_literal_backslash_n_from_llm_json(mock_issue_data, mock_openai_config):
+    """When json.loads leaves literal \\n in strings, normalize to real newlines (GitHub comment fix)."""
+    mock_openai = MockOpenAI(
+        {
+            "issue_type": "Bug Fix",
+            "priority": "High",
+            "complexity": "Moderate",
+            "review_feedback": "line1\\nline2",
+            "next_steps": ["step\\none"],
+        }
+    )
+    analyzer = LLMIssueAnalyzer(mock_openai_config)
+    analyzer.client = mock_openai
+    analysis = analyzer.analyze_issue(mock_issue_data)
+    assert analysis.review_feedback == "line1\nline2"
+    assert analysis.next_steps == ["step\none"]
+    assert "\\n" not in analysis.review_feedback
+
+
 def test_get_required_labels():
     """Test retrieval of required GitHub labels."""
     labels = get_required_labels()
@@ -309,6 +330,36 @@ def test_create_analysis_comment(mock_issue_analysis):
     assert "Test feedback" in comment
     assert "Step 1" in comment
     assert "Step 2" in comment
+
+
+def test_normalize_escapes_replaces_literal_tokens():
+    """Literal backslash-n from sloppy LLM JSON becomes real newlines for GitHub markdown."""
+    assert _normalize_escapes("a\\nb") == "a\nb"
+    assert "\\n" not in _normalize_escapes("line1\\nline2")
+    assert _normalize_escapes("") == ""
+    assert _normalize_escapes("a\\tb") == "a\tb"
+
+
+def test_normalize_next_steps_normalizes_each_string():
+    """Each next step is passed through _normalize_escapes."""
+    assert _normalize_next_steps(["a\\nb", "plain"]) == ["a\nb", "plain"]
+    assert _normalize_next_steps([]) == []
+
+
+def test_create_analysis_comment_multiline_review_not_literal_backslash_n():
+    """Comment body must contain real newlines in the review section, not visible \\n."""
+    analysis = IssueAnalysis(
+        issue_type="Bug Fix",
+        priority="High",
+        complexity="Moderate",
+        review_feedback="First paragraph.\n\nSecond paragraph.",
+        next_steps=["Do A", "Do B"],
+    )
+    comment = create_analysis_comment(analysis)
+    assert "First paragraph." in comment
+    assert "Second paragraph." in comment
+    review_block = comment.split("### Review Summary")[1].split("### Suggested")[0]
+    assert "\\n" not in review_block
 
 
 def test_process_issue_analysis():
