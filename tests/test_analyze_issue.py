@@ -289,6 +289,8 @@ def test_analyze_issue(mock_openai, mock_issue_data, mock_openai_config):
     assert analysis.next_steps == ["Step 1", "Step 2"]
 
 
+
+
 def test_analyze_issue_mock_llm_skips_openai_api(mock_issue_data, mock_openai_config, monkeypatch):
     """ISSUE_ANALYZER_MOCK_LLM returns canned analysis and does not call the OpenAI client."""
 
