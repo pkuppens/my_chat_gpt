@@ -26,6 +26,7 @@ from my_chat_gpt_utils.analyze_issue import (
     get_issue_data,
     get_issue_specific_labels,
     get_required_labels,
+    is_issue_analyzer_mock_llm,
     process_issue_analysis,
     setup_openai_config,
 )
@@ -286,6 +287,33 @@ def test_analyze_issue(mock_openai, mock_issue_data, mock_openai_config):
     assert analysis.complexity == "Moderate"
     assert analysis.review_feedback == "Test feedback"
     assert analysis.next_steps == ["Step 1", "Step 2"]
+
+
+def test_analyze_issue_mock_llm_skips_openai_api(mock_issue_data, mock_openai_config, monkeypatch):
+    """ISSUE_ANALYZER_MOCK_LLM returns canned analysis and does not call the OpenAI client."""
+
+    monkeypatch.setenv("ISSUE_ANALYZER_MOCK_LLM", "1")
+    mock_client = MagicMock()
+    analyzer = LLMIssueAnalyzer(mock_openai_config)
+    analyzer.client = mock_client
+
+    analysis = analyzer.analyze_issue(mock_issue_data)
+
+    assert analysis.issue_type == "Task"
+    assert analysis.priority == "Medium"
+    assert analysis.complexity == "Moderate"
+    assert "Mock LLM mode" in analysis.review_feedback
+    mock_client.chat.completions.create.assert_not_called()
+
+
+def test_is_issue_analyzer_mock_llm_truthy(monkeypatch):
+    """Accept 1, true, yes (case-insensitive)."""
+
+    for v in ("1", "true", "yes", "TRUE", " Yes "):
+        monkeypatch.setenv("ISSUE_ANALYZER_MOCK_LLM", v)
+        assert is_issue_analyzer_mock_llm() is True
+    monkeypatch.setenv("ISSUE_ANALYZER_MOCK_LLM", "")
+    assert is_issue_analyzer_mock_llm() is False
 
 
 def test_analyze_issue_normalizes_literal_backslash_n_from_llm_json(mock_issue_data, mock_openai_config):
