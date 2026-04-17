@@ -20,11 +20,11 @@ jobs:
 
     steps:
       # Checkout the repository to access documentation and prompts
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       # Set up Python environment
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -83,4 +83,10 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONUNBUFFERED: "1"
-        run: python -u .github/scripts/analyze_issue.py --issue ${{ github.event.inputs.issue_number }}
+        run: |
+          if [ -z "${OPENAI_API_KEY}" ]; then
+            echo "::warning::OPENAI_API_KEY is not set; running analyzer in test mode."
+            python -u .github/scripts/analyze_issue.py --test
+          else
+            python -u .github/scripts/analyze_issue.py --issue "${{ github.event.inputs.issue_number }}"
+          fi
