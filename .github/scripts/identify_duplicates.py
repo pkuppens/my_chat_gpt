@@ -1,8 +1,9 @@
 """
 Identify duplicate issues in a GitHub repository.
 
-This script uses LLM-based analysis to find potential duplicate issues.
-It compares the current issue with existing ones and provides similarity scores.
+Uses TF-IDF vectorization and cosine similarity (no LLM) to compare the current
+issue to others. Triggered on issue opened or edited; on edited, does not post a
+second duplicate comment if one already exists on the thread.
 """
 
 import json
@@ -14,6 +15,8 @@ from datetime import datetime, timedelta
 from github import Github
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
+DUPLICATE_COMMENT_MARKER = "## Potential Duplicate Issues Found"
 
 
 class GithubDuplicateIssueDetector:
@@ -38,6 +41,16 @@ class GithubDuplicateIssueDetector:
 
         self.repo = self.github.get_repo(self.repo_name)
         logging.info(f"Initialized detector for repository: {self.repo_name}")
+
+    def issue_already_has_duplicate_comment(self, issue_number: int) -> bool:
+        """Return True if an earlier run already posted the duplicate-detection comment."""
+
+        issue = self.repo.get_issue(number=issue_number)
+        for c in issue.get_comments():
+            body = c.body or ""
+            if DUPLICATE_COMMENT_MARKER in body:
+                return True
+        return False
 
     def find_similar_issues(self, current_issue_number, issue_title, issue_body, threshold=0.8):
         """Check for similar issues, including those closed in the last 30 days."""
@@ -112,7 +125,7 @@ class GithubDuplicateIssueDetector:
             logging.info("No similar issues found, skipping comment creation")
             return
 
-        comment_body = "## Potential Duplicate Issues Found\n\n"
+        comment_body = f"{DUPLICATE_COMMENT_MARKER}\n\n"
         comment_body += f"Issues with similarity score >= {similar_issues[0][1]:.1%}:\n\n"
 
         for similar_issue, similarity, state in similar_issues[:5]:
@@ -163,11 +176,22 @@ def main():
         event = validate_github_event()
         detector = GithubDuplicateIssueDetector()
 
+        action = event.get("action", "opened")
         similar_issues = detector.find_similar_issues(
             event["issue"]["number"],
             event["issue"]["title"],
             event["issue"]["body"] or "",
         )
+
+        if not similar_issues:
+            logging.info("Completed duplicate issue detection (no similar issues above threshold).")
+            return
+
+        if action == "edited" and detector.issue_already_has_duplicate_comment(event["issue"]["number"]):
+            logging.info(
+                "Edit event: duplicate detection comment already on issue; skipping second post.",
+            )
+            return
 
         detector.create_similarity_comment(event["issue"]["number"], similar_issues)
         logging.info("Completed duplicate issue detection")

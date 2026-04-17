@@ -121,8 +121,9 @@ Use this when validating the Issue Analyzer after changes (for example, issues #
 
 **Duplicate Issue Detection** (`create_issue_comment.yml`):
 
-- Triggered automatically on **issue opened** only (no `workflow_dispatch`).
-- To validate: open a short test issue, then check the issue for a **Potential Duplicate Issues** comment and the Actions run for errors.
+- Triggered on **issue opened** and **issue edited** (re-checks similarity if body/title change). If similar issues were already posted as a comment, an **edit** does not add a duplicate of that comment.
+- There is no `workflow_dispatch` for this workflow.
+- To validate: open a short test issue, optionally **edit** it to overlap another issue’s text, then check for a **Potential Duplicate Issues** comment and the Actions run for errors.
 
 ## Configuration Options
 

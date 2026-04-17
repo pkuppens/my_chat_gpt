@@ -1,4 +1,6 @@
 # .github/workflows/issue-analyzer.yml
+# Triggers on issue opened and edited: re-runs LLM analysis when title/body change
+# (refinement, clarifications, or validation after CI changes).
 name: Issue Analyzer
 on:
   issues:
