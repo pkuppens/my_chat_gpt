@@ -4,6 +4,11 @@ on:
   issues:
     types: [opened, edited]
   workflow_dispatch:
+    inputs:
+      issue_number:
+        description: Issue number to analyze (required for manual runs)
+        required: true
+        type: string
 
 jobs:
   analyze-issue:
@@ -40,7 +45,8 @@ jobs:
       - name: Test dependencies
         run: python .github/scripts/test_dependencies.py
 
-      # workflow_dispatch has no issue payload; only issue opened/edited should run the LLM step.
+      # Manual runs: gh workflow run issue-analyzer.yml -f issue_number=26
+      # Issue opened/edited: event payload supplies the issue; no --issue flag.
       # Run the issue analyzer with enhanced prompt context
       # Note: The workflow now uses the enhanced system prompt that includes
       # best practices from docs/development/ISSUE_BEST_PRACTICES.md
@@ -66,3 +72,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONUNBUFFERED: "1"
         run: python -u .github/scripts/analyze_issue.py
+
+      - name: Run issue analyzer (manual dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          LLM_PROVIDER: openai
+          LLM_MODEL: gpt-4o-mini
+          MAX_TOKENS: 4096
+          TEMPERATURE: 0.1
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PYTHONUNBUFFERED: "1"
+        run: python -u .github/scripts/analyze_issue.py --issue ${{ github.event.inputs.issue_number }}

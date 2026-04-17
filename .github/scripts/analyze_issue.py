@@ -56,6 +56,7 @@ Example Usage:
 # ruff: noqa: E402
 import os
 import sys
+from dataclasses import asdict
 from pathlib import Path
 
 # Add repository root to Python path
@@ -71,8 +72,9 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from my_chat_gpt_utils.analyze_issue import process_issue_analysis
+from my_chat_gpt_utils.analyze_issue import IssueAnalysis, process_issue_analysis
 from my_chat_gpt_utils.exceptions import GithubAuthenticationError
+from my_chat_gpt_utils.github_utils import get_github_client
 from my_chat_gpt_utils.openai_utils import OpenAIConfig
 
 # Configure logging
@@ -161,6 +163,22 @@ def get_github_repo_info() -> tuple[str, str]:
         )
 
 
+def fetch_issue_data_by_number(issue_number: int) -> dict[str, Any]:
+    """Load issue title and body from GitHub for ``GITHUB_REPOSITORY``."""
+
+    repo_owner, repo_name = get_github_repo_info()
+    client = get_github_client(test_mode=False)
+    repo = client.get_repo(f"{repo_owner}/{repo_name}")
+    gh_issue = repo.get_issue(issue_number)
+    return {
+        "repo_owner": repo_owner,
+        "repo_name": repo_name,
+        "issue_number": gh_issue.number,
+        "issue_title": gh_issue.title,
+        "issue_body": gh_issue.body or "",
+    }
+
+
 def validate_github_token() -> None:
     """Validate that GitHub token is set and not the default value."""
     token = os.getenv("GITHUB_TOKEN")
@@ -206,8 +224,7 @@ def main() -> None:
         if args.test:
             issue_data = get_test_issue_data()
         elif args.issue:
-            # TODO: Implement GitHub API call to get issue data
-            raise NotImplementedError("GitHub API integration not implemented yet")
+            issue_data = fetch_issue_data_by_number(args.issue)
         else:
             event = validate_github_event()
             repo_owner, repo_name = get_github_repo_info()
@@ -226,13 +243,11 @@ def main() -> None:
         analysis_result = process_issue_analysis(issue_data, openai_config, test_mode=args.test)
 
         logging.info("Completed issue analysis")
-        print(json.dumps(analysis_result, indent=2))
+        payload = asdict(analysis_result) if isinstance(analysis_result, IssueAnalysis) else analysis_result
+        print(json.dumps(payload, indent=2, default=str))
 
     except ValueError as e:
         logging.error(f"Configuration error: {e!s}")
-        sys.exit(1)
-    except NotImplementedError as e:
-        logging.error(f"Not implemented: {e!s}")
         sys.exit(1)
     except GithubAuthenticationError as e:
         logging.error(f"GitHub authentication error: {e!s}")
