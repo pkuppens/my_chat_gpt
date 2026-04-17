@@ -33,7 +33,8 @@ The script can run in three modes:
    - Can be used to manually analyze existing issues
 
 Required Environment Variables:
-    - OPENAI_API_KEY: Your OpenAI API key
+    - OPENAI_API_KEY: Your OpenAI API key (not required when ISSUE_ANALYZER_MOCK_LLM is set)
+    - ISSUE_ANALYZER_MOCK_LLM: Set to 1/true/yes for canned analysis (no OpenAI call); see docs/development/WORKFLOW_CONFIGURATION.md
     - GITHUB_TOKEN: Your GitHub personal access token
     - GITHUB_REPOSITORY: Repository in format "owner/repo" (only for non-test mode)
 
@@ -72,7 +73,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-from my_chat_gpt_utils.analyze_issue import IssueAnalysis, process_issue_analysis
+from my_chat_gpt_utils.analyze_issue import IssueAnalysis, is_issue_analyzer_mock_llm, process_issue_analysis
 from my_chat_gpt_utils.exceptions import GithubAuthenticationError
 from my_chat_gpt_utils.github_utils import get_github_client
 from my_chat_gpt_utils.openai_utils import OpenAIConfig
@@ -128,10 +129,20 @@ def get_test_issue_data() -> dict[str, Any]:
 
 def get_openai_config() -> OpenAIConfig:
     """Get OpenAI configuration from environment variables."""
+
+    if is_issue_analyzer_mock_llm():
+        return OpenAIConfig(
+            api_key="mock",
+            model=os.getenv("LLM_MODEL", "gpt-4"),
+            temperature=float(os.getenv("TEMPERATURE", "0.1")),
+            max_tokens=int(os.getenv("MAX_TOKENS", "4096")),
+        )
+
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
         raise ValueError(
-            "OPENAI_API_KEY environment variable is required. Please set it in your .env file or environment.",
+            "OPENAI_API_KEY environment variable is required. Please set it in your .env file or environment, "
+            "or set ISSUE_ANALYZER_MOCK_LLM=1 for canned analysis (no OpenAI call).",
         )
     if api_key == "your_openai_api_key_here":
         raise ValueError(

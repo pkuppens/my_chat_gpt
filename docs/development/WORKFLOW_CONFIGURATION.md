@@ -14,7 +14,7 @@ The issue review workflow (`issue-analyzer.yml`) automatically reviews newly ope
 
 ### Required
 1. **GitHub Repository**: Public or private repository with Actions enabled
-2. **OpenAI API Key**: For LLM-based analysis (or other LLM provider)
+2. **OpenAI API Key**: For real LLM-based analysis on **issues** events (see [Real LLM vs mock LLM](#real-llm-vs-mock-llm-issue_analyzer_mock_llm) for tests without OpenAI)
 3. **GitHub Token**: Automatically provided by GitHub Actions
 
 ### Optional
@@ -25,7 +25,26 @@ The issue review workflow (`issue-analyzer.yml`) automatically reviews newly ope
 
 ### Step 1: Configure Repository Secrets
 
-The workflow requires an OpenAI API key to function. Follow these steps:
+For **real** OpenAI analysis (default on issue open/edit), configure the secret below. Mock mode does not require it (see [Real LLM vs mock LLM](#real-llm-vs-mock-llm-issue_analyzer_mock_llm)).
+
+### Where OPENAI_API_KEY is set
+
+| Item | Value |
+|------|--------|
+| Secret name | `OPENAI_API_KEY` |
+| Location | Repository **Settings** → **Secrets and variables** → **Actions** → **New repository secret** |
+| Value | Your key from [OpenAI API keys](https://platform.openai.com/api-keys) |
+
+**Fork pull requests:** Workflows that run from a fork often **do not** receive this repository secret (GitHub security defaults). Push to the same repository, run **Actions** manually on the default branch, or use mock mode to validate only the GitHub comment/label steps.
+
+### Real LLM vs mock LLM (ISSUE_ANALYZER_MOCK_LLM)
+
+| Mode | `OPENAI_API_KEY` | Behavior |
+|------|------------------|----------|
+| **Real** | Required (non-empty secret) | Calls OpenAI for analysis. Used when **issues** are opened or edited. |
+| **Mock** | Not required | Set `ISSUE_ANALYZER_MOCK_LLM` to `1`, `true`, or `yes`, or use manual **workflow_dispatch** with **use_mock** enabled. Returns canned text; **no OpenAI HTTP request**. Still uses `GITHUB_TOKEN` for comments and labels. |
+
+Use mock mode to smoke-test the pipeline without API cost. Do **not** enable mock on the default path for every issue (it would post canned comments). Prefer mock for manual runs or local debugging.
 
 1. **Get an OpenAI API Key**:
    - Go to https://platform.openai.com/api-keys
@@ -82,17 +101,23 @@ If GitHub Actions are not already enabled:
 
 Use this when validating the Issue Analyzer after changes (for example, issues #26 and #27):
 
-1. **Quick check (install + imports only)** — `workflow_dispatch` runs checkout, Python setup, `pip install`, and `test_dependencies.py`. The **Run issue analyzer** step is skipped because there is no issue in the event payload.
+1. **Manual dispatch (real LLM)** — requires `OPENAI_API_KEY` in Actions secrets:
 
    ```bash
-   gh workflow run issue-analyzer.yml
+   gh workflow run issue-analyzer.yml -f issue_number=26
    gh run list --workflow=issue-analyzer.yml --limit 1
    gh run watch
    ```
 
-2. **Full end-to-end check** — open a new issue or edit an existing one so the workflow runs with `github.event_name == 'issues'`. Then confirm:
-   - Actions log: no `401` / `403` on GitHub API calls for comments or labels.
-   - Issue thread: analysis comment and labels (Type, Priority, Complexity) as configured.
+2. **Manual dispatch (mock LLM, no OpenAI)** — exercises GitHub comment and labels only; no OpenAI call:
+
+   ```bash
+   gh workflow run issue-analyzer.yml -f issue_number=26 -f use_mock=true
+   ```
+
+3. **Issue event** — open or edit an issue so `github.event_name == 'issues'` runs the **Run issue analyzer** step (requires `OPENAI_API_KEY` for real analysis).
+
+4. **Confirm** — Actions log: no `401` / `403` on GitHub API calls for comments or labels; issue thread shows analysis comment and labels (Type, Priority, Complexity) when using real mode, or canned mock text when using mock mode.
 
 **Duplicate Issue Detection** (`create_issue_comment.yml`):
 
@@ -172,7 +197,7 @@ The prompt already includes best practices from `docs/development/ISSUE_BEST_PRA
 
 ### Issue: "OPENAI_API_KEY environment variable is required" (Actions log)
 
-The **Run issue analyzer** step reads `secrets.OPENAI_API_KEY`. If that secret is missing or empty, the step fails before any API call. Add the secret under **Settings → Secrets and variables → Actions** (see [Prerequisites](#prerequisites)). `workflow_dispatch` runs skip the LLM step, so this error appears only for real `issues` events.
+The script requires a non-empty `OPENAI_API_KEY` unless **mock mode** is on (`ISSUE_ANALYZER_MOCK_LLM`, for example manual dispatch with **use_mock**). Add the secret under **Settings → Secrets and variables → Actions** (see [Where OPENAI_API_KEY is set](#where-openai_api_key-is-set)). The **`issues`** event path expects a real key for real analysis.
 
 ### Issue: "Permission denied" or "Cannot post comment"
 
@@ -328,5 +353,5 @@ The following items are intentionally left as open issues for future enhancement
 
 ---
 
-*Last Updated: 2026-02-03*
+*Last Updated: 2026-04-17*
 *Version: 1.0*

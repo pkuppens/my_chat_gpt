@@ -9,6 +9,10 @@ on:
         description: Issue number to analyze (required for manual runs)
         required: true
         type: string
+      use_mock:
+        description: Canned LLM output (no OPENAI_API_KEY); exercises GitHub comment and labels only
+        type: boolean
+        default: false
 
 jobs:
   analyze-issue:
@@ -20,11 +24,11 @@ jobs:
 
     steps:
       # Checkout the repository to access documentation and prompts
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Set up Python environment
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
 
@@ -59,8 +63,8 @@ jobs:
       #
       # To configure:
       # 1. Go to repository Settings > Secrets and variables > Actions
-      # 2. Add OPENAI_API_KEY with your OpenAI API key
-      # 3. Optionally override LLM_MODEL and other parameters below
+      # 2. Add OPENAI_API_KEY with your OpenAI API key (not required if use_mock on manual dispatch)
+      # 3. See docs/development/WORKFLOW_CONFIGURATION.md for ISSUE_ANALYZER_MOCK_LLM
       - name: Run issue analyzer
         if: github.event_name == 'issues'
         env:
@@ -83,10 +87,5 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONUNBUFFERED: "1"
-        run: |
-          if [ -z "${OPENAI_API_KEY}" ]; then
-            echo "::warning::OPENAI_API_KEY is not set; running analyzer in test mode."
-            python -u .github/scripts/analyze_issue.py --test
-          else
-            python -u .github/scripts/analyze_issue.py --issue "${{ github.event.inputs.issue_number }}"
-          fi
+          ISSUE_ANALYZER_MOCK_LLM: ${{ github.event.inputs.use_mock == 'true' && '1' || '' }}
+        run: python -u .github/scripts/analyze_issue.py --issue ${{ github.event.inputs.issue_number }}

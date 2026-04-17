@@ -96,6 +96,28 @@ class IssueAnalysis:
     next_steps: list[str]
 
 
+def is_issue_analyzer_mock_llm() -> bool:
+    """Return True when ``ISSUE_ANALYZER_MOCK_LLM`` requests canned analysis (no OpenAI call)."""
+
+    v = os.getenv("ISSUE_ANALYZER_MOCK_LLM", "").strip().lower()
+    return v in ("1", "true", "yes")
+
+
+def _mock_issue_analysis_from_issue_data(issue_data: dict[str, Any]) -> IssueAnalysis:
+    """Build a fixed analysis for pipeline tests; labels must match repository label sets."""
+
+    title = issue_data.get("title", issue_data.get("issue_title", ""))
+    return IssueAnalysis(
+        issue_type="Task",
+        priority="Medium",
+        complexity="Moderate",
+        review_feedback=(f"Mock LLM mode (ISSUE_ANALYZER_MOCK_LLM): no OpenAI API call was made. Issue title: {title!r}"),
+        next_steps=[
+            "Unset ISSUE_ANALYZER_MOCK_LLM and set OPENAI_API_KEY for real LLM analysis.",
+        ],
+    )
+
+
 class LLMIssueAnalyzer:
     """Analyzes GitHub issues using a Language Model."""
 
@@ -131,6 +153,12 @@ class LLMIssueAnalyzer:
             json.JSONDecodeError: If the response content is not valid JSON
 
         """
+        if is_issue_analyzer_mock_llm():
+            logger.info(
+                "ISSUE_ANALYZER_MOCK_LLM is enabled: returning canned analysis without calling OpenAI.",
+            )
+            return _mock_issue_analysis_from_issue_data(issue_data)
+
         # Prepare the prompt
         try:
             system_prompt, user_prompt = load_analyze_issue_prompt(
