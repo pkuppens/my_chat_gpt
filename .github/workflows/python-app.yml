@@ -16,7 +16,7 @@ jobs:
       # See: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows
       cache-key: ${{ steps.cache-key.outputs.cache-key }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Free ~20GB before installing large deps (torch, gradio, etc.)
       # See: https://github.com/jlumbroso/free-disk-space
@@ -26,7 +26,7 @@ jobs:
           tool-cache: false  # Keep Python cached for faster setup-python
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -46,7 +46,7 @@ jobs:
       # This speeds up dependency resolution in subsequent runs
       # See: https://github.com/astral-sh/uv#caching
       - name: Cache uv
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.cache/uv
           key: ${{ steps.cache-key.outputs.cache-key }}
@@ -63,7 +63,7 @@ jobs:
       # This prevents rebuilding the venv for each job
       # See: https://docs.github.com/en/actions/using-workflows/caching-dependencies-to-speed-up-workflows#using-the-cache-action
       - name: Cache virtual environment
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-${{ steps.cache-key.outputs.cache-key }}
@@ -72,10 +72,10 @@ jobs:
     # Independent of setup: uses uv tool run ruff (no venv needed)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -98,7 +98,7 @@ jobs:
         python-version: ["3.12"]
         os: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # Free ~20GB before restoring large venv cache
       - name: Free disk space
@@ -107,7 +107,7 @@ jobs:
           tool-cache: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -118,7 +118,7 @@ jobs:
 
       # Restore UV cache from setup job
       - name: Cache uv
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: ~/.cache/uv
           key: ${{ needs.setup.outputs.cache-key }}
@@ -127,7 +127,7 @@ jobs:
 
       # Restore virtual environment from setup job
       - name: Cache virtual environment
-        uses: actions/cache@v3
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-${{ needs.setup.outputs.cache-key }}
