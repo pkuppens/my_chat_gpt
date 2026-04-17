@@ -75,6 +75,8 @@ jobs:
           MAX_TOKENS: 4096
           TEMPERATURE: 0.1
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Fall back to canned analysis when no repository secret is configured.
+          ISSUE_ANALYZER_MOCK_LLM: ${{ secrets.OPENAI_API_KEY == '' && '1' || '' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONUNBUFFERED: "1"
         run: python -u .github/scripts/analyze_issue.py
@@ -89,5 +91,5 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PYTHONUNBUFFERED: "1"
-          ISSUE_ANALYZER_MOCK_LLM: ${{ github.event.inputs.use_mock == 'true' && '1' || '' }}
+          ISSUE_ANALYZER_MOCK_LLM: ${{ (github.event.inputs.use_mock == 'true' || secrets.OPENAI_API_KEY == '') && '1' || '' }}
         run: python -u .github/scripts/analyze_issue.py --issue ${{ github.event.inputs.issue_number }}
