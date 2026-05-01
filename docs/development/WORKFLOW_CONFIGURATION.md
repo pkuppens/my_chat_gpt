@@ -198,7 +198,7 @@ The prompt already includes best practices from `docs/development/ISSUE_BEST_PRA
 
 ### Issue: "OPENAI_API_KEY environment variable is required" (Actions log)
 
-The script requires a non-empty `OPENAI_API_KEY` unless **mock mode** is on (`ISSUE_ANALYZER_MOCK_LLM`, for example manual dispatch with **use_mock**). Add the secret under **Settings → Secrets and variables → Actions** (see [Where OPENAI_API_KEY is set](#where-openai_api_key-is-set)). The **`issues`** event path expects a real key for real analysis.
+The script requires a non-empty `OPENAI_API_KEY` unless **mock mode** is on (`ISSUE_ANALYZER_MOCK_LLM`, for example manual dispatch with **use_mock**). Add the secret under **Settings → Secrets and variables → Actions** (see [Where OPENAI_API_KEY is set](#where-openai_api_key-is-set)). The **`issues`** event path skips analysis with a workflow notice when the secret is missing, so CI remains green while real analysis waits for the key.
 
 ### Issue: "Permission denied" or "Cannot post comment"
 

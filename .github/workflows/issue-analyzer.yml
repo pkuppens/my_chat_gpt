@@ -19,6 +19,8 @@ on:
 jobs:
   analyze-issue:
     runs-on: ubuntu-latest
+    env:
+      ISSUE_ANALYZER_HAS_OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY != '' }}
     # Allow workflow to write comments and manage labels
     permissions:
       issues: write
@@ -67,8 +69,12 @@ jobs:
       # 1. Go to repository Settings > Secrets and variables > Actions
       # 2. Add OPENAI_API_KEY with your OpenAI API key (not required if use_mock on manual dispatch)
       # 3. See docs/development/WORKFLOW_CONFIGURATION.md for ISSUE_ANALYZER_MOCK_LLM
+      - name: Skip issue analyzer when OpenAI key is missing
+        if: github.event_name == 'issues' && env.ISSUE_ANALYZER_HAS_OPENAI_API_KEY != 'true'
+        run: echo "::notice::Skipping issue analyzer because OPENAI_API_KEY is not configured."
+
       - name: Run issue analyzer
-        if: github.event_name == 'issues'
+        if: github.event_name == 'issues' && env.ISSUE_ANALYZER_HAS_OPENAI_API_KEY == 'true'
         env:
           LLM_PROVIDER: openai
           LLM_MODEL: gpt-4o-mini
