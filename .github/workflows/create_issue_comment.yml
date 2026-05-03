@@ -1,7 +1,9 @@
+﻿# Duplicate Issue Detection — TF-IDF similarity (see .github/scripts/identify_duplicates.py).
+# Triggers: opened + edited. Rationale: docs/development/adr-001-duplicate-issue-detection-triggers.md
+# — edited allows E2E validation without new throwaway issues; re-checks when title/body change.
 name: Duplicate Issue Detection
 on:
   issues:
-    # opened: new issues; edited: body/title may become similar to another issue later
     types: [opened, edited]
 
 jobs:

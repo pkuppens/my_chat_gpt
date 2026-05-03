@@ -122,8 +122,9 @@ Use this when validating the Issue Analyzer after changes (for example, issues #
 **Duplicate Issue Detection** (`create_issue_comment.yml`):
 
 - Triggered on **issue opened** and **issue edited** (re-checks similarity if body/title change). If similar issues were already posted as a comment, an **edit** does not add a duplicate of that comment.
+- **Why `edited` is intentional:** enables end-to-end checks by **editing** an issue to overlap another (fewer disposable test issues), and re-runs when edits move text closer to a possible duplicate. See [ADR-001](adr-001-duplicate-issue-detection-triggers.md).
 - There is no `workflow_dispatch` for this workflow.
-- To validate: open a short test issue, optionally **edit** it to overlap another issue’s text, then check for a **Potential Duplicate Issues** comment and the Actions run for errors.
+- To validate (preferred): **edit** an issue so its text overlaps another issue’s text, then confirm a green Actions run for `issues` / `edited` and (if similarity ≥ threshold) a **Potential Duplicate Issues** comment. Optionally open a short test issue for the `opened` path.
 
 ## Configuration Options
 
